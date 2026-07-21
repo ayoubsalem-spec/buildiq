@@ -6,200 +6,206 @@
 <title>BuildIQ — AI Chief Estimator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222535;--border:#2e3348;--accent:#f59e0b;--text:#e8eaf0;--text2:#8b90a7;--green:#10b981;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6;}
+:root{--bg:#0f1117;--s1:#1a1d27;--s2:#222535;--bd:#2e3348;--acc:#f59e0b;--tx:#e8eaf0;--tx2:#8b90a7;--grn:#10b981;--red:#ef4444;--blu:#3b82f6;--pur:#8b5cf6;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* HEADER */
+header{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .logo{display:flex;align-items:center;gap:8px;}
-.logo-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
-.logo-text{font-size:17px;font-weight:800;}
-.logo-text span{color:var(--accent);}
-.hbadge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.logo-icon{width:30px;height:30px;background:var(--acc);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.logo-text{font-size:17px;font-weight:800;}.logo-text span{color:var(--acc);}
+.hbadge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--acc);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+
+/* LAYOUT */
 .app{display:flex;flex:1;overflow:hidden;}
+.pdf-panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--bd);min-width:0;}
 
-/* PDF PANEL */
-.pdf-panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;}
-.toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
-.tg{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid var(--border);}
-.tg:last-child{border-right:none;}
-.tl{font-size:10px;color:var(--text2);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
-.tb{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
-.tb:hover{background:var(--border);border-color:var(--accent);color:var(--accent);}
-.tb.active{background:rgba(245,158,11,0.15);border-color:var(--accent);color:var(--accent);}
-.tb.danger{border-color:var(--red);color:var(--red);}
+/* TOOLBAR */
+.toolbar{background:var(--s1);border-bottom:1px solid var(--bd);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.tg{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid var(--bd);}
+.tg:last-child{border-right:none;padding-right:0;}
+.tl{font-size:10px;color:var(--tx2);font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.tb{background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:5px 10px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.tb:hover{background:var(--bd);border-color:var(--acc);color:var(--acc);}
+.tb.on{background:rgba(245,158,11,.15);border-color:var(--acc);color:var(--acc);}
+.tb.red{border-color:var(--red);color:var(--red);}
+.tb.red:hover{background:rgba(239,68,68,.1);}
 .pg-nav{display:flex;align-items:center;gap:6px;}
-.pg-nav input{width:44px;text-align:center;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px;border-radius:4px;font-size:12px;}
-
-/* BIG ANALYZE BUTTON */
-.analyze-btn{background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#000;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s;letter-spacing:0.3px;}
-.analyze-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,0.4);}
-.analyze-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.pg-nav input{width:44px;text-align:center;background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:4px;border-radius:4px;font-size:12px;}
+.scan-btn{background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#000;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s;}
+.scan-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,.4);}
+.scan-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 
 /* VIEWPORT */
-.pdf-viewport{flex:1;overflow:hidden;position:relative;background:#0a0c12;}
+.viewport{flex:1;overflow:hidden;position:relative;background:#0a0c12;}
 .pdf-inner{position:absolute;transform-origin:0 0;}
-.cw{position:relative;display:inline-block;box-shadow:0 8px 32px rgba(0,0,0,0.7);}
+.cw{position:relative;display:inline-block;box-shadow:0 8px 32px rgba(0,0,0,.7);}
 #pdf-canvas{display:block;}
-#measure-canvas{position:absolute;top:0;left:0;pointer-events:none;}
-#room-overlay-canvas{position:absolute;top:0;left:0;pointer-events:none;}
-#interact-canvas{position:absolute;top:0;left:0;}
+#m-canvas{position:absolute;top:0;left:0;pointer-events:none;}
+#overlay-canvas{position:absolute;top:0;left:0;pointer-events:none;}
+#hit-canvas{position:absolute;top:0;left:0;}
 
 /* UPLOAD */
 .upload-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;}
-.upload-zone{width:100%;max-width:460px;border:2px dashed var(--border);border-radius:14px;padding:48px 32px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);}
-.upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:rgba(245,158,11,0.05);}
-.upload-btn-main{background:var(--accent);color:#000;border:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-top:18px;}
+.upload-zone{width:100%;max-width:460px;border:2px dashed var(--bd);border-radius:14px;padding:48px 32px;text-align:center;cursor:pointer;transition:all .2s;background:var(--s1);}
+.upload-zone:hover,.upload-zone.over{border-color:var(--acc);background:rgba(245,158,11,.05);}
+.upload-btn{background:var(--acc);color:#000;border:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;}
 
-/* ANALYZE OVERLAY — shown after upload before analyze */
-.analyze-overlay{position:absolute;inset:0;background:rgba(15,17,23,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:30;backdrop-filter:blur(2px);}
-.analyze-overlay.hidden{display:none;}
-.analyze-overlay-card{background:var(--surface);border:1px solid var(--accent);border-radius:14px;padding:32px;text-align:center;max-width:400px;}
-.analyze-overlay-title{font-size:20px;font-weight:800;margin-bottom:8px;color:var(--accent);}
-.analyze-overlay-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;}
-.analyze-big-btn{background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#000;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;width:100%;letter-spacing:0.3px;}
-.analyze-big-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,0.5);}
+/* MODE BAR */
+.mode-bar{position:absolute;top:10px;left:50%;transform:translateX(-50%);padding:6px 18px;border-radius:20px;font-size:12px;font-weight:700;pointer-events:none;display:none;white-space:nowrap;z-index:20;}
+.mode-bar.show{display:block;}
+.mode-bar.yellow{background:rgba(245,158,11,.92);color:#000;}
+.mode-bar.green{background:rgba(16,185,129,.92);color:#fff;}
+.mode-bar.purple{background:rgba(139,92,246,.92);color:#fff;}
+.mode-bar.red{background:rgba(239,68,68,.92);color:#fff;}
 
-/* MODE INDICATOR */
-.mode-ind{position:absolute;top:10px;left:50%;transform:translateX(-50%);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;pointer-events:none;display:none;white-space:nowrap;z-index:20;}
-.mode-ind.visible{display:block;}
-.mode-ind.yellow{background:rgba(245,158,11,0.92);color:#000;}
-.mode-ind.green{background:rgba(16,185,129,0.92);color:#fff;}
-.mode-ind.purple{background:rgba(139,92,246,0.92);color:#fff;}
-
-/* ROOM HOVER TOOLTIP on canvas */
-.room-tooltip{position:absolute;background:rgba(245,158,11,0.95);color:#000;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;pointer-events:none;z-index:25;display:none;white-space:nowrap;transform:translate(-50%,-120%);}
+/* ROOM TOOLTIP */
+.rtip{position:absolute;background:rgba(15,17,23,.95);border:1px solid var(--acc);color:var(--tx);padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;pointer-events:none;z-index:30;display:none;white-space:nowrap;transform:translate(-50%,-120%);}
 
 /* ZOOM */
 .zoom-ov{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:4px;z-index:10;}
-.zo-btn{width:32px;height:32px;background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
-.zo-btn:hover{border-color:var(--accent);color:var(--accent);}
-.zo-lbl{background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text2);border-radius:6px;font-size:10px;font-weight:600;text-align:center;padding:4px 2px;}
+.zo{width:32px;height:32px;background:rgba(26,29,39,.92);border:1px solid var(--bd);color:var(--tx);border-radius:6px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.zo:hover{border-color:var(--acc);color:var(--acc);}
+.zo-lbl{background:rgba(26,29,39,.92);border:1px solid var(--bd);color:var(--tx2);border-radius:6px;font-size:10px;font-weight:600;text-align:center;padding:4px 2px;}
 
 /* LOADING */
-.loading-ov{position:absolute;inset:0;background:rgba(15,17,23,0.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:50;}
-.loading-ov.visible{display:flex;}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
-.spinner.purple{border-top-color:var(--purple);}
+.load-ov{position:absolute;inset:0;background:rgba(15,17,23,.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:50;}
+.load-ov.show{display:flex;}
+.spin{width:36px;height:36px;border:3px solid var(--bd);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;}
+.spin.purple{border-top-color:var(--pur);}
 @keyframes spin{to{transform:rotate(360deg);}}
-.load-txt{font-size:13px;color:var(--text2);max-width:280px;text-align:center;line-height:1.5;}
+.load-txt{font-size:13px;color:var(--tx2);max-width:280px;text-align:center;line-height:1.6;}
 
 /* RIGHT PANEL */
-.right-panel{width:380px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;}
-.panel-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
-.ptab{flex:1;padding:11px 4px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all 0.15s;}
-.ptab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(245,158,11,0.05);}
-.pcontent{flex:1;overflow-y:auto;padding:14px;}
+.right{width:380px;flex-shrink:0;display:flex;flex-direction:column;background:var(--s1);overflow:hidden;}
+.tabs{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0;}
+.tab{flex:1;padding:11px 4px;font-size:11px;font-weight:700;color:var(--tx2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all .15s;}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc);background:rgba(245,158,11,.05);}
+.pane{flex:1;overflow-y:auto;padding:14px;display:none;}
+.pane.on{display:block;}
 
 /* CARDS */
-.sc{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:13px;margin-bottom:11px;}
-.sc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--accent);margin-bottom:9px;}
-.cal-status{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:7px;margin-bottom:9px;font-size:12px;font-weight:500;}
-.cal-status.bad{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red);}
-.cal-status.good{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--green);}
-.ci{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 9px;border-radius:5px;font-size:12px;}
-.ci:focus{outline:none;border-color:var(--accent);}
-.ci-row{display:flex;gap:7px;align-items:center;margin-bottom:7px;}
+.card{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:13px;margin-bottom:11px;}
+.card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--acc);margin-bottom:9px;}
+.cal-stat{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:7px;margin-bottom:9px;font-size:12px;font-weight:500;}
+.cal-stat.bad{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--red);}
+.cal-stat.good{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:var(--grn);}
+.inp{background:var(--bg);border:1px solid var(--bd);color:var(--tx);padding:7px 9px;border-radius:5px;font-size:12px;}
+.inp:focus{outline:none;border-color:var(--acc);}
+.inp-row{display:flex;gap:7px;align-items:center;margin-bottom:7px;}
+.info-bar{display:flex;gap:8px;padding:8px 10px;border-radius:6px;font-size:11px;margin-bottom:8px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#60a5fa;line-height:1.4;}
 
-/* GPS PANEL in right column */
-.gps-room-header{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.05));border:1px solid rgba(245,158,11,0.3);border-radius:9px;padding:12px;margin-bottom:10px;}
-.gps-room-name{font-size:16px;font-weight:800;color:var(--accent);margin-bottom:3px;}
-.gps-room-dims{font-size:11px;color:var(--text2);}
-.gps-room-purpose{font-size:11px;color:var(--text);margin-top:4px;line-height:1.4;}
+/* ROOM LIST */
+.rli{display:flex;gap:8px;padding:9px 10px;border:1px solid var(--bd);border-radius:7px;margin-bottom:6px;cursor:pointer;transition:all .15s;background:var(--s2);}
+.rli:hover{border-color:var(--acc);transform:translateX(2px);}
+.rli.done{border-color:var(--grn);opacity:.7;}
+.rli.loading{border-color:var(--pur);opacity:.8;}
+.rli-icon{font-size:18px;flex-shrink:0;}
+.rli-body{flex:1;}
+.rli-name{font-size:12px;font-weight:700;margin-bottom:2px;}
+.rli-sub{font-size:10px;color:var(--tx2);}
+.rli-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;display:inline-block;margin-top:3px;}
+.ba{background:rgba(59,130,246,.2);color:#60a5fa;}
+.bl{background:rgba(16,185,129,.2);color:#34d399;}
+.bc{background:rgba(139,92,246,.2);color:#a78bfa;}
+.bdone{background:rgba(16,185,129,.2);color:var(--grn);}
+
+/* GPS PANEL */
+.gps-room-hdr{background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.3);border-radius:9px;padding:12px;margin-bottom:10px;}
+.gps-room-name{font-size:16px;font-weight:800;color:var(--acc);margin-bottom:4px;}
+.gps-dims{font-size:12px;color:var(--tx);margin-bottom:3px;}
+.gps-purpose{font-size:11px;color:var(--tx2);line-height:1.4;}
 
 /* TOOL ACTIVATE */
-.tool-activate{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:10px;border:1px solid var(--accent);background:rgba(245,158,11,0.08);}
-.ta-icon{font-size:22px;}
-.ta-text{flex:1;}
-.ta-name{font-size:12px;font-weight:800;color:var(--accent);}
-.ta-why{font-size:10px;color:var(--text2);margin-top:1px;line-height:1.3;}
-.ta-btn{background:var(--accent);color:#000;border:none;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.tool-box{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:10px;border:1px solid var(--acc);background:rgba(245,158,11,.08);}
+.tool-icon{font-size:22px;}
+.tool-text{flex:1;}
+.tool-name{font-size:12px;font-weight:800;color:var(--acc);}
+.tool-why{font-size:10px;color:var(--tx2);margin-top:2px;line-height:1.3;}
+.tool-act{background:var(--acc);color:#000;border:none;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;}
 
 /* CURRENT STEP */
-.cur-step{background:var(--surface2);border:2px solid var(--accent);border-radius:9px;padding:12px;margin-bottom:10px;}
-.cur-step-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--accent);margin-bottom:6px;}
-.cur-step-num{font-size:11px;color:var(--text2);margin-bottom:4px;}
-.cur-step-action{font-size:14px;font-weight:800;color:var(--text);margin-bottom:5px;}
-.cur-step-detail{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:8px;}
-.cur-step-dir{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;margin-bottom:8px;}
-.dir-normal{background:rgba(245,158,11,0.2);color:var(--accent);}
-.dir-stop{background:rgba(239,68,68,0.2);color:var(--red);}
-.dir-skip{background:rgba(139,92,246,0.2);color:#a78bfa;}
-.dir-close{background:rgba(16,185,129,0.2);color:var(--green);}
+.cur-step{background:var(--s2);border:2px solid var(--acc);border-radius:9px;padding:13px;margin-bottom:10px;}
+.cs-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--acc);margin-bottom:5px;}
+.cs-num{font-size:11px;color:var(--tx2);margin-bottom:4px;}
+.cs-action{font-size:15px;font-weight:800;color:var(--tx);margin-bottom:5px;line-height:1.3;}
+.cs-detail{font-size:12px;color:var(--tx2);line-height:1.5;margin-bottom:8px;}
+.cs-dir{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;margin-bottom:10px;}
+.dir-go{background:rgba(245,158,11,.2);color:var(--acc);}
+.dir-stop{background:rgba(239,68,68,.2);color:var(--red);}
+.dir-skip{background:rgba(139,92,246,.2);color:#a78bfa;}
+.dir-close{background:rgba(16,185,129,.2);color:var(--grn);}
+.dir-select{background:rgba(59,130,246,.2);color:#60a5fa;}
 .step-nav{display:flex;gap:8px;}
-.step-back{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
-.step-next{flex:2;background:var(--accent);border:none;color:#000;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
-.step-done{flex:2;background:var(--green);border:none;color:#fff;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+.s-back{flex:1;background:var(--s2);border:1px solid var(--bd);color:var(--tx);padding:9px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+.s-next{flex:2;background:var(--acc);border:none;color:#000;padding:9px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+.s-done{flex:2;background:var(--grn);border:none;color:#fff;padding:9px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
 
-/* ALL STEPS LIST */
-.step-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
-.step-item{display:flex;gap:8px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);cursor:pointer;transition:all 0.15s;}
-.step-item:hover{border-color:var(--accent);}
-.step-item.active{border-color:var(--accent);background:rgba(245,158,11,0.06);}
-.step-item.done{border-color:var(--green);opacity:0.6;}
-.step-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
-.dot-pending{background:var(--border);color:var(--text2);}
-.dot-active{background:var(--accent);color:#000;}
-.dot-done{background:var(--green);color:#fff;}
-.step-item-action{font-size:11px;font-weight:600;color:var(--text);}
-.step-item-dir{font-size:10px;color:var(--text2);margin-top:1px;}
+/* STEP LIST */
+.step-list{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.step-item{display:flex;gap:8px;padding:8px 10px;border-radius:6px;border:1px solid var(--bd);background:var(--bg);cursor:pointer;transition:all .15s;}
+.step-item:hover{border-color:var(--acc);}
+.step-item.cur{border-color:var(--acc);background:rgba(245,158,11,.06);}
+.step-item.done{border-color:var(--grn);opacity:.6;}
+.sdot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.sdot-p{background:var(--bd);color:var(--tx2);}
+.sdot-c{background:var(--acc);color:#000;}
+.sdot-d{background:var(--grn);color:#fff;}
+.sact{font-size:11px;font-weight:600;color:var(--tx);}
+.sdir{font-size:10px;color:var(--tx2);margin-top:1px;}
 
 /* SUBTRACTIONS */
-.sub-box{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:7px;padding:10px;margin-bottom:10px;}
-.sub-title{font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.sub-box{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:7px;padding:10px;margin-bottom:10px;}
+.sub-title{font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:6px;}
 .sub-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;}
 .sub-val{color:var(--red);font-weight:700;}
+.calc-section{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:7px;padding:10px;margin-bottom:10px;}
+.calc-title{font-size:10px;font-weight:700;color:var(--grn);text-transform:uppercase;margin-bottom:6px;}
+.calc-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;}
+.calc-val{color:var(--grn);font-weight:700;}
 
-/* ROOM LIST (checklist) */
-.room-list-item{display:flex;gap:8px;padding:9px 10px;border:1px solid var(--border);border-radius:7px;margin-bottom:6px;cursor:pointer;transition:all 0.15s;background:var(--surface2);}
-.room-list-item:hover{border-color:var(--accent);}
-.room-list-item.done{border-color:var(--green);opacity:0.7;}
-.rli-icon{font-size:18px;flex-shrink:0;}
-.rli-info{flex:1;}
-.rli-name{font-size:12px;font-weight:700;margin-bottom:2px;}
-.rli-dims{font-size:10px;color:var(--text2);}
-.rli-purpose{font-size:10px;color:var(--text2);margin-top:2px;}
-.rli-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;display:inline-block;margin-top:3px;}
-.badge-area{background:rgba(59,130,246,0.2);color:#60a5fa;}
-.badge-linear{background:rgba(16,185,129,0.2);color:#34d399;}
-.badge-count{background:rgba(139,92,246,0.2);color:#a78bfa;}
-
-/* MEASUREMENTS */
-.mi{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px;margin-bottom:7px;position:relative;}
-.mi:hover{border-color:var(--accent);}
-.mi-hdr{display:flex;justify-content:space-between;align-items:flex-start;}
-.mi-name{font-size:11px;font-weight:600;flex:1;padding-right:8px;}
-.mi-val{font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;}
-.mi-type{font-size:10px;color:var(--text2);margin-top:2px;}
-.mi-del{position:absolute;top:7px;right:7px;background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;opacity:0;}
+/* MEASUREMENTS & CATEGORIES */
+.cat-section{margin-bottom:14px;}
+.cat-header{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--s2);border-radius:7px 7px 0 0;border:1px solid var(--bd);border-bottom:none;}
+.cat-name{font-size:11px;font-weight:700;}
+.cat-total{font-size:13px;font-weight:800;color:var(--acc);}
+.cat-items{border:1px solid var(--bd);border-radius:0 0 7px 7px;overflow:hidden;}
+.mi{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid var(--bd);font-size:12px;position:relative;}
+.mi:last-child{border-bottom:none;}
+.mi:hover{background:rgba(245,158,11,.03);}
+.mi-name{flex:1;font-weight:500;}
+.mi-val{font-weight:700;color:var(--acc);white-space:nowrap;margin-left:8px;}
+.mi-unit{font-size:10px;font-weight:400;color:var(--tx2);}
+.mi-del{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:12px;opacity:0;margin-left:6px;}
 .mi:hover .mi-del{opacity:1;}
 .mi-del:hover{color:var(--red);}
 
 /* STATS */
-.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px;}
-.stat-box{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px;text-align:center;}
-.sv{font-size:17px;font-weight:700;color:var(--accent);}
-.sl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px;}
+.stat{background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:9px;text-align:center;}
+.sv{font-size:17px;font-weight:700;color:var(--acc);}
+.sl{font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;}
 
 /* BADGES */
-.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;margin-right:3px;margin-bottom:3px;cursor:pointer;}
-.b-area{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);}
-.b-linear{background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.3);}
-.b-count{background:rgba(139,92,246,0.2);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);}
+.bdg{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;margin-right:3px;margin-bottom:3px;cursor:pointer;}
+.bdg-a{background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);}
+.bdg-l{background:rgba(16,185,129,.2);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+.bdg-c{background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.3);}
 
 /* EXPORT */
-.export-section{padding:13px;border-top:1px solid var(--border);flex-shrink:0;}
-.exp-btn{width:100%;background:var(--accent);color:#000;border:none;padding:10px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:7px;}
-.exp-btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-.exp-btn.sec:hover{border-color:var(--accent);color:var(--accent);}
+.exp-sec{padding:13px;border-top:1px solid var(--bd);flex-shrink:0;}
+.exp-btn{width:100%;background:var(--acc);color:#000;border:none;padding:10px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:7px;}
+.exp-btn.sec{background:var(--s2);color:var(--tx);border:1px solid var(--bd);}
+.exp-btn.sec:hover{border-color:var(--acc);color:var(--acc);}
 
-.empty{text-align:center;padding:24px 14px;color:var(--text2);}
+.empty{text-align:center;padding:24px 14px;color:var(--tx2);}
 .empty-icon{font-size:26px;margin-bottom:6px;}
 .empty-txt{font-size:12px;line-height:1.5;}
-.info-bar{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:6px;font-size:11px;margin-bottom:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;line-height:1.4;}
 
 ::-webkit-scrollbar{width:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}
 input[type="file"]{display:none;}
 </style>
 </head>
@@ -211,7 +217,7 @@ input[type="file"]{display:none;}
     <div class="logo-text">Build<span>IQ</span></div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
-    <span id="proj-name" style="font-size:12px;color:var(--text2);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+    <span id="proj-name" style="font-size:12px;color:var(--tx2);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
     <div class="hbadge">AI CHIEF ESTIMATOR</div>
   </div>
 </header>
@@ -219,13 +225,12 @@ input[type="file"]{display:none;}
 <div class="app">
   <div class="pdf-panel">
 
-    <!-- TOOLBAR -->
     <div class="toolbar" id="toolbar" style="display:none;">
       <div class="tg">
         <button class="tb" onclick="changePage(-1)">◀</button>
         <div class="pg-nav">
           <input type="number" id="pg-in" value="1" min="1" onchange="goPage(this.value)">
-          <span style="font-size:11px;color:var(--text2);">/ <span id="total-pg">1</span></span>
+          <span style="font-size:11px;color:var(--tx2);">/ <span id="total-pg">1</span></span>
         </div>
         <button class="tb" onclick="changePage(1)">▶</button>
       </div>
@@ -237,182 +242,135 @@ input[type="file"]{display:none;}
         <button class="tb" id="btn-none"   onclick="setTool(null)"    >✕ None</button>
       </div>
       <div class="tg">
-        <button class="tb danger" onclick="undoLast()">↩ Undo</button>
-        <button class="tb danger" onclick="clearAll()">🗑 Clear</button>
+        <button class="tb red" onclick="undoLast()">↩ Undo</button>
+        <button class="tb red" onclick="clearAll()">🗑 Clear</button>
       </div>
       <div class="tg" style="border:none;">
-        <button class="analyze-btn" id="analyze-btn" onclick="analyzeDrawing()">
-          🤖 Analyze This Sheet
-        </button>
+        <button class="scan-btn" id="scan-btn" onclick="scanRooms()">🤖 Scan Rooms</button>
       </div>
       <div class="tg" style="border:none;">
-        <span style="font-size:10px;color:var(--text2);">Scroll=zoom · Drag=pan</span>
+        <span style="font-size:10px;color:var(--tx2);">Scroll=zoom · Drag=pan · Esc=deselect</span>
       </div>
     </div>
 
-    <!-- UPLOAD -->
     <div class="upload-screen" id="upload-screen">
       <div style="text-align:center;">
         <div style="font-size:52px;margin-bottom:12px;">🏗️</div>
-        <div style="font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;">Build<span style="color:var(--accent);">IQ</span></div>
-        <div style="font-size:14px;color:var(--text2);margin-bottom:4px;">AI Chief Estimator</div>
-        <div style="font-size:12px;color:var(--text2);">Upload drawings → AI maps every room → click any room for GPS instructions</div>
+        <div style="font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;">Build<span style="color:var(--acc);">IQ</span></div>
+        <div style="font-size:13px;color:var(--tx2);">AI Chief Estimator — GPS-guided takeoff for every room</div>
       </div>
       <div class="upload-zone" id="upload-zone"
            onclick="document.getElementById('file-in').click()"
-           ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="drop(event)">
+           ondragover="dov(event)" ondragleave="dlv()" ondrop="drp(event)">
         <div style="font-size:44px;margin-bottom:14px;">📋</div>
         <div style="font-size:19px;font-weight:700;margin-bottom:7px;">Upload Drawing Set</div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:4px;line-height:1.5;">Drop PDF here or click to browse</div>
-        <div style="font-size:11px;color:var(--text2);">AI reads every sheet · Maps every room · GPS guides every measurement</div>
-        <button class="upload-btn-main" onclick="event.stopPropagation();document.getElementById('file-in').click()">Choose PDF File</button>
+        <div style="font-size:13px;color:var(--tx2);line-height:1.5;margin-bottom:4px;">Drop PDF here or click to browse</div>
+        <div style="font-size:11px;color:var(--tx2);">1. Calibrate scale → 2. Scan Rooms → 3. Click any room → 4. Follow GPS</div>
+        <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('file-in').click()">Choose PDF File</button>
       </div>
     </div>
 
-    <!-- PDF VIEWPORT -->
-    <div class="pdf-viewport" id="pdf-viewport" style="display:none;"
+    <div class="viewport" id="viewport" style="display:none;"
          onwheel="onWheel(event)"
-         onmousedown="onVPDown(event)"
-         onmousemove="onVPMove(event)"
-         onmouseup="onVPUp(event)"
-         onmouseleave="onVPUp(event)">
+         onmousedown="onDown(event)"
+         onmousemove="onMove(event)"
+         onmouseup="onUp(event)"
+         onmouseleave="onUp(event)">
 
       <div class="pdf-inner" id="pdf-inner">
-        <div class="cw" id="cw">
+        <div class="cw">
           <canvas id="pdf-canvas"></canvas>
-          <canvas id="measure-canvas"></canvas>
-          <canvas id="room-overlay-canvas"></canvas>
-          <canvas id="interact-canvas"></canvas>
+          <canvas id="m-canvas"></canvas>
+          <canvas id="overlay-canvas"></canvas>
+          <canvas id="hit-canvas"></canvas>
         </div>
       </div>
 
-      <!-- ANALYZE OVERLAY — shown after PDF loads before analysis -->
-      <div class="analyze-overlay hidden" id="analyze-overlay">
-        <div class="analyze-overlay-card">
-          <div style="font-size:36px;margin-bottom:10px;">🤖</div>
-          <div class="analyze-overlay-title">Ready to Analyze</div>
-          <div class="analyze-overlay-sub">
-            BuildIQ will read this entire sheet, identify every room, wall, door and window, then give you GPS instructions to measure everything.
-            <br><br>
-            <strong style="color:var(--accent);">First calibrate your scale</strong> in the right panel, then click Analyze.
-          </div>
-          <button class="analyze-big-btn" onclick="analyzeDrawing()">
-            🤖 Analyze This Sheet — Map All Rooms
-          </button>
-        </div>
-      </div>
+      <div class="mode-bar yellow" id="mode-bar"></div>
+      <div class="rtip" id="rtip"></div>
 
-      <!-- ROOM TOOLTIP -->
-      <div class="room-tooltip" id="room-tooltip"></div>
-
-      <!-- MODE INDICATOR -->
-      <div class="mode-ind yellow" id="mode-ind"></div>
-
-      <!-- ZOOM -->
       <div class="zoom-ov">
-        <button class="zo-btn" onclick="zoomBy(0.25)">+</button>
+        <button class="zo" onclick="zoomBy(.25)">+</button>
         <div class="zo-lbl" id="zoom-lbl">100%</div>
-        <button class="zo-btn" onclick="zoomBy(-0.25)">−</button>
-        <button class="zo-btn" onclick="resetView()" style="font-size:11px;">⊡</button>
+        <button class="zo" onclick="zoomBy(-.25)">−</button>
+        <button class="zo" onclick="resetView()" style="font-size:11px;">⊡</button>
       </div>
 
-      <!-- LOADING -->
-      <div class="loading-ov" id="loading-ov">
-        <div class="spinner" id="spinner"></div>
+      <div class="load-ov" id="load-ov">
+        <div class="spin" id="spinner"></div>
         <div class="load-txt" id="load-txt">Loading...</div>
       </div>
-
     </div>
   </div>
 
   <!-- RIGHT PANEL -->
-  <div class="right-panel">
-    <div class="panel-tabs">
-      <div class="ptab active" onclick="switchTab('rooms')"   id="tab-rooms">🗺️ ROOMS</div>
-      <div class="ptab"        onclick="switchTab('gps')"     id="tab-gps"  >🎯 GPS</div>
-      <div class="ptab"        onclick="switchTab('measure')" id="tab-measure">📐 MEASURE</div>
-      <div class="ptab"        onclick="switchTab('results')" id="tab-results">📊 RESULTS</div>
+  <div class="right">
+    <div class="tabs">
+      <div class="tab on"  onclick="goTab('rooms')"   id="tab-rooms"  >🗺️ ROOMS</div>
+      <div class="tab"     onclick="goTab('gps')"     id="tab-gps"    >🎯 GPS</div>
+      <div class="tab"     onclick="goTab('results')" id="tab-results">📊 RESULTS</div>
     </div>
 
     <!-- ROOMS TAB -->
-    <div class="pcontent" id="panel-rooms">
-      <div class="sc">
-        <div class="sc-title">⚖️ Scale Calibration</div>
-        <div class="cal-status bad" id="cal-status">⚠️ Not calibrated — set scale first</div>
-        <div class="info-bar">💡 Find a labeled dimension. Enter value. Click 2 endpoints on drawing.</div>
-        <div class="ci-row">
-          <input class="ci" type="number" id="cal-val" placeholder="Known distance" step="0.1" style="flex:1;">
-          <select class="ci" id="cal-unit" style="width:60px;">
+    <div class="pane on" id="pane-rooms">
+
+      <div class="card">
+        <div class="card-title">⚖️ Step 1 — Calibrate Scale</div>
+        <div class="cal-stat bad" id="cal-stat">⚠️ Not calibrated</div>
+        <div class="info-bar">💡 Find any labeled dimension on the drawing. Enter the value below. Click the two endpoints of that dimension on the drawing.</div>
+        <div class="inp-row">
+          <input class="inp" type="number" id="cal-val" placeholder="e.g. 20" step=".1" style="flex:1;">
+          <select class="inp" id="cal-unit" style="width:60px;">
             <option value="ft">ft</option>
             <option value="in">in</option>
             <option value="m">m</option>
           </select>
         </div>
         <button class="tb" id="btn-cal" onclick="startCal()" style="width:100%;display:flex;justify-content:center;margin-bottom:5px;">📍 Set Scale — Click 2 Points</button>
-        <button class="tb danger" onclick="resetCal()" style="width:100%;display:flex;justify-content:center;font-size:11px;">Reset Scale</button>
+        <button class="tb red" onclick="resetCal()" style="width:100%;display:flex;justify-content:center;font-size:11px;">Reset Scale</button>
       </div>
 
-      <div id="room-list-container">
+      <div class="card">
+        <div class="card-title">🤖 Step 2 — Scan This Sheet</div>
+        <div style="font-size:12px;color:var(--tx2);line-height:1.5;margin-bottom:10px;">
+          After calibrating, click <strong style="color:var(--acc);">🤖 Scan Rooms</strong> in the toolbar. AI reads every room label on the drawing in about 5 seconds and builds your measurement checklist.
+        </div>
+        <button class="scan-btn" onclick="scanRooms()" style="width:100%;">🤖 Scan Rooms Now</button>
+      </div>
+
+      <div id="room-list">
         <div class="empty">
-          <div class="empty-icon">🤖</div>
-          <div class="empty-txt">Upload a drawing then click<br><strong style="color:var(--accent);">🤖 Analyze This Sheet</strong><br>AI will map every room automatically.</div>
+          <div class="empty-icon">🗺️</div>
+          <div class="empty-txt">Scan the drawing to see all rooms here.<br>Then click any room to get GPS instructions.</div>
         </div>
       </div>
     </div>
 
     <!-- GPS TAB -->
-    <div class="pcontent" id="panel-gps" style="display:none;">
+    <div class="pane" id="pane-gps">
       <div id="gps-content">
         <div class="empty">
           <div class="empty-icon">🎯</div>
-          <div class="empty-txt">Click any room on the map list<br>to get GPS instructions.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MEASURE TAB -->
-    <div class="pcontent" id="panel-measure" style="display:none;">
-      <div class="sc">
-        <div class="sc-title">🏷️ Label</div>
-        <input class="ci" type="text" id="m-label" placeholder="Name this measurement..." style="width:100%;margin-bottom:7px;">
-        <div>
-          <span class="badge b-area"   onclick="setLbl('Concrete Slab')">Slab</span>
-          <span class="badge b-area"   onclick="setLbl('Brick Veneer')">Brick</span>
-          <span class="badge b-area"   onclick="setLbl('Roof Area')">Roof</span>
-          <span class="badge b-area"   onclick="setLbl('Parking Lot')">Parking</span>
-          <span class="badge b-linear" onclick="setLbl('Grade Beam')">Grade Beam</span>
-          <span class="badge b-linear" onclick="setLbl('Interior Walls')">Walls</span>
-          <span class="badge b-linear" onclick="setLbl('Curb & Gutter')">Curb</span>
-          <span class="badge b-count"  onclick="setLbl('Doors')">Doors</span>
-          <span class="badge b-count"  onclick="setLbl('Windows')">Windows</span>
-        </div>
-      </div>
-      <div class="sc">
-        <div class="sc-title">📏 Measurements</div>
-        <div class="stats-bar">
-          <div class="stat-box"><div class="sv" id="s-total">0</div><div class="sl">Total</div></div>
-          <div class="stat-box"><div class="sv" id="s-area">0</div><div class="sl">Areas</div></div>
-          <div class="stat-box"><div class="sv" id="s-lin">0</div><div class="sl">Lines</div></div>
-        </div>
-        <div id="m-list">
-          <div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">No measurements yet.</div></div>
+          <div class="empty-txt">Click any room from the Rooms list<br>to get step-by-step GPS instructions.</div>
         </div>
       </div>
     </div>
 
     <!-- RESULTS TAB -->
-    <div class="pcontent" id="panel-results" style="display:none;">
-      <div class="sc">
-        <div class="sc-title">📊 Takeoff Summary</div>
-        <div id="results-content">
-          <div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Add measurements to see summary.</div></div>
-        </div>
+    <div class="pane" id="pane-results">
+      <div class="stats">
+        <div class="stat"><div class="sv" id="s-total">0</div><div class="sl">Items</div></div>
+        <div class="stat"><div class="sv" id="s-sf">0</div><div class="sl">Total SF</div></div>
+        <div class="stat"><div class="sv" id="s-lf">0</div><div class="sl">Total LF</div></div>
+      </div>
+      <div id="results-body">
+        <div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Measurements appear here organized by room and category.</div></div>
       </div>
     </div>
 
-    <div class="export-section">
+    <div class="exp-sec">
       <button class="exp-btn" onclick="exportCSV()">⬇️ Export to CSV / Excel</button>
-      <button class="exp-btn sec" onclick="copyQty()">📋 Copy All Quantities</button>
+      <button class="exp-btn sec" onclick="copyAll()">📋 Copy All Quantities</button>
     </div>
   </div>
 </div>
@@ -423,26 +381,30 @@ input[type="file"]{display:none;}
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 // ── STATE ──
-let pdfDoc=null,curPage=1,totPages=0,renderScale=1.5;
+let pdfDoc=null,curPage=1,totPages=0,RS=1.5;
 let vx=0,vy=0,vz=1,fitZ=1;
 let isPan=false,panS={x:0,y:0},panO={x:0,y:0},spaceHeld=false;
-let curTool=null,calMode=false,calPts=[],pxPerUnit=null,calUnit='ft';
-let measurements=[],curM=null,mPos={x:0,y:0};
+let curTool=null,calMode=false,calPts=[],ppu=null,calUnit='ft';
+let meas=[],curM=null,mpos={x:0,y:0};
 let projName='';
-let drawingMap=null;    // full room map from AI
-let activeRoom=null;    // room user selected
+let roomMap=null;        // from /api/scan-rooms
+let activeRoom=null;     // room being GPS'd
 let gpsStep=0;
-let completedRooms=new Set();
+let doneRooms=new Set();
 
-const pdfC=document.getElementById('pdf-canvas');
-const mC=document.getElementById('measure-canvas');
-const rC=document.getElementById('room-overlay-canvas');
-const iC=document.getElementById('interact-canvas');
-const pdfX=pdfC.getContext('2d');
-const mX=mC.getContext('2d');
-const rX=rC.getContext('2d');
+// measurements organized by room/category
+// structure: { roomId: { roomName, category, tool, items: [{label,value,unit,page}] } }
+let roomMeasurements={};
 
-// ── PDF LOAD ──
+const PC=document.getElementById('pdf-canvas');
+const MC=document.getElementById('m-canvas');
+const OC=document.getElementById('overlay-canvas');
+const HC=document.getElementById('hit-canvas');
+const PX=PC.getContext('2d');
+const MX=MC.getContext('2d');
+const OX=OC.getContext('2d');
+
+// ── PDF ──
 async function loadPDF(inp){
   const f=inp.files[0];if(!f)return;
   projName=f.name.replace('.pdf','');
@@ -454,11 +416,11 @@ async function loadPDF(inp){
     totPages=pdfDoc.numPages;
     document.getElementById('total-pg').textContent=totPages;
     document.getElementById('upload-screen').style.display='none';
-    document.getElementById('pdf-viewport').style.display='block';
+    document.getElementById('viewport').style.display='block';
     document.getElementById('toolbar').style.display='flex';
     curPage=1;
     await renderPage(curPage,true);
-  }catch(e){alert('Error: '+e.message);}
+  }catch(e){alert('Error loading PDF: '+e.message);}
   showLoad(false);
 }
 
@@ -466,22 +428,17 @@ async function renderPage(num,reset=false){
   showLoad(true,'Loading page '+num+'...');
   document.getElementById('pg-in').value=num;
   const page=await pdfDoc.getPage(num);
-  const vp=page.getViewport({scale:renderScale});
-  [pdfC,mC,rC,iC].forEach(c=>{c.width=vp.width;c.height=vp.height;});
-  await page.render({canvasContext:pdfX,viewport:vp}).promise;
+  const vp=page.getViewport({scale:RS});
+  [PC,MC,OC,HC].forEach(c=>{c.width=vp.width;c.height=vp.height;});
+  await page.render({canvasContext:PX,viewport:vp}).promise;
   if(reset){
-    const vpEl=document.getElementById('pdf-viewport');
-    fitZ=Math.min((vpEl.clientWidth-40)/vp.width,(vpEl.clientHeight-40)/vp.height);
-    vz=fitZ;
-    vx=(vpEl.clientWidth-vp.width*vz)/2;
-    vy=(vpEl.clientHeight-vp.height*vz)/2;
+    const el=document.getElementById('viewport');
+    fitZ=Math.min((el.clientWidth-40)/vp.width,(el.clientHeight-40)/vp.height);
+    vz=fitZ;vx=(el.clientWidth-vp.width*vz)/2;vy=(el.clientHeight-vp.height*vz)/2;
   }
-  // Only show analyze overlay if already calibrated
-  drawingMap=null;
-  rX.clearRect(0,0,rC.width,rC.height);
-  document.getElementById('room-list-container').innerHTML=`<div class="empty"><div class="empty-icon">🤖</div><div class="empty-txt">Click <strong style="color:var(--accent);">🤖 Analyze This Sheet</strong> to map all rooms.</div></div>`;
-  applyT();redraw();
-  showLoad(false);
+  // Clear room map when page changes
+  roomMap=null;OX.clearRect(0,0,OC.width,OC.height);
+  applyT();redraw();showLoad(false);
 }
 
 function applyT(){
@@ -493,42 +450,57 @@ function applyT(){
 // ── PAN/ZOOM ──
 function onWheel(e){
   e.preventDefault();
-  const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
-  const mx=e.clientX-vp.left,my=e.clientY-vp.top;
-  const d=e.deltaY<0?1.12:0.89;
-  const nz=Math.max(fitZ*0.4,Math.min(vz*d,fitZ*12));
+  const r=document.getElementById('viewport').getBoundingClientRect();
+  const mx=e.clientX-r.left,my=e.clientY-r.top;
+  const d=e.deltaY<0?1.12:.89;
+  const nz=Math.max(fitZ*.4,Math.min(vz*d,fitZ*12));
   vx=mx-(mx-vx)*(nz/vz);vy=my-(my-vy)*(nz/vz);vz=nz;applyT();
 }
 
-function onVPDown(e){
-  // Middle click or right click or no tool = pan
+function onDown(e){
   if(e.button===1||e.button===2||(!curTool&&!calMode)||spaceHeld){
     isPan=true;panS={x:e.clientX,y:e.clientY};panO={x:vx,y:vy};
-    document.getElementById('pdf-viewport').style.cursor='grabbing';return;
+    document.getElementById('viewport').style.cursor='grabbing';return;
   }
-  const cp=v2c(e);mPos=cp;
+  const cp=v2c(e);mpos=cp;
   handleClick(cp);
 }
 
-function onVPMove(e){
+function onMove(e){
   if(isPan){vx=panO.x+(e.clientX-panS.x);vy=panO.y+(e.clientY-panS.y);applyT();return;}
-  const cp=v2c(e);mPos=cp;
+  const cp=v2c(e);mpos=cp;
   if(curM)redraw();
-  updateCursorHint(e,cp);
-  // Show room tooltip on hover
-  if(drawingMap)showRoomTooltip(e,cp);
+  // Room hover
+  if(roomMap&&!curTool&&!calMode){
+    const room=roomAtPoint(cp);
+    const tip=document.getElementById('rtip');
+    const vr=document.getElementById('viewport').getBoundingClientRect();
+    if(room){
+      tip.style.display='block';
+      tip.style.left=(e.clientX-vr.left)+'px';
+      tip.style.top=(e.clientY-vr.top)+'px';
+      tip.textContent='📐 '+room.name+' — click to measure';
+      document.getElementById('viewport').style.cursor='pointer';
+    }else{
+      tip.style.display='none';
+      if(!curTool&&!calMode)document.getElementById('viewport').style.cursor='grab';
+    }
+  }
 }
 
-function onVPUp(){
+function onUp(){
   if(isPan){isPan=false;updateCursor();}
 }
 
-document.getElementById('pdf-viewport').addEventListener('dblclick',e=>{
+document.getElementById('viewport').addEventListener('dblclick',e=>{
   if(curTool==='area'&&curM&&curM.points.length>=3)finalizeM();
 });
 
 document.addEventListener('keydown',e=>{
-  if(e.code==='Space'&&!e.target.matches('input,select,textarea')){e.preventDefault();spaceHeld=true;document.getElementById('pdf-viewport').style.cursor='grab';}
+  if(e.code==='Space'&&!e.target.matches('input,select,textarea')){
+    e.preventDefault();spaceHeld=true;
+    document.getElementById('viewport').style.cursor='grab';
+  }
   if(e.target.matches('input,select,textarea'))return;
   if(e.key==='Escape'){setTool(null);calMode=false;curM=null;calPts=[];redraw();showMode('');}
   if(e.key==='a'||e.key==='A')setTool('area');
@@ -536,33 +508,30 @@ document.addEventListener('keydown',e=>{
   if(e.key==='c'||e.key==='C')setTool('count');
   if(e.key==='ArrowLeft')changePage(-1);
   if(e.key==='ArrowRight')changePage(1);
-  if((e.key==='z')&&(e.ctrlKey||e.metaKey)){e.preventDefault();undoLast();}
+  if(e.key==='z'&&(e.ctrlKey||e.metaKey)){e.preventDefault();undoLast();}
 });
 document.addEventListener('keyup',e=>{if(e.code==='Space'){spaceHeld=false;updateCursor();}});
 
 function v2c(e){
-  const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
-  return{x:(e.clientX-vp.left-vx)/vz,y:(e.clientY-vp.top-vy)/vz};
+  const r=document.getElementById('viewport').getBoundingClientRect();
+  return{x:(e.clientX-r.left-vx)/vz,y:(e.clientY-r.top-vy)/vz};
 }
 
 function zoomBy(d){
-  const vpEl=document.getElementById('pdf-viewport');
-  const cx=vpEl.clientWidth/2,cy=vpEl.clientHeight/2;
-  const nz=Math.max(fitZ*0.4,Math.min(vz+d*fitZ,fitZ*12));
+  const el=document.getElementById('viewport');
+  const cx=el.clientWidth/2,cy=el.clientHeight/2;
+  const nz=Math.max(fitZ*.4,Math.min(vz+d*fitZ,fitZ*12));
   vx=cx-(cx-vx)*(nz/vz);vy=cy-(cy-vy)*(nz/vz);vz=nz;applyT();
 }
 
 function resetView(){
-  const vpEl=document.getElementById('pdf-viewport');
-  vz=fitZ;vx=(vpEl.clientWidth-pdfC.width*vz)/2;vy=(vpEl.clientHeight-pdfC.height*vz)/2;applyT();
+  const el=document.getElementById('viewport');
+  vz=fitZ;vx=(el.clientWidth-PC.width*vz)/2;vy=(el.clientHeight-PC.height*vz)/2;applyT();
 }
 
 function updateCursor(){
-  document.getElementById('pdf-viewport').style.cursor=(curTool||calMode)?'crosshair':'grab';
-}
-
-function updateCursorHint(e,cp){
-  // minimal cursor hint
+  const vp=document.getElementById('viewport');
+  vp.style.cursor=(curTool||calMode)?'crosshair':'grab';
 }
 
 function changePage(d){const n=curPage+d;if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);}}
@@ -574,433 +543,494 @@ function startCal(){
   if(!v||v<=0){alert('Enter a known dimension value first.');return;}
   calUnit=document.getElementById('cal-unit').value;
   calMode=true;calPts=[];setTool(null,true);
-  document.getElementById('btn-cal').classList.add('active');
+  document.getElementById('btn-cal').classList.add('on');
   updateCursor();
   showMode('⚖️ Click point 1 of the known dimension','yellow');
-  document.getElementById('cal-status').className='cal-status bad';
-  document.getElementById('cal-status').textContent='📍 Click first calibration point...';
+  document.getElementById('cal-stat').className='cal-stat bad';
+  document.getElementById('cal-stat').textContent='📍 Click first calibration point...';
 }
 
 function resetCal(){
-  pxPerUnit=null;calMode=false;calPts=[];
-  document.getElementById('cal-status').className='cal-status bad';
-  document.getElementById('cal-status').textContent='⚠️ Not calibrated — set scale first';
-  document.getElementById('btn-cal').classList.remove('active');
+  ppu=null;calMode=false;calPts=[];
+  document.getElementById('cal-stat').className='cal-stat bad';
+  document.getElementById('cal-stat').textContent='⚠️ Not calibrated';
+  document.getElementById('btn-cal').classList.remove('on');
   showMode('');updateCursor();redraw();
 }
 
-// ── ANALYZE DRAWING ──
-async function analyzeDrawing(){
+// ── SCAN ROOMS ──
+async function scanRooms(){
   if(!pdfDoc){alert('Upload a drawing first.');return;}
+  if(!ppu){alert('Calibrate the scale first, then scan rooms.');return;}
 
-  // Hide analyze overlay
-  document.getElementById('analyze-overlay').classList.add('hidden');
-
-  const btn=document.getElementById('analyze-btn');
-  btn.disabled=true;btn.textContent='🤖 Analyzing...';
-
-  showLoad(true,'🤖 AI is reading the full drawing...\nIdentifying every room, wall, door and window.\nThis takes 15-20 seconds.');
+  const btn=document.getElementById('scan-btn');
+  btn.disabled=true;btn.textContent='🤖 Scanning...';
+  showLoad(true,'🤖 AI is scanning the drawing...\nIdentifying every room label.\nTakes about 5-10 seconds.');
   document.getElementById('spinner').classList.add('purple');
 
   try{
-    // Render full page at higher res for analysis
-    const analysisCanvas=document.createElement('canvas');
+    // Render full page for scanning
+    const sc=document.createElement('canvas');
     const page=await pdfDoc.getPage(curPage);
-    const vp=page.getViewport({scale:2.0});
-    analysisCanvas.width=Math.min(vp.width,1400);
-    analysisCanvas.height=Math.min(vp.height,1100);
-    const actx=analysisCanvas.getContext('2d');
-    const scaledVp=page.getViewport({scale:analysisCanvas.width/page.getViewport({scale:1}).width});
-    await page.render({canvasContext:actx,viewport:scaledVp}).promise;
+    const vp=page.getViewport({scale:1.8});
+    sc.width=Math.min(vp.width,1300);sc.height=Math.min(vp.height,1000);
+    const sx=sc.getContext('2d');
+    const svp=page.getViewport({scale:sc.width/page.getViewport({scale:1}).width});
+    await page.render({canvasContext:sx,viewport:svp}).promise;
 
-    const imgData=analysisCanvas.toDataURL('image/jpeg',0.85);
-    const base64=imgData.split(',')[1];
+    const b64=sc.toDataURL('image/jpeg',.82).split(',')[1];
 
-    const resp=await fetch('/api/analyze-drawing',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        imageBase64:base64,
-        width:analysisCanvas.width,
-        height:analysisCanvas.height,
-        pageNum:curPage,
-        totalPages:totPages,
-        // Pass scale factors so AI pixel bounds map to our render canvas
-        analysisWidth:analysisCanvas.width,
-        analysisHeight:analysisCanvas.height,
-        renderWidth:pdfC.width,
-        renderHeight:pdfC.height
-      })
+    const resp=await fetch('/api/scan-rooms',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({imageBase64:b64,width:sc.width,height:sc.height})
     });
 
-    if(!resp.ok){
-      const err=await resp.json().catch(()=>({}));
-      throw new Error(err.error||'Server error '+resp.status);
-    }
+    if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error||'Server error '+resp.status);}
+    const data=await resp.json();
 
-    drawingMap=await resp.json();
+    // Scale pixel bounds to our render canvas
+    const sx2=PC.width/sc.width, sy2=PC.height/sc.height;
+    roomMap=data;
+    (roomMap.rooms||[]).forEach(r=>{
+      if(r.pixelBounds){
+        r.pixelBounds.x*=sx2;r.pixelBounds.y*=sy2;
+        r.pixelBounds.w*=sx2;r.pixelBounds.h*=sy2;
+        r.pixelBounds.centerX*=sx2;r.pixelBounds.centerY*=sy2;
+      }
+    });
 
-    // Scale pixel bounds from analysis canvas to render canvas
-    const scaleX=pdfC.width/analysisCanvas.width;
-    const scaleY=pdfC.height/analysisCanvas.height;
-    if(drawingMap.rooms){
-      drawingMap.rooms.forEach(r=>{
-        if(r.pixelBounds){
-          r.pixelBounds.x*=scaleX;r.pixelBounds.y*=scaleY;
-          r.pixelBounds.w*=scaleX;r.pixelBounds.h*=scaleY;
-          r.pixelBounds.centerX*=scaleX;r.pixelBounds.centerY*=scaleY;
-        }
-      });
-    }
-
-    // Draw room overlays
-    drawRoomOverlays();
-
-    // Populate room list
-    populateRoomList();
-
-    showMode('✅ '+(drawingMap.rooms||[]).length+' rooms mapped! Click any room to measure.','green');
+    drawOverlays();
+    buildRoomList();
+    showMode('✅ '+(roomMap.rooms||[]).length+' rooms found — click any room to measure','green');
     setTimeout(()=>showMode(''),4000);
-    switchTab('rooms');
+    goTab('rooms');
 
   }catch(e){
-    document.getElementById('analyze-overlay').classList.remove('hidden');
-    alert('Analysis error: '+e.message);
+    alert('Scan error: '+e.message);
   }
 
   showLoad(false);
   document.getElementById('spinner').classList.remove('purple');
-  btn.disabled=false;btn.textContent='🤖 Analyze This Sheet';
+  btn.disabled=false;btn.textContent='🤖 Scan Rooms';
 }
 
-// ── ROOM OVERLAYS ──
-function drawRoomOverlays(){
-  rX.clearRect(0,0,rC.width,rC.height);
-  if(!drawingMap||!drawingMap.rooms)return;
-
-  drawingMap.rooms.forEach(room=>{
-    if(!room.pixelBounds)return;
-    const{x,y,w,h}=room.pixelBounds;
-    const isDone=completedRooms.has(room.id);
-
-    // Semi-transparent fill
-    rX.fillStyle=isDone?'rgba(16,185,129,0.12)':'rgba(245,158,11,0.08)';
-    rX.fillRect(x,y,w,h);
-
-    // Border
-    rX.strokeStyle=isDone?'#10b981':'rgba(245,158,11,0.5)';
-    rX.lineWidth=1.5;
-    rX.setLineDash([4,3]);
-    rX.strokeRect(x,y,w,h);
-    rX.setLineDash([]);
-
-    // Room name label
-    const label=room.name||(room.label||'Room');
-    rX.font='bold 11px sans-serif';
-    const tw=rX.measureText(label).width+8;
-    rX.fillStyle=isDone?'rgba(16,185,129,0.9)':'rgba(245,158,11,0.9)';
-    rX.fillRect(x+2,y+2,tw,18);
-    rX.fillStyle='#000';
-    rX.textAlign='left';
-    rX.textBaseline='middle';
-    rX.fillText(label,x+6,y+11);
+// ── DRAW OVERLAYS ──
+function drawOverlays(){
+  OX.clearRect(0,0,OC.width,OC.height);
+  if(!roomMap)return;
+  (roomMap.rooms||[]).forEach(r=>{
+    if(!r.pixelBounds)return;
+    const{x,y,w,h}=r.pixelBounds;
+    const done=doneRooms.has(r.id);
+    OX.fillStyle=done?'rgba(16,185,129,.1)':'rgba(245,158,11,.07)';
+    OX.fillRect(x,y,w,h);
+    OX.strokeStyle=done?'#10b981':'rgba(245,158,11,.6)';
+    OX.lineWidth=1.5;OX.setLineDash([5,3]);
+    OX.strokeRect(x,y,w,h);OX.setLineDash([]);
+    // Label tag
+    const name=r.name||'Room';
+    OX.font='bold 10px sans-serif';
+    const tw=OX.measureText(name).width+8;
+    OX.fillStyle=done?'rgba(16,185,129,.9)':'rgba(245,158,11,.9)';
+    OX.fillRect(x+2,y+2,tw,16);
+    OX.fillStyle='#000';OX.textAlign='left';OX.textBaseline='middle';
+    OX.fillText(name,x+6,y+10);
   });
 }
 
-// ── ROOM HOVER TOOLTIP ──
-function showRoomTooltip(e,cp){
-  if(!drawingMap||!drawingMap.rooms)return;
-  const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
-  const tooltip=document.getElementById('room-tooltip');
-  const room=getRoomAtPoint(cp);
-  if(room){
-    tooltip.style.display='block';
-    tooltip.style.left=(e.clientX-vp.left)+'px';
-    tooltip.style.top=(e.clientY-vp.top)+'px';
-    tooltip.textContent='Click to measure: '+room.name;
-    document.getElementById('pdf-viewport').style.cursor='pointer';
-  }else{
-    tooltip.style.display='none';
-    if(!curTool&&!calMode)document.getElementById('pdf-viewport').style.cursor='grab';
+// ── ROOM LIST ──
+function buildRoomList(){
+  if(!roomMap)return;
+  const rooms=roomMap.rooms||[];
+  const lins=roomMap.linearItems||[];
+  const cnts=roomMap.countItems||[];
+  const stated=roomMap.statedQuantities||[];
+  let html='';
+
+  if(stated.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--grn);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:4px;">✅ Stated on Drawing</div>`;
+    stated.forEach(q=>{
+      html+=`<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:11px;"><strong>${q.item}:</strong> <span style="color:var(--grn);font-weight:700;">${q.value}</span></div>`;
+    });
+    html+='<div style="height:8px;"></div>';
   }
+
+  if(rooms.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">📐 Rooms — Click to Measure</div>`;
+    rooms.forEach(r=>{
+      const done=doneRooms.has(r.id);
+      const icon=roomIcon(r.type);
+      html+=`<div class="rli ${done?'done':''}" onclick="selectRoom('${r.id}')">
+        <div class="rli-icon">${icon}</div>
+        <div class="rli-body">
+          <div class="rli-name">${r.name}</div>
+          <div class="rli-sub">${r.width||''} ${r.height?'× '+r.height:''}</div>
+          <span class="rli-badge ba">${(r.tool||'area').toUpperCase()}</span>
+          ${done?'<span class="rli-badge bdone">✓ DONE</span>':''}
+        </div>
+      </div>`;
+    });
+  }
+
+  if(lins.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:10px;">📏 Linear Measurements</div>`;
+    lins.forEach(r=>{
+      html+=`<div class="rli" onclick="selectItem('${r.id}','linear')">
+        <div class="rli-icon">📏</div>
+        <div class="rli-body">
+          <div class="rli-name">${r.name}</div>
+          <span class="rli-badge bl">LINEAR</span>
+        </div>
+      </div>`;
+    });
+  }
+
+  if(cnts.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:10px;">🔢 Count Items</div>`;
+    cnts.forEach(r=>{
+      html+=`<div class="rli" onclick="selectItem('${r.id}','count')">
+        <div class="rli-icon">🔢</div>
+        <div class="rli-body">
+          <div class="rli-name">${r.name} ${r.estimatedCount?'(~'+r.estimatedCount+')':''}</div>
+          <span class="rli-badge bc">COUNT</span>
+        </div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('room-list').innerHTML=html||'<div class="empty"><div class="empty-txt">No rooms found.</div></div>';
 }
 
-function getRoomAtPoint(cp){
-  if(!drawingMap||!drawingMap.rooms)return null;
-  return drawingMap.rooms.find(r=>{
+function roomIcon(type){
+  if(!type)return'🏠';
+  const t=type.toLowerCase();
+  if(t.includes('restroom')||t.includes('bathroom'))return'🚻';
+  if(t.includes('kitchen'))return'🍳';
+  if(t.includes('hall')||t.includes('main'))return'🏛️';
+  if(t.includes('stage'))return'🎭';
+  if(t.includes('storage')||t.includes('store'))return'📦';
+  if(t.includes('foyer')||t.includes('lobby'))return'🚪';
+  if(t.includes('green'))return'🟢';
+  if(t.includes('mechanical')||t.includes('sprinkler'))return'⚙️';
+  if(t.includes('office'))return'💼';
+  return'🏠';
+}
+
+function roomAtPoint(cp){
+  if(!roomMap||!roomMap.rooms)return null;
+  return roomMap.rooms.find(r=>{
     if(!r.pixelBounds)return false;
     const{x,y,w,h}=r.pixelBounds;
     return cp.x>=x&&cp.x<=x+w&&cp.y>=y&&cp.y<=y+h;
   })||null;
 }
 
-// ── POPULATE ROOM LIST ──
-function populateRoomList(){
-  if(!drawingMap)return;
-  const container=document.getElementById('room-list-container');
-  const rooms=drawingMap.rooms||[];
-  const linears=drawingMap.linearItems||[];
-  const counts=drawingMap.countItems||[];
-  const stated=drawingMap.statedQuantities||[];
-
-  let html='';
-
-  if(stated.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;margin-top:4px;">✅ Stated on Drawing</div>`;
-    stated.forEach(q=>{
-      html+=`<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:11px;"><strong>${q.item}:</strong> <span style="color:var(--green);font-weight:700;">${q.value}</span></div>`;
-    });
-    html+='<div style="height:8px;"></div>';
-  }
-
-  if(rooms.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">📐 Rooms — Click to Measure</div>`;
-    rooms.forEach(r=>{
-      const done=completedRooms.has(r.id);
-      html+=`<div class="room-list-item ${done?'done':''}" onclick="selectRoom('${r.id}')">
-        <div class="rli-icon">${getRoomIcon(r.type)}</div>
-        <div class="rli-info">
-          <div class="rli-name">${r.name||r.label}</div>
-          <div class="rli-dims">${r.width||''} ${r.height?'× '+r.height:''}</div>
-          <div class="rli-purpose">${r.measurementPurpose||''}</div>
-          <span class="rli-badge badge-${r.tool||'area'}">${(r.tool||'area').toUpperCase()}</span>
-          ${done?'<span class="rli-badge" style="background:rgba(16,185,129,0.2);color:var(--green);">✓ DONE</span>':''}
-        </div>
-      </div>`;
-    });
-  }
-
-  if(linears.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;margin-top:10px;">📏 Linear Measurements</div>`;
-    linears.forEach(r=>{
-      html+=`<div class="room-list-item" onclick="selectLinear('${r.id}')">
-        <div class="rli-icon">📏</div>
-        <div class="rli-info">
-          <div class="rli-name">${r.name}</div>
-          <div class="rli-purpose">${r.description||''}</div>
-          <span class="rli-badge badge-linear">LINEAR</span>
-        </div>
-      </div>`;
-    });
-  }
-
-  if(counts.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;margin-top:10px;">🔢 Count Items</div>`;
-    counts.forEach(r=>{
-      html+=`<div class="room-list-item" onclick="selectCount('${r.id}')">
-        <div class="rli-icon">🔢</div>
-        <div class="rli-info">
-          <div class="rli-name">${r.name} ${r.estimatedCount?'(~'+r.estimatedCount+')':''}</div>
-          <div class="rli-purpose">${r.description||''}</div>
-          <span class="rli-badge badge-count">COUNT</span>
-        </div>
-      </div>`;
-    });
-  }
-
-  if(drawingMap.warnings&&drawingMap.warnings.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;margin-top:10px;">⚠️ Flags</div>`;
-    drawingMap.warnings.forEach(w=>{
-      html+=`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:11px;color:var(--text2);">⚠️ ${w}</div>`;
-    });
-  }
-
-  container.innerHTML=html||'<div class="empty"><div class="empty-txt">No items found.</div></div>';
-}
-
-function getRoomIcon(type){
-  const icons={restroom:'🚻',bathroom:'🚿',kitchen:'🍳',hall:'🏛️',stage:'🎭',storage:'📦',office:'💼',lobby:'🚪',foyer:'🚪',corridor:'🚶',mechanical:'⚙️',electrical:'⚡',sprinkler:'💧',green:'🟢',room:'🏠'};
-  if(!type)return'🏠';
-  const t=type.toLowerCase();
-  for(const[k,v]of Object.entries(icons)){if(t.includes(k))return v;}
-  return'🏠';
-}
-
-// ── SELECT ROOM — pan to it and show GPS ──
-function selectRoom(roomId){
-  if(!drawingMap)return;
-  const room=drawingMap.rooms.find(r=>r.id===roomId);
+// ── SELECT ROOM — load GPS via tight crop ──
+async function selectRoom(roomId){
+  if(!roomMap)return;
+  const room=roomMap.rooms.find(r=>r.id===roomId);
   if(!room)return;
-  activeRoom=room;
-  gpsStep=0;
 
-  // Pan view to center on this room
+  activeRoom=room;gpsStep=0;
+
+  // Mark as loading in list
+  const el=document.getElementById('room-list');
+  el.querySelectorAll('.rli').forEach(r=>r.classList.remove('loading'));
+  // can't easily target by id without data attr, just proceed
+
+  // Pan to room
   if(room.pixelBounds){
     const{centerX,centerY}=room.pixelBounds;
-    const vpEl=document.getElementById('pdf-viewport');
-    vx=(vpEl.clientWidth/2)-centerX*vz;
-    vy=(vpEl.clientHeight/2)-centerY*vz;
+    const vpEl=document.getElementById('viewport');
+    vx=vpEl.clientWidth/2-centerX*vz;
+    vy=vpEl.clientHeight/2-centerY*vz;
     applyT();
   }
 
-  // Highlight room on overlay
-  drawRoomOverlays();
+  // Highlight on overlay
+  drawOverlays();
   if(room.pixelBounds){
     const{x,y,w,h}=room.pixelBounds;
-    rX.strokeStyle='#f59e0b';
-    rX.lineWidth=3;
-    rX.setLineDash([]);
-    rX.strokeRect(x,y,w,h);
-    // Pulse fill
-    rX.fillStyle='rgba(245,158,11,0.15)';
-    rX.fillRect(x,y,w,h);
+    OX.strokeStyle='#f59e0b';OX.lineWidth=3;OX.setLineDash([]);
+    OX.strokeRect(x,y,w,h);
+    OX.fillStyle='rgba(245,158,11,.12)';OX.fillRect(x,y,w,h);
   }
 
-  showGPS(room);
-  switchTab('gps');
-}
-
-function selectLinear(id){
-  if(!drawingMap)return;
-  const item=drawingMap.linearItems.find(r=>r.id===id);
-  if(!item)return;
-  activeRoom=item;gpsStep=0;
-  showGPS(item);switchTab('gps');
-}
-
-function selectCount(id){
-  if(!drawingMap)return;
-  const item=drawingMap.countItems.find(r=>r.id===id);
-  if(!item)return;
-  activeRoom=item;gpsStep=0;
-  showGPS(item);switchTab('gps');
-}
-
-// ── GPS DISPLAY ──
-function showGPS(item){
-  const steps=item.gpsSteps||[];
-  const tool=item.tool||'area';
-  const toolIcons={area:'📐',linear:'📏',count:'🔢'};
-  const toolNames={area:'AREA TOOL',linear:'LINEAR TOOL',count:'COUNT TOOL'};
-  const toolWhys={
-    area:'Use Area tool to measure square footage for flooring, drywall and ceiling',
-    linear:'Use Linear tool to measure length for framing, beams and perimeter',
-    count:'Use Count tool to click and count individual items'
-  };
-
-  let html=`
-    <div class="gps-room-header">
-      <div class="gps-room-name">${item.name||item.label}</div>
-      <div class="gps-room-dims">${item.width||''} ${item.height?'× '+item.height:''}</div>
-      <div class="gps-room-purpose">${item.measurementPurpose||item.description||''}</div>
+  // Show GPS tab with loading state
+  goTab('gps');
+  document.getElementById('gps-content').innerHTML=`
+    <div class="gps-room-hdr">
+      <div class="gps-room-name">${room.name}</div>
+      <div class="gps-purpose">Loading GPS instructions...</div>
     </div>
-
-    <div class="tool-activate">
-      <div class="ta-icon">${toolIcons[tool]}</div>
-      <div class="ta-text">
-        <div class="ta-name">SELECT ${toolNames[tool]}</div>
-        <div class="ta-why">${toolWhys[tool]}</div>
-      </div>
-      <button class="ta-btn" onclick="activateTool('${tool}','${item.name||item.label}')">Activate ▶</button>
+    <div style="text-align:center;padding:30px;color:var(--tx2);">
+      <div class="spin purple" style="margin:0 auto 12px;"></div>
+      AI is analyzing this room at high resolution...
     </div>`;
 
-  // Current step card
+  // Get tight crop of this room at high res
+  try{
+    const cropCanvas=document.createElement('canvas');
+    let sx=0,sy=0,sw=PC.width,sh=PC.height;
+
+    if(room.pixelBounds){
+      const pad=80;
+      sx=Math.max(0,room.pixelBounds.x-pad);
+      sy=Math.max(0,room.pixelBounds.y-pad);
+      sw=Math.min(PC.width-sx,room.pixelBounds.w+pad*2);
+      sh=Math.min(PC.height-sy,room.pixelBounds.h+pad*2);
+    }
+
+    // Render page at higher res for this crop
+    const page=await pdfDoc.getPage(curPage);
+    const hiScale=3.0;
+    const hiVp=page.getViewport({scale:hiScale});
+    const hiC=document.createElement('canvas');
+    hiC.width=hiVp.width;hiC.height=hiVp.height;
+    const hiX=hiC.getContext('2d');
+    await page.render({canvasContext:hiX,viewport:hiVp}).promise;
+
+    // Scale crop coords to hi-res
+    const scaleUp=hiScale/RS;
+    const hsx=Math.round(sx*scaleUp),hsy=Math.round(sy*scaleUp);
+    const hsw=Math.round(sw*scaleUp),hsh=Math.round(sh*scaleUp);
+
+    cropCanvas.width=Math.min(hsw,900);
+    cropCanvas.height=Math.min(hsh,900);
+    const cX=cropCanvas.getContext('2d');
+
+    // Draw the crop
+    cX.drawImage(hiC,hsx,hsy,hsw,hsh,0,0,cropCanvas.width,cropCanvas.height);
+
+    // Draw orange crosshair at room center
+    const cx2=(room.pixelBounds?.centerX-sx)*scaleUp*(cropCanvas.width/hsw)||cropCanvas.width/2;
+    const cy2=(room.pixelBounds?.centerY-sy)*scaleUp*(cropCanvas.height/hsh)||cropCanvas.height/2;
+    cX.strokeStyle='rgba(245,158,11,.8)';cX.lineWidth=2;cX.setLineDash([6,4]);
+    cX.beginPath();cX.moveTo(cx2-20,cy2);cX.lineTo(cx2+20,cy2);
+    cX.moveTo(cx2,cy2-20);cX.lineTo(cx2,cy2+20);cX.stroke();cX.setLineDash([]);
+    cX.strokeStyle='#f59e0b';cX.lineWidth=2.5;cX.setLineDash([]);
+    cX.beginPath();cX.arc(cx2,cy2,10,0,Math.PI*2);cX.stroke();
+
+    const b64=cropCanvas.toDataURL('image/jpeg',.88).split(',')[1];
+
+    const resp=await fetch('/api/room-gps',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        imageBase64:b64,
+        width:cropCanvas.width,
+        height:cropCanvas.height,
+        roomName:room.name,
+        roomType:room.type
+      })
+    });
+
+    if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error||'Server error '+resp.status);}
+    const gpsData=await resp.json();
+
+    // Attach GPS data to room
+    room.gpsData=gpsData;
+    room.cropPreview=cropCanvas.toDataURL('image/jpeg',.7);
+
+    renderGPS(room);
+
+  }catch(e){
+    document.getElementById('gps-content').innerHTML=`
+      <div class="gps-room-hdr">
+        <div class="gps-room-name">${room.name}</div>
+      </div>
+      <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:14px;color:var(--red);font-size:12px;">
+        ❌ Error loading GPS: ${e.message}<br><br>
+        <button onclick="selectRoom('${roomId}')" style="background:var(--red);color:#fff;border:none;padding:6px 14px;border-radius:5px;cursor:pointer;font-weight:600;">Retry</button>
+      </div>`;
+  }
+}
+
+function selectItem(id,type){
+  // For linear and count items — just activate the tool
+  const items=[...(roomMap.linearItems||[]),...(roomMap.countItems||[])];
+  const item=items.find(i=>i.id===id);
+  if(!item)return;
+  const tool=type==='linear'?'linear':'count';
+  setTool(tool);
+  document.getElementById('m-label').value=item.name;
+  goTab('gps');
+  document.getElementById('gps-content').innerHTML=`
+    <div class="gps-room-hdr">
+      <div class="gps-room-name">${item.name}</div>
+      <div class="gps-purpose">${item.description||''}</div>
+    </div>
+    <div class="tool-box">
+      <div class="tool-icon">${tool==='linear'?'📏':'🔢'}</div>
+      <div class="tool-text">
+        <div class="tool-name">${tool.toUpperCase()} TOOL — ACTIVATED</div>
+        <div class="tool-why">${tool==='linear'?'Click start point then end point':'Click each item to count it'}</div>
+      </div>
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:12px;font-size:12px;color:var(--tx);line-height:1.6;">
+      ${tool==='linear'
+        ?'<strong>Step 1:</strong> Click the START point on the drawing<br><strong>Step 2:</strong> Click the END point<br><strong>Step 3:</strong> BuildIQ calculates the distance automatically'
+        :'<strong>Step 1:</strong> Click once on each item you want to count<br><strong>Step 2:</strong> Each click adds 1 to the total<br><strong>Step 3:</strong> Total shows in the Measure tab'
+      }
+    </div>`;
+}
+
+// ── RENDER GPS ──
+function renderGPS(room){
+  const gps=room.gpsData;
+  if(!gps){return;}
+  const steps=gps.gpsSteps||[];
+  const toolIcons={area:'📐',linear:'📏',count:'🔢'};
+  const ticon=toolIcons[gps.tool||'area']||'📐';
+
+  let html=`
+    <div class="gps-room-hdr">
+      <div class="gps-room-name">${gps.roomName||room.name}</div>
+      <div class="gps-dims">${gps.confirmedDimensions||''}</div>
+      <div class="gps-purpose">${gps.toolReason||''}</div>
+    </div>`;
+
+  // Preview image
+  if(room.cropPreview){
+    html+=`<div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px;margin-bottom:10px;text-align:center;">
+      <div style="font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">📐 Room Preview — Trace Inside These Walls</div>
+      <img src="${room.cropPreview}" style="max-width:100%;border-radius:4px;border:1px solid var(--bd);">
+    </div>`;
+  }
+
+  // Tool activate
+  html+=`<div class="tool-box">
+    <div class="tool-icon">${ticon}</div>
+    <div class="tool-text">
+      <div class="tool-name">SELECT ${(gps.tool||'area').toUpperCase()} TOOL</div>
+      <div class="tool-why">${gps.toolReason||''}</div>
+    </div>
+    <button class="tool-act" onclick="activateTool('${gps.tool||'area'}','${(gps.roomName||room.name).replace(/'/g,"\\'")}')">Activate ▶</button>
+  </div>`;
+
+  // Current step
   if(steps.length>0){
     const cur=steps[gpsStep]||steps[0];
-    const isDoor=(cur.direction||'').toLowerCase().includes('stop')||(cur.direction||'').toLowerCase().includes('skip');
-    const isClose=(cur.direction||'').toLowerCase().includes('close')||(cur.direction||'').toLowerCase().includes('double');
-    const dirClass=isClose?'dir-close':isDoor?'dir-stop':'dir-normal';
+    const dir=(cur.direction||'').toUpperCase();
+    const dirClass=dir.includes('STOP')||dir.includes('SKIP')?'dir-stop':dir.includes('CLOSE')||dir.includes('DOUBLE')?'dir-close':dir.includes('SELECT')?'dir-select':'dir-go';
 
-    html+=`
-    <div class="cur-step">
-      <div class="cur-step-label">📍 Current Step — ${gpsStep+1} of ${steps.length}</div>
-      <div class="cur-step-action">${cur.action}</div>
-      <div class="cur-step-detail">${cur.detail}</div>
-      ${cur.direction?`<div class="cur-step-dir ${dirClass}">${cur.direction}</div>`:''}
+    html+=`<div class="cur-step">
+      <div class="cs-label">📍 Current Step</div>
+      <div class="cs-num">Step ${gpsStep+1} of ${steps.length}</div>
+      <div class="cs-action">${cur.action}</div>
+      <div class="cs-detail">${cur.detail}</div>
+      ${cur.direction?`<div class="cs-dir ${dirClass}">${cur.direction}</div>`:''}
       <div class="step-nav">
-        <button class="step-back" onclick="gpsBack()" ${gpsStep===0?'disabled style="opacity:0.4"':''}>◀ Back</button>
+        <button class="s-back" onclick="gpsBack()" ${gpsStep===0?'disabled style="opacity:.4"':''}>◀ Back</button>
         ${gpsStep>=steps.length-1
-          ?`<button class="step-done" onclick="gpsDone('${item.id||''}','${tool}','${item.name||item.label}')">✅ Done — Save Measurement</button>`
-          :`<button class="step-next" onclick="gpsNext()">Next Step ▶</button>`
+          ?`<button class="s-done" onclick="gpsDone('${room.id}','${(gps.roomName||room.name).replace(/'/g,"\\'")}','${gps.tool||'area'}','${room.type||'room'}')">✅ Save Measurement</button>`
+          :`<button class="s-next" onclick="gpsNext('${room.id}')">Next Step ▶</button>`
         }
       </div>
     </div>`;
   }
 
-  // All steps list
-  html+=`<div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">All Steps</div>
-    <div class="step-list">`;
-
+  // All steps
+  html+=`<div style="font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">All Steps</div>
+  <div class="step-list">`;
   steps.forEach((s,i)=>{
-    const status=i<gpsStep?'done':i===gpsStep?'active':'';
-    const dotClass=i<gpsStep?'dot-done':i===gpsStep?'dot-active':'dot-pending';
-    html+=`
-      <div class="step-item ${status}" onclick="jumpStep(${i})">
-        <div class="step-dot ${dotClass}">${i<gpsStep?'✓':s.step||i+1}</div>
-        <div>
-          <div class="step-item-action">${s.action}</div>
-          ${s.direction?`<div class="step-item-dir">${s.direction}</div>`:''}
-        </div>
-      </div>`;
+    const status=i<gpsStep?'done':i===gpsStep?'cur':'';
+    const dc=i<gpsStep?'sdot-d':i===gpsStep?'sdot-c':'sdot-p';
+    html+=`<div class="step-item ${status}" onclick="jumpStep(${i},'${room.id}')">
+      <div class="sdot ${dc}">${i<gpsStep?'✓':s.step||i+1}</div>
+      <div>
+        <div class="sact">${s.action}</div>
+        ${s.direction?`<div class="sdir">${s.direction}</div>`:''}
+      </div>
+    </div>`;
   });
-
   html+='</div>';
 
   // Subtractions
-  const doors=item.doors||[];
-  const windows=item.windows||[];
-  const allSubs=[...doors,...windows];
-  if(allSubs.length>0){
-    html+=`<div class="sub-box"><div class="sub-title">➖ Subtract From Total</div>`;
-    allSubs.forEach(s=>{
-      html+=`<div class="sub-row"><span>${s.id||'Opening'} — ${s.width||s.size||''} ${s.location?'('+s.location+')':''}</span><span class="sub-val">−${s.subtractSF||0} SF</span></div>`;
+  const doors=gps.doors||[];
+  const wins=gps.windows||[];
+  if(doors.length>0||wins.length>0){
+    html+=`<div class="sub-box"><div class="sub-title">➖ Openings to Subtract</div>`;
+    [...doors,...wins].forEach(d=>{
+      html+=`<div class="sub-row">
+        <span>${d.tag||d.id||'Opening'} — ${d.width||d.size||''} ${d.location?'('+d.location+')':''}</span>
+        <span class="sub-val">−${d.subtractSF||0} SF</span>
+      </div>`;
+      if(d.subtractFrom)html+=`<div style="font-size:10px;color:var(--tx2);margin-bottom:4px;padding-left:4px;">${d.subtractFrom}</div>`;
     });
-    if(item.calculations){
-      html+=`<div style="border-top:1px solid rgba(239,68,68,0.2);margin-top:6px;padding-top:6px;">`;
-      Object.entries(item.calculations).forEach(([k,v])=>{
-        html+=`<div class="sub-row"><span>${k.replace(/([A-Z])/g,' $1').trim()}</span><span style="color:var(--text);font-weight:600;">${v}</span></div>`;
-      });
-      html+=`</div>`;
-    }
+    html+='</div>';
+  }
+
+  // Net calculations
+  if(gps.netCalculations){
+    html+=`<div class="calc-section"><div class="calc-title">🧮 Net Calculations</div>`;
+    Object.entries(gps.netCalculations).forEach(([k,v])=>{
+      html+=`<div class="calc-row"><span>${k.replace(/([A-Z])/g,' $1').trim()}</span><span class="calc-val">${v}</span></div>`;
+    });
     html+='</div>';
   }
 
   // Warnings
-  if(item.warnings&&item.warnings.length>0){
-    html+=`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:7px;padding:10px;margin-bottom:10px;">
-      <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;margin-bottom:5px;">⚠️ Notes</div>`;
-    item.warnings.forEach(w=>{html+=`<div style="font-size:11px;color:var(--text2);margin-bottom:3px;">• ${w}</div>`;});
+  if(gps.warnings&&gps.warnings.length>0){
+    html+=`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:7px;padding:10px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;margin-bottom:5px;">⚠️ Notes</div>`;
+    gps.warnings.forEach(w=>{html+=`<div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">• ${w}</div>`;});
     html+='</div>';
-  }
-
-  if(item.nextRoom){
-    html+=`<div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:7px;padding:8px 10px;font-size:11px;color:#60a5fa;">📋 Next: ${item.nextRoom}</div>`;
   }
 
   document.getElementById('gps-content').innerHTML=html;
 }
 
-function gpsNext(){
-  if(!activeRoom)return;
-  const steps=activeRoom.gpsSteps||[];
-  if(gpsStep<steps.length-1){gpsStep++;showGPS(activeRoom);}
+function gpsNext(roomId){
+  if(!roomMap)return;
+  const room=roomMap.rooms.find(r=>r.id===roomId);
+  if(!room||!room.gpsData)return;
+  const steps=room.gpsData.gpsSteps||[];
+  if(gpsStep<steps.length-1){gpsStep++;renderGPS(room);}
 }
 
 function gpsBack(){
-  if(gpsStep>0){gpsStep--;showGPS(activeRoom);}
+  if(!activeRoom||!activeRoom.gpsData)return;
+  if(gpsStep>0){gpsStep--;renderGPS(activeRoom);}
 }
 
-function jumpStep(i){gpsStep=i;if(activeRoom)showGPS(activeRoom);}
+function jumpStep(i,roomId){
+  if(!roomMap)return;
+  const room=roomMap.rooms.find(r=>r.id===roomId);
+  if(!room)return;
+  gpsStep=i;activeRoom=room;renderGPS(room);
+}
 
-function gpsDone(id,tool,label){
-  // Mark room as done
-  if(id)completedRooms.add(id);
-  drawRoomOverlays();
-  populateRoomList();
-  switchTab('measure');
-  showMode('✅ '+label+' complete — check Results tab','green');
+function gpsDone(roomId,roomName,tool,category){
+  doneRooms.add(roomId);
+  drawOverlays();
+  buildRoomList();
+
+  // Find the current measurement and tag it with room info
+  // The user just finished tracing — find measurements on this page
+  // Tag the most recently added measurement with room context
+  const pageMeas=meas.filter(m=>m.page===curPage&&!m.roomId);
+  if(pageMeas.length>0){
+    const last=pageMeas[pageMeas.length-1];
+    last.roomId=roomId;
+    last.roomName=roomName;
+    last.category=category||'room';
+    last.label=roomName;
+  }
+
+  showMode('✅ '+roomName+' saved! Check Results tab.','green');
   setTimeout(()=>showMode(''),3000);
+  updateResults();
+  goTab('results');
   activeRoom=null;gpsStep=0;
 }
 
 function activateTool(tool,label){
   setTool(tool);
-  setLbl(label);
-  switchTab('measure');
-  showMode('📐 '+tool.toUpperCase()+' TOOL ACTIVE — follow GPS steps in GPS tab','yellow');
+  document.getElementById('m-label').value=label;
+  showMode('📐 '+tool.toUpperCase()+' TOOL — follow GPS steps','yellow');
 }
 
-// ── CLICK HANDLER — check for room click ──
+// ── CLICK HANDLER ──
 function handleClick(pos){
   if(!pdfDoc)return;
 
@@ -1009,32 +1039,30 @@ function handleClick(pos){
     calPts.push(pos);redraw();
     if(calPts.length===1){
       showMode('⚖️ Click second point','yellow');
-      document.getElementById('cal-status').textContent='📍 Click second point...';
+      document.getElementById('cal-stat').textContent='📍 Click second point...';
     }else if(calPts.length===2){
       const dx=calPts[1].x-calPts[0].x,dy=calPts[1].y-calPts[0].y;
-      pxPerUnit=Math.sqrt(dx*dx+dy*dy)/parseFloat(document.getElementById('cal-val').value);
+      ppu=Math.sqrt(dx*dx+dy*dy)/parseFloat(document.getElementById('cal-val').value);
       calUnit=document.getElementById('cal-unit').value;
       calMode=false;
-      document.getElementById('btn-cal').classList.remove('active');
-      document.getElementById('cal-status').className='cal-status good';
-      document.getElementById('cal-status').textContent=`✅ Calibrated: 1 ${calUnit} = ${pxPerUnit.toFixed(1)}px`;
-      showMode('✅ Calibrated! Now click 🤖 Analyze This Sheet','green');
+      document.getElementById('btn-cal').classList.remove('on');
+      document.getElementById('cal-stat').className='cal-stat good';
+      document.getElementById('cal-stat').textContent=`✅ Calibrated: 1 ${calUnit} = ${ppu.toFixed(1)}px — now scan rooms`;
+      showMode('✅ Scale set — now click 🤖 Scan Rooms','green');
       setTimeout(()=>showMode(''),4000);
-      // NOW show the analyze overlay since calibration is done
-      document.getElementById('analyze-overlay').classList.remove('hidden');
       updateCursor();redraw();
     }
     return;
   }
 
-  // Room click — if no tool active and drawing is mapped
-  if(!curTool&&drawingMap){
-    const room=getRoomAtPoint(pos);
+  // Room click — if no tool active
+  if(!curTool&&roomMap){
+    const room=roomAtPoint(pos);
     if(room){selectRoom(room.id);return;}
   }
 
   if(!curTool)return;
-  if(!pxPerUnit){showMode('⚠️ Calibrate scale first!','yellow');setTimeout(()=>showMode(''),2000);return;}
+  if(!ppu){showMode('⚠️ Calibrate scale first!','yellow');setTimeout(()=>showMode(''),2000);return;}
 
   if(curTool==='count'){addCount(pos);return;}
   if(!curM){
@@ -1048,48 +1076,48 @@ function handleClick(pos){
 
 function addCount(pos){
   const lbl=document.getElementById('m-label').value||'Count';
-  let m=measurements.find(m=>m.type==='count'&&m.label===lbl&&m.page===curPage);
-  if(!m){m={id:Date.now(),type:'count',label:lbl,points:[],page:curPage,complete:false};measurements.push(m);}
-  m.points.push(pos);m.value=m.points.length;redraw();updateList();updateStats();
+  let m=meas.find(m=>m.type==='count'&&m.label===lbl&&m.page===curPage);
+  if(!m){m={id:Date.now(),type:'count',label:lbl,points:[],page:curPage,complete:false};meas.push(m);}
+  m.points.push(pos);m.value=m.points.length;redraw();updateResults();
 }
 
 function finalizeM(){
   if(!curM)return;
   curM.complete=true;curM.value=calcVal(curM);
-  measurements.push(curM);curM=null;redraw();updateList();updateStats();
+  meas.push(curM);curM=null;redraw();updateResults();
 }
 
 function calcVal(m){
-  if(!pxPerUnit)return 0;
+  if(!ppu)return 0;
   if(m.type==='linear'&&m.points.length>=2){
     const dx=m.points[1].x-m.points[0].x,dy=m.points[1].y-m.points[0].y;
-    return Math.sqrt(dx*dx+dy*dy)/pxPerUnit;
+    return Math.sqrt(dx*dx+dy*dy)/ppu;
   }
   if(m.type==='area'&&m.points.length>=3){
     let a=0;
     for(let i=0;i<m.points.length;i++){const j=(i+1)%m.points.length;a+=m.points[i].x*m.points[j].y-m.points[j].x*m.points[i].y;}
-    return Math.abs(a/2)/(pxPerUnit*pxPerUnit);
+    return Math.abs(a/2)/(ppu*ppu);
   }
   return m.points.length;
 }
 
 // ── DRAWING ──
 function redraw(){
-  mX.clearRect(0,0,mC.width,mC.height);
+  MX.clearRect(0,0,MC.width,MC.height);
   if(calPts.length>0){
-    calPts.forEach((p,i)=>dot(mX,p,'#f59e0b',6,String(i+1)));
+    calPts.forEach((p,i)=>dot(MX,p,'#f59e0b',6,String(i+1)));
     if(calPts.length===2){
-      mX.strokeStyle='#f59e0b';mX.lineWidth=1.5;mX.setLineDash([6,3]);
-      mX.beginPath();mX.moveTo(calPts[0].x,calPts[0].y);mX.lineTo(calPts[1].x,calPts[1].y);mX.stroke();mX.setLineDash([]);
+      MX.strokeStyle='#f59e0b';MX.lineWidth=1.5;MX.setLineDash([6,3]);
+      MX.beginPath();MX.moveTo(calPts[0].x,calPts[0].y);MX.lineTo(calPts[1].x,calPts[1].y);MX.stroke();MX.setLineDash([]);
     }
   }
-  measurements.filter(m=>m.page===curPage).forEach(m=>drawM(mX,m,false));
+  meas.filter(m=>m.page===curPage).forEach(m=>drawM(MX,m,false));
   if(curM){
-    drawM(mX,curM,true);
+    drawM(MX,curM,true);
     if(curM.points.length>0){
       const last=curM.points[curM.points.length-1];
-      mX.strokeStyle=(curTool==='area'?'#3b82f6':'#10b981')+'66';mX.lineWidth=1;mX.setLineDash([4,4]);
-      mX.beginPath();mX.moveTo(last.x,last.y);mX.lineTo(mPos.x,mPos.y);mX.stroke();mX.setLineDash([]);
+      MX.strokeStyle=(curTool==='area'?'#3b82f6':'#10b981')+'66';MX.lineWidth=1;MX.setLineDash([4,4]);
+      MX.beginPath();MX.moveTo(last.x,last.y);MX.lineTo(mpos.x,mpos.y);MX.stroke();MX.setLineDash([]);
     }
   }
 }
@@ -1119,7 +1147,8 @@ function drawM(ctx,m,prog){
   if(m.type==='count'){
     m.points.forEach((p,i)=>{
       ctx.fillStyle=col;ctx.beginPath();ctx.arc(p.x,p.y,8,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i+1,p.x,p.y);
+      ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(i+1,p.x,p.y);
     });
   }
   ctx.setLineDash([]);
@@ -1133,7 +1162,7 @@ function dot(ctx,pos,color,r,label){
 function lbl(ctx,x,y,text,color){
   ctx.font='bold 12px sans-serif';
   const w=ctx.measureText(text).width+12;
-  ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(x-w/2,y-11,w,22);
+  ctx.fillStyle='rgba(0,0,0,.8)';ctx.fillRect(x-w/2,y-11,w,22);
   ctx.fillStyle=color;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,x,y);
 }
 
@@ -1142,100 +1171,116 @@ function setTool(t,skip=false){
   if(curM)finalizeM();
   curTool=t;
   if(!skip)calMode=false;
-  ['area','linear','count'].forEach(id=>{const el=document.getElementById('btn-'+id);if(el)el.classList.toggle('active',t===id);});
-  document.getElementById('btn-none').classList.toggle('active',t===null&&!calMode);
+  ['area','linear','count'].forEach(id=>{const el=document.getElementById('btn-'+id);if(el)el.classList.toggle('on',t===id);});
+  document.getElementById('btn-none').classList.toggle('on',t===null&&!calMode);
   updateCursor();
-  if(t){
-    const L={area:'📐 AREA — click corners, double-click to finish',linear:'📏 LINEAR — click start then end',count:'🔢 COUNT — click each item'};
-    showMode(L[t],'yellow');
-  }else if(!calMode)showMode('');
+  const L={area:'📐 AREA — click corners, double-click to finish',linear:'📏 LINEAR — click start then end point',count:'🔢 COUNT — click each item'};
+  if(t)showMode(L[t],'yellow');
+  else if(!calMode)showMode('');
 }
 
 function undoLast(){
   if(curM&&curM.points.length>0){curM.points.pop();if(!curM.points.length)curM=null;}
-  else if(measurements.length>0){measurements.pop();updateList();updateStats();}
+  else if(meas.length>0){meas.pop();updateResults();}
   redraw();
 }
 
 function clearAll(){
   if(!confirm('Clear all measurements?'))return;
-  measurements=[];curM=null;calPts=[];pxPerUnit=null;
-  document.getElementById('cal-status').className='cal-status bad';
-  document.getElementById('cal-status').textContent='⚠️ Not calibrated — set scale first';
-  redraw();updateList();updateStats();
+  meas=[];curM=null;calPts=[];ppu=null;
+  document.getElementById('cal-stat').className='cal-stat bad';
+  document.getElementById('cal-stat').textContent='⚠️ Not calibrated';
+  redraw();updateResults();
 }
 
-function deleteMeasurement(i){measurements.splice(i,1);updateList();updateStats();redraw();}
+function deleteMeasurement(i){meas.splice(i,1);updateResults();redraw();}
 
-// ── UI ──
-function updateList(){
-  const el=document.getElementById('m-list');
-  if(!measurements.length){el.innerHTML='<div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">No measurements yet.</div></div>';updateResults();return;}
-  const units={area:'SF',linear:'LF',count:'EA'};
-  el.innerHTML=measurements.map((m,i)=>`
-    <div class="mi">
-      <button class="mi-del" onclick="deleteMeasurement(${i})">✕</button>
-      <div class="mi-hdr">
-        <div>
-          <div class="mi-name">${m.label}</div>
-          <div class="mi-type"><span class="badge b-${m.type}" style="margin-bottom:0;">${m.type.toUpperCase()}</span> pg ${m.page}</div>
-        </div>
-        <div class="mi-val">${fmtV(m)} <span style="font-size:10px;font-weight:400;">${units[m.type]}</span></div>
-      </div>
-    </div>`).join('');
-  updateResults();
-}
-
-function fmtV(m){
-  if(m.type==='count')return m.points.length;
-  if(m.type==='linear')return m.value?m.value.toFixed(1):'—';
-  return m.value?m.value.toFixed(0):'—';
-}
-
-function updateStats(){
-  document.getElementById('s-total').textContent=measurements.length;
-  document.getElementById('s-area').textContent=measurements.filter(m=>m.type==='area').length;
-  document.getElementById('s-lin').textContent=measurements.filter(m=>m.type==='linear').length;
-}
-
+// ── RESULTS — organized by room/category ──
 function updateResults(){
-  const el=document.getElementById('results-content');
-  if(!measurements.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Add measurements to see summary.</div></div>';return;}
-  const areas=measurements.filter(m=>m.type==='area');
-  const lins=measurements.filter(m=>m.type==='linear');
-  const cnts=measurements.filter(m=>m.type==='count');
-  const row=(l,v,u,c)=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;"><span>${l}</span><span style="color:${c};font-weight:700;">${v} ${u}</span></div>`;
-  el.innerHTML=`
-    ${areas.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:6px;">📐 AREAS</div>${areas.map(m=>row(m.label,m.value?m.value.toFixed(0):'—','SF','#3b82f6')).join('')}<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;font-weight:700;"><span>TOTAL SF</span><span style="color:var(--accent);">${areas.reduce((s,m)=>s+(m.value||0),0).toFixed(0)} SF</span></div></div>`:''}
-    ${lins.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#10b981;margin-bottom:6px;">📏 LINEAR</div>${lins.map(m=>row(m.label,m.value?m.value.toFixed(1):'—','LF','#10b981')).join('')}</div>`:''}
-    ${cnts.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px;">🔢 COUNTS</div>${cnts.map(m=>row(m.label,m.points.length,'EA','#8b5cf6')).join('')}</div>`:''}`;
+  // Update stats
+  const areas=meas.filter(m=>m.type==='area'&&m.value);
+  const lins=meas.filter(m=>m.type==='linear'&&m.value);
+  document.getElementById('s-total').textContent=meas.length;
+  document.getElementById('s-sf').textContent=Math.round(areas.reduce((s,m)=>s+(m.value||0),0));
+  document.getElementById('s-lf').textContent=Math.round(lins.reduce((s,m)=>s+(m.value||0),0)*10)/10;
+
+  if(!meas.length){
+    document.getElementById('results-body').innerHTML='<div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Measurements appear here organized by room.</div></div>';
+    return;
+  }
+
+  // Group measurements by room/category
+  const groups={};
+  meas.forEach((m,i)=>{
+    const key=m.roomId||'manual';
+    const name=m.roomName||'Manual Measurements';
+    const cat=m.category||'other';
+    if(!groups[key])groups[key]={name,category:cat,items:[],tool:m.type};
+    groups[key].items.push({...m,idx:i});
+  });
+
+  let html='';
+  Object.entries(groups).forEach(([key,group])=>{
+    const units={area:'SF',linear:'LF',count:'EA'};
+    const totalSF=group.items.filter(m=>m.type==='area').reduce((s,m)=>s+(m.value||0),0);
+    const totalLF=group.items.filter(m=>m.type==='linear').reduce((s,m)=>s+(m.value||0),0);
+    const totalCt=group.items.filter(m=>m.type==='count').reduce((s,m)=>s+(m.points?.length||0),0);
+
+    let totalStr='';
+    if(totalSF>0)totalStr=Math.round(totalSF)+' SF';
+    else if(totalLF>0)totalStr=totalLF.toFixed(1)+' LF';
+    else if(totalCt>0)totalStr=totalCt+' EA';
+
+    html+=`<div class="cat-section">
+      <div class="cat-header">
+        <div>
+          <div class="cat-name">${group.name}</div>
+          <div style="font-size:10px;color:var(--tx2);">${group.category}</div>
+        </div>
+        <div class="cat-total">${totalStr}</div>
+      </div>
+      <div class="cat-items">`;
+
+    group.items.forEach(m=>{
+      const u=units[m.type]||'';
+      const v=m.type==='count'?(m.points?.length||0):m.value?m.value.toFixed(m.type==='linear'?1:0):'—';
+      html+=`<div class="mi">
+        <div class="mi-name">${m.label||m.type}</div>
+        <div class="mi-val">${v} <span class="mi-unit">${u}</span></div>
+        <button class="mi-del" onclick="deleteMeasurement(${m.idx})">✕</button>
+      </div>`;
+    });
+
+    html+='</div></div>';
+  });
+
+  document.getElementById('results-body').innerHTML=html;
 }
 
-function switchTab(t){
-  document.querySelectorAll('.ptab').forEach(e=>e.classList.remove('active'));
-  document.querySelectorAll('.pcontent').forEach(e=>e.style.display='none');
-  document.getElementById('tab-'+t).classList.add('active');
-  document.getElementById('panel-'+t).style.display='block';
+// ── UI HELPERS ──
+function goTab(t){
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.pane').forEach(e=>e.classList.remove('on'));
+  document.getElementById('tab-'+t).classList.add('on');
+  document.getElementById('pane-'+t).classList.add('on');
 }
-
-function setLbl(t){document.getElementById('m-label').value=t;}
 
 function showMode(txt,style='yellow'){
-  const el=document.getElementById('mode-ind');
-  el.className='mode-ind '+style;
-  if(txt){el.textContent=txt;el.classList.add('visible');}
-  else el.classList.remove('visible');
+  const el=document.getElementById('mode-bar');
+  el.className='mode-bar '+style;
+  if(txt){el.textContent=txt;el.classList.add('show');}
+  else el.classList.remove('show');
 }
 
 function showLoad(v,txt='Loading...'){
-  document.getElementById('loading-ov').classList.toggle('visible',v);
+  document.getElementById('load-ov').classList.toggle('show',v);
   document.getElementById('load-txt').textContent=txt;
 }
 
-function dragOver(e){e.preventDefault();document.getElementById('upload-zone').classList.add('drag-over');}
-function dragLeave(){document.getElementById('upload-zone').classList.remove('drag-over');}
-function drop(e){
-  e.preventDefault();document.getElementById('upload-zone').classList.remove('drag-over');
+function dov(e){e.preventDefault();document.getElementById('upload-zone').classList.add('over');}
+function dlv(){document.getElementById('upload-zone').classList.remove('over');}
+function drp(e){
+  e.preventDefault();document.getElementById('upload-zone').classList.remove('over');
   const f=e.dataTransfer.files[0];
   if(f&&f.type==='application/pdf'){
     const inp=document.getElementById('file-in');
@@ -1244,28 +1289,31 @@ function drop(e){
 }
 
 function exportCSV(){
-  if(!measurements.length){alert('No measurements yet.');return;}
-  let csv=`BuildIQ Takeoff\nProject: ${projName}\nDate: ${new Date().toLocaleDateString()}\n\nLabel,Type,Value,Unit,Page\n`;
-  measurements.forEach(m=>{
+  if(!meas.length){alert('No measurements yet.');return;}
+  let csv=`BuildIQ Takeoff\nProject: ${projName}\nDate: ${new Date().toLocaleDateString()}\n\nRoom/Category,Label,Type,Value,Unit,Page\n`;
+  meas.forEach(m=>{
     const u=m.type==='area'?'SF':m.type==='linear'?'LF':'EA';
-    const v=m.type==='count'?m.points.length:(m.value?m.value.toFixed(m.type==='linear'?1:0):0);
-    csv+=`"${m.label}",${m.type.toUpperCase()},${v},${u},${m.page}\n`;
+    const v=m.type==='count'?(m.points?.length||0):(m.value?m.value.toFixed(m.type==='linear'?1:0):0);
+    csv+=`"${m.roomName||'Manual'}","${m.label}",${m.type.toUpperCase()},${v},${u},${m.page}\n`;
   });
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   a.download=`BuildIQ_${projName}_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 }
 
-function copyQty(){
-  if(!measurements.length){alert('No measurements yet.');return;}
+function copyAll(){
+  if(!meas.length){alert('No measurements yet.');return;}
   const u=m=>m.type==='area'?'SF':m.type==='linear'?'LF':'EA';
-  const v=m=>m.type==='count'?m.points.length:(m.value?m.value.toFixed(1):0);
-  navigator.clipboard.writeText(measurements.map(m=>`${m.label}: ${v(m)} ${u(m)}`).join('\n')).then(()=>{
-    const btn=document.querySelector('.exp-btn.sec');const orig=btn.textContent;
-    btn.textContent='✅ Copied!';setTimeout(()=>btn.textContent=orig,2000);
+  const v=m=>m.type==='count'?(m.points?.length||0):(m.value?m.value.toFixed(1):0);
+  const txt=meas.map(m=>`${m.roomName||'Manual'} — ${m.label}: ${v(m)} ${u(m)}`).join('\n');
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn=document.querySelector('.exp-btn.sec');
+    const o=btn.textContent;btn.textContent='✅ Copied!';
+    setTimeout(()=>btn.textContent=o,2000);
   });
 }
 
-switchTab('rooms');
+goTab('rooms');
 </script>
 </body>
 </html>
