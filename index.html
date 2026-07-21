@@ -369,7 +369,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/p
 
 // ── STATE ──
 let pdfDoc=null, curPage=1, totPages=0;
-let renderScale=2.5;
+let renderScale=1.5;
 let vx=0,vy=0,vz=1,fitZ=1;
 let isPan=false,panS={x:0,y:0},panO={x:0,y:0};
 let spaceHeld=false;
@@ -752,7 +752,7 @@ async function analyzeCurrentPage(){
 
   try{
     // capture current page as base64 image
-    const imgData=pdfC.toDataURL('image/jpeg',0.85);
+    const imgData=pdfC.toDataURL('image/jpeg',0.4);
     const base64=imgData.split(',')[1];
 
     // Build project context from known drawing data
