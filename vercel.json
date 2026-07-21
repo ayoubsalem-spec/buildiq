@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/analyze.js": {
-      "runtime": "edge"
+      "maxDuration": 30
     }
   }
 }
