@@ -752,28 +752,53 @@ async function analyzeCurrentPage(){
 
   try{
     // capture current page as base64 image
-    const imgData=pdfC.toDataURL('image/jpeg',0.4);
+    // Crop and compress image to fit within Vercel 10s timeout
+    const cropCanvas=document.createElement('canvas');
+    const cropW=Math.min(pdfC.width,1000);
+    const cropH=Math.min(pdfC.height,800);
+    cropCanvas.width=cropW;
+    cropCanvas.height=cropH;
+    const cropCtx=cropCanvas.getContext('2d');
+    cropCtx.drawImage(pdfC,0,0,cropW,cropH,0,0,cropW,cropH);
+    const imgData=cropCanvas.toDataURL('image/jpeg',0.45);
     const base64=imgData.split(',')[1];
 
-    // Build project context from known drawing data
-    const projectContext = {
-      projectName: projName,
-      currentPage: curPage,
-      totalPages: totPages,
-      measurements: measurements.map(m=>({label:m.label,type:m.type,value:m.value,unit:m.type==='area'?'SF':m.type==='linear'?'LF':'EA'})),
-      calibrated: !!pxPerUnit,
-      calUnit: calUnit
-    };
+    const prompt=`You are BuildIQ, an AI construction estimator. You are looking at a construction drawing sheet.
 
+Your job is to identify the MOST IMPORTANT measurement to take on this drawing, then provide the exact pixel coordinates where the user should click to measure it.
 
-        const response=await fetch('/api/analyze',{
+The drawing image is ${pdfC.width}x${pdfC.height} pixels.
+
+Analyze the drawing and respond with ONLY valid JSON in this exact format, no other text:
+{
+  "measurementType": "area" or "linear" or "count",
+  "label": "descriptive name like Concrete Slab or Roof Area or Grade Beam",
+  "instruction": "One sentence telling the user what they are measuring and why it matters for the bid",
+  "points": [
+    {"x": 100, "y": 200, "label": "Corner 1 - NW"},
+    {"x": 500, "y": 200, "label": "Corner 2 - NE"},
+    {"x": 500, "y": 600, "label": "Corner 3 - SE"},
+    {"x": 100, "y": 600, "label": "Corner 4 - SW"}
+  ]
+}
+
+Rules:
+- For area: provide 3-8 corner points tracing the perimeter of the most important area (building footprint, parking lot, etc)
+- For linear: provide exactly 2 points (start and end of the most important line measurement)
+- For count: provide points on each item to count (doors, windows, columns, etc) - max 20
+- Coordinates must be within the image dimensions (0 to ${pdfC.width} for x, 0 to ${pdfC.height} for y)
+- Choose the single most valuable measurement for a construction estimator on this specific drawing
+- Label each point clearly (e.g. "NW Corner", "Start", "Door 1")
+- ONLY return the JSON object, nothing else`;
+
+    const response=await fetch('/api/analyze',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        imageBase64: base64,
-        width: pdfC.width,
-        height: pdfC.height,
-        context: projectContext
+        imageBase64:base64,
+        width:cropW,
+        height:cropH,
+        context:{projectName:projName,page:curPage,totalPages:totPages}
       })
     });
 
@@ -781,7 +806,6 @@ async function analyzeCurrentPage(){
       const errData=await response.json().catch(()=>({}));
       throw new Error(errData.error||'Server error '+response.status);
     }
-
     const result=await response.json();
 
     // validate
@@ -812,26 +836,7 @@ async function analyzeCurrentPage(){
     const panel=document.getElementById('ai-panel');
     panel.classList.add('visible');
     document.getElementById('ai-panel-label').textContent=aiMeasureLabel;
-
-    // Build rich instruction with auto calculations
-    let instructionHTML = result.instruction || 'Follow the numbered markers on the drawing.';
-    if(result.autoCalculations && result.autoCalculations.length > 0){
-      instructionHTML += '<div style="margin-top:8px;padding:8px;background:rgba(16,185,129,0.1);border-radius:6px;border:1px solid rgba(16,185,129,0.2);">';
-      instructionHTML += '<div style="font-size:10px;font-weight:700;color:#34d399;margin-bottom:4px;">🧮 AUTO-CALCULATIONS AFTER MEASURING:</div>';
-      result.autoCalculations.forEach(c=>{
-        instructionHTML += `<div style="font-size:10px;color:var(--text);margin-bottom:3px;"><strong>${c.item}:</strong> ${c.note||c.formula}</div>`;
-      });
-      instructionHTML += '</div>';
-    }
-    if(result.nextMeasurements && result.nextMeasurements.length > 0){
-      instructionHTML += '<div style="margin-top:6px;padding:6px;background:rgba(59,130,246,0.1);border-radius:6px;border:1px solid rgba(59,130,246,0.2);">';
-      instructionHTML += '<div style="font-size:10px;font-weight:700;color:#60a5fa;margin-bottom:3px;">📋 MEASURE NEXT:</div>';
-      result.nextMeasurements.slice(0,3).forEach(n=>{
-        instructionHTML += `<div style="font-size:10px;color:var(--text2);margin-bottom:2px;">→ ${n}</div>`;
-      });
-      instructionHTML += '</div>';
-    }
-    document.getElementById('ai-instruction').innerHTML=instructionHTML;
+    document.getElementById('ai-instruction').textContent=result.instruction||'Follow the numbered markers on the drawing.';
     renderAIClickList();
 
     // switch to measure tab and show guide
