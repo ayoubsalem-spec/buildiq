@@ -307,55 +307,9 @@
         🎯 ROOM MODE — Click anywhere inside a room to get GPS measurement instructions
       </div>
 
-      <!-- GPS PANEL -->
-      <div class="gps-panel" id="gps-panel">
-        <div class="gps-header">
-          <div>
-            <div class="gps-title" id="gps-room-name">Loading...</div>
-            <div style="font-size:11px;color:var(--text2);margin-top:2px;" id="gps-room-dims"></div>
-          </div>
-          <button class="gps-close" onclick="closeGPS()">✕</button>
-        </div>
-        <div class="gps-body">
-
-          <!-- PREVIEW IMAGE -->
-          <div class="preview-container" id="preview-container">
-            <div class="preview-label">📐 What Your Trace Should Look Like</div>
-            <canvas id="preview-canvas"></canvas>
-          </div>
-
-          <!-- TOOL INSTRUCTION -->
-          <div class="tool-instruction" id="tool-instruction">
-            <div class="tool-icon" id="tool-icon">📐</div>
-            <div class="tool-text">
-              <div class="tool-name" id="tool-name">SELECT AREA TOOL</div>
-              <div class="tool-why" id="tool-why">Loading...</div>
-            </div>
-            <button class="tool-activate-btn" id="tool-activate-btn" onclick="activateGPSTool()">Activate ▶</button>
-          </div>
-
-          <!-- GPS STEPS -->
-          <div class="gps-steps" id="gps-steps"></div>
-
-          <!-- SUBTRACTIONS -->
-          <div class="subtractions" id="subtractions" style="display:none;">
-            <div class="sub-title">➖ Subtract From Total</div>
-            <div id="sub-list"></div>
-          </div>
-
-          <!-- WARNINGS -->
-          <div class="warnings" id="gps-warnings" style="display:none;">
-            <div class="warn-title">⚠️ Notes</div>
-            <div id="warn-list"></div>
-          </div>
-
-          <!-- NAV BUTTONS -->
-          <div class="gps-nav" id="gps-nav">
-            <button class="gps-prev" onclick="gpsBack()">◀ Back</button>
-            <button class="gps-next" id="gps-next-btn" onclick="gpsNext()">Next Step ▶</button>
-          </div>
-
-        </div>
+      <!-- GPS CLICK MARKER - shows where user clicked -->
+      <div id="click-marker" style="position:absolute;width:24px;height:24px;border:3px solid #f59e0b;border-radius:50%;pointer-events:none;display:none;transform:translate(-50%,-50%);z-index:25;box-shadow:0 0 0 4px rgba(245,158,11,0.3);">
+        <div style="position:absolute;top:50%;left:50%;width:4px;height:4px;background:#f59e0b;border-radius:50%;transform:translate(-50%,-50%);"></div>
       </div>
 
       <!-- CHECKLIST PANEL -->
@@ -391,6 +345,7 @@
   <div class="right-panel">
     <div class="panel-tabs">
       <div class="ptab active" onclick="switchTab('measure')" id="tab-measure">📐 MEASURE</div>
+      <div class="ptab" onclick="switchTab('gps')" id="tab-gps" style="display:none;">🎯 GPS</div>
       <div class="ptab" onclick="switchTab('results')" id="tab-results">📊 RESULTS</div>
       <div class="ptab" onclick="switchTab('help')" id="tab-help">❓ HELP</div>
     </div>
@@ -441,6 +396,55 @@
           <div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">Calibrate scale → use 🎯 Click a Room<br>or pick a tool and measure manually.</div></div>
         </div>
       </div>
+    </div>
+
+    <!-- GPS TAB — shown when user clicks a room -->
+    <div class="pcontent" id="panel-gps" style="display:none;padding:10px;">
+
+      <!-- PREVIEW IMAGE -->
+      <div class="preview-container" id="preview-container" style="margin-bottom:10px;">
+        <div class="preview-label">📐 What Your Trace Should Look Like</div>
+        <canvas id="preview-canvas" style="max-width:100%;border-radius:4px;border:1px solid var(--border);"></canvas>
+      </div>
+
+      <!-- TOOL INSTRUCTION -->
+      <div class="tool-instruction" id="tool-instruction" style="margin-bottom:10px;">
+        <div class="tool-icon" id="tool-icon">📐</div>
+        <div class="tool-text">
+          <div class="tool-name" id="tool-name">SELECT AREA TOOL</div>
+          <div class="tool-why" id="tool-why">Loading...</div>
+        </div>
+        <button class="tool-activate-btn" id="tool-activate-btn" onclick="activateGPSTool()">Activate ▶</button>
+      </div>
+
+      <!-- CURRENT STEP HIGHLIGHT -->
+      <div id="current-step-card" style="background:rgba(245,158,11,0.12);border:2px solid var(--accent);border-radius:9px;padding:12px;margin-bottom:10px;display:none;">
+        <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">📍 CURRENT STEP</div>
+        <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:4px;" id="cur-step-action"></div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:6px;" id="cur-step-detail"></div>
+        <div id="cur-step-dir" style="display:inline-block;background:rgba(245,158,11,0.2);color:var(--accent);padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="gps-prev" onclick="gpsBack()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">◀ Back</button>
+          <button class="gps-next" id="gps-next-btn" onclick="gpsNext()" style="flex:2;background:var(--accent);border:none;color:#000;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Next Step ▶</button>
+        </div>
+      </div>
+
+      <!-- ALL STEPS LIST -->
+      <div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">All Steps</div>
+      <div class="gps-steps" id="gps-steps" style="margin-bottom:10px;"></div>
+
+      <!-- SUBTRACTIONS -->
+      <div class="subtractions" id="subtractions" style="display:none;margin-bottom:10px;">
+        <div class="sub-title">➖ Subtract From Total</div>
+        <div id="sub-list"></div>
+      </div>
+
+      <!-- WARNINGS -->
+      <div class="warnings" id="gps-warnings" style="display:none;margin-bottom:10px;">
+        <div class="warn-title">⚠️ Notes</div>
+        <div id="warn-list"></div>
+      </div>
+
     </div>
 
     <!-- RESULTS TAB -->
@@ -733,6 +737,9 @@ async function handleRoomClick(canvasPos,e){
   // Store for preview
   roomCropData={canvas:cropCanvas,imgData,base64,w:cropCanvas.width,h:cropCanvas.height};
 
+  // Show click marker on drawing
+  showClickMarker(e);
+
   // Show preview immediately
   showPreview(cropCanvas);
 
@@ -741,7 +748,7 @@ async function handleRoomClick(canvasPos,e){
   roomMode=false;
   document.getElementById('btn-room').classList.remove('active');
   updateCursor();
-  showMode('🤖 AI is reading your drawing...','purple');
+  showMode('🤖 AI is reading this room...','purple');
 
   showLoad(true,'AI is analyzing this room...');
   document.getElementById('spinner').classList.add('purple');
@@ -755,7 +762,9 @@ async function handleRoomClick(canvasPos,e){
         imageBase64:base64,
         width:cropCanvas.width,
         height:cropCanvas.height,
-        mode:'room'
+        mode:'room',
+        clickX: Math.round(canvasPos.x * (cropCanvas.width / pdfC.width)),
+        clickY: Math.round(canvasPos.y * (cropCanvas.height / pdfC.height))
       })
     });
 
@@ -826,11 +835,14 @@ async function analyzeFullSheet(){
 // ── GPS PANEL ──
 function showGPS(){
   if(!gpsData)return;
-  const panel=document.getElementById('gps-panel');
-  panel.classList.add('visible');
 
-  document.getElementById('gps-room-name').textContent=gpsData.roomName||'Room Analysis';
-  document.getElementById('gps-room-dims').textContent=gpsData.dimensions||'';
+  // Switch to GPS tab in right panel
+  document.getElementById('tab-gps').style.display='block';
+  document.getElementById('tab-gps').textContent='🎯 '+(gpsData.roomName||'GPS');
+  switchTab('gps');
+
+  // Show current step card
+  document.getElementById('current-step-card').style.display='block';
 
   // Tool instruction
   const toolIcons={area:'📐',linear:'📏',count:'🔢'};
@@ -871,11 +883,13 @@ function showGPS(){
 function renderGPSSteps(){
   if(!gpsData||!gpsData.steps)return;
   const container=document.getElementById('gps-steps');
-  container.innerHTML=gpsData.steps.map((s,i)=>{
+  const steps=gpsData.steps;
+
+  container.innerHTML=steps.map((s,i)=>{
     const status=i<gpsStep?'done':i===gpsStep?'current':'pending';
     const isDoor=s.action&&s.action.toLowerCase().includes('skip');
     return`
-      <div class="gps-step ${status}" id="gps-step-${i}">
+      <div class="gps-step ${status}" id="gps-step-${i}" onclick="jumpToStep(${i})">
         <div class="step-num ${status}">${status==='done'?'✓':s.stepNumber}</div>
         <div class="step-body">
           <div class="step-action">${s.action}</div>
@@ -886,19 +900,46 @@ function renderGPSSteps(){
     `;
   }).join('');
 
-  // Scroll current step into view
-  const cur=document.getElementById('gps-step-'+gpsStep);
-  if(cur)cur.scrollIntoView({behavior:'smooth',block:'nearest'});
+  // Update the CURRENT STEP CARD at the top
+  if(gpsStep<steps.length){
+    const cur=steps[gpsStep];
+    document.getElementById('cur-step-action').textContent=(gpsStep+1)+'. '+cur.action;
+    document.getElementById('cur-step-detail').textContent=cur.detail;
+    const dirEl=document.getElementById('cur-step-dir');
+    if(cur.direction){
+      dirEl.style.display='inline-block';
+      dirEl.textContent=cur.direction;
+      const isDoor=cur.action&&cur.action.toLowerCase().includes('skip');
+      dirEl.style.background=isDoor?'rgba(239,68,68,0.2)':'rgba(245,158,11,0.2)';
+      dirEl.style.color=isDoor?'var(--red)':'var(--accent)';
+    }else{
+      dirEl.style.display='none';
+    }
+  }
+
+  // Update step counter in tab
+  document.getElementById('tab-gps').textContent=`🎯 GPS (${gpsStep+1}/${steps.length})`;
+
+  // Scroll step list
+  const curEl=document.getElementById('gps-step-'+gpsStep);
+  if(curEl)curEl.scrollIntoView({behavior:'smooth',block:'nearest'});
 
   // Update nav button
   const nextBtn=document.getElementById('gps-next-btn');
-  if(gpsStep>=gpsData.steps.length-1){
-    nextBtn.textContent='✅ Done — Record Measurement';
-    nextBtn.className='gps-done';
+  if(gpsStep>=steps.length-1){
+    nextBtn.textContent='✅ Done';
+    nextBtn.style.background='var(--green)';
+    nextBtn.style.color='#fff';
   }else{
     nextBtn.textContent='Next Step ▶';
-    nextBtn.className='gps-next';
+    nextBtn.style.background='var(--accent)';
+    nextBtn.style.color='#000';
   }
+}
+
+function jumpToStep(i){
+  gpsStep=i;
+  renderGPSSteps();
 }
 
 function gpsNext(){
@@ -927,8 +968,11 @@ function activateGPSTool(){
 }
 
 function closeGPS(){
-  document.getElementById('gps-panel').classList.remove('visible');
+  document.getElementById('tab-gps').style.display='none';
+  document.getElementById('current-step-card').style.display='none';
   gpsData=null;gpsStep=0;
+  switchTab('measure');
+  hideClickMarker();
 }
 
 // ── PREVIEW IMAGE ──
@@ -1258,6 +1302,18 @@ function updateResults(){
     ${lins.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#10b981;margin-bottom:6px;">📏 LINEAR</div>${lins.map(m=>row(m.label,m.value?m.value.toFixed(1):'—','LF','#10b981')).join('')}</div>`:''}
     ${cnts.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px;">🔢 COUNTS</div>${cnts.map(m=>row(m.label,m.points.length,'EA','#8b5cf6')).join('')}</div>`:''}
   `;
+}
+
+function showClickMarker(e){
+  const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
+  const marker=document.getElementById('click-marker');
+  marker.style.display='block';
+  marker.style.left=(e.clientX-vp.left)+'px';
+  marker.style.top=(e.clientY-vp.top)+'px';
+}
+
+function hideClickMarker(){
+  document.getElementById('click-marker').style.display='none';
 }
 
 function switchTab(t){

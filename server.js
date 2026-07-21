@@ -31,7 +31,8 @@ const server = http.createServer(async (req, res) => {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', async () => {
       try {
-        const { imageBase64, width, height, mode } = JSON.parse(body);
+        const body_parsed = JSON.parse(body);
+        const { imageBase64, width, height, mode } = body_parsed;
 
         if (!ANTHROPIC_API_KEY) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -41,17 +42,24 @@ const server = http.createServer(async (req, res) => {
 
         let prompt;
 
+        const clickInfo = (body_parsed.clickX !== undefined) 
+          ? `The user clicked at pixel coordinates (${body_parsed.clickX}, ${body_parsed.clickY}) on this image. This is the CENTER of the room they want to measure. Focus on identifying the room at THAT EXACT LOCATION.`
+          : '';
+
         if (mode === 'room') {
-          prompt = `You are BuildIQ, an expert AI construction estimator. You are looking at a cropped section of a construction floor plan drawing.
+          prompt = `You are BuildIQ, an expert AI construction estimator. You are looking at what is currently visible on a user's screen from a construction floor plan drawing. Image size: ${width}x${height} pixels.
 
-The user clicked inside a room and this is what is currently visible on their screen (${width}x${height} pixels).
+${clickInfo}
 
-Your job is to:
-1. Identify what room or area this is
-2. Determine what needs to be measured (area for rooms, linear for walls/beams)
-3. Give exact GPS-style step by step instructions so someone with ZERO construction experience can measure it correctly
-4. Identify any doors or windows that need to be SKIPPED or SUBTRACTED
-5. Draw the trace path on the image by describing it clearly
+CRITICAL: The user clicked at a specific point. Identify ONLY the room or space at that click location. Do NOT analyze other rooms visible on screen.
+
+Your job:
+1. Look at coordinates (${body_parsed.clickX||Math.round(width/2)}, ${body_parsed.clickY||Math.round(height/2)}) — what room label is at or nearest to that point?
+2. Read any text labels, dimensions, or room names visible near that click point
+3. Identify every wall boundary of THAT SPECIFIC ROOM
+4. Find every door symbol (arc+line) and window symbol (parallel lines) in THAT ROOM ONLY
+5. Give GPS step by step instructions to trace THAT ROOM from corner to corner
+6. Tell user exactly where to stop for doors and windows
 
 Respond with ONLY this exact JSON format, no other text:
 {
