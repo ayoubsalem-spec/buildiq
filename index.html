@@ -6,208 +6,201 @@
 <title>BuildIQ — AI Chief Estimator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222535;--border:#2e3348;--accent:#f59e0b;--accent2:#fbbf24;--text:#e8eaf0;--text2:#8b90a7;--green:#10b981;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6;}
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
-  header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-  .logo{display:flex;align-items:center;gap:8px;}
-  .logo-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
-  .logo-text{font-size:17px;font-weight:800;letter-spacing:-0.5px;}
-  .logo-text span{color:var(--accent);}
-  .hbadge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
-  .app{display:flex;flex:1;overflow:hidden;}
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222535;--border:#2e3348;--accent:#f59e0b;--text:#e8eaf0;--text2:#8b90a7;--green:#10b981;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.logo-text{font-size:17px;font-weight:800;}
+.logo-text span{color:var(--accent);}
+.hbadge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.app{display:flex;flex:1;overflow:hidden;}
 
-  /* PDF PANEL */
-  .pdf-panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;}
-  .toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
-  .tg{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid var(--border);}
-  .tg:last-child{border-right:none;padding-right:0;}
-  .tl{font-size:10px;color:var(--text2);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
-  .tb{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
-  .tb:hover{background:var(--border);border-color:var(--accent);color:var(--accent);}
-  .tb.active{background:rgba(245,158,11,0.15);border-color:var(--accent);color:var(--accent);}
-  .tb.danger{border-color:var(--red);color:var(--red);}
-  .tb.danger:hover{background:rgba(239,68,68,0.1);}
-  .pg-nav{display:flex;align-items:center;gap:6px;}
-  .pg-nav input{width:44px;text-align:center;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px;border-radius:4px;font-size:12px;}
+/* PDF PANEL */
+.pdf-panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;}
+.toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.tg{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid var(--border);}
+.tg:last-child{border-right:none;}
+.tl{font-size:10px;color:var(--text2);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+.tb{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.tb:hover{background:var(--border);border-color:var(--accent);color:var(--accent);}
+.tb.active{background:rgba(245,158,11,0.15);border-color:var(--accent);color:var(--accent);}
+.tb.danger{border-color:var(--red);color:var(--red);}
+.pg-nav{display:flex;align-items:center;gap:6px;}
+.pg-nav input{width:44px;text-align:center;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px;border-radius:4px;font-size:12px;}
 
-  /* AI BUTTONS */
-  .ai-room-btn{background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(251,191,36,0.1));border:1px solid var(--accent);color:var(--accent);padding:5px 12px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
-  .ai-room-btn:hover{background:rgba(245,158,11,0.3);}
-  .ai-room-btn.active{background:rgba(245,158,11,0.25);animation:pulse-border 1.5s ease-in-out infinite;}
-  @keyframes pulse-border{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.4);}50%{box-shadow:0 0 0 4px rgba(245,158,11,0);}}
-  .ai-sheet-btn{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(59,130,246,0.1));border:1px solid var(--purple);color:#a78bfa;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
-  .ai-sheet-btn:hover{background:rgba(139,92,246,0.3);}
+/* BIG ANALYZE BUTTON */
+.analyze-btn{background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#000;padding:6px 16px;border-radius:6px;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s;letter-spacing:0.3px;}
+.analyze-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,158,11,0.4);}
+.analyze-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
-  /* VIEWPORT */
-  .pdf-viewport{flex:1;overflow:hidden;position:relative;background:#0a0c12;}
-  .pdf-inner{position:absolute;transform-origin:0 0;}
-  .cw{position:relative;display:inline-block;box-shadow:0 8px 32px rgba(0,0,0,0.7);}
-  #pdf-canvas{display:block;}
-  #measure-canvas{position:absolute;top:0;left:0;pointer-events:none;}
-  #interact-canvas{position:absolute;top:0;left:0;}
+/* VIEWPORT */
+.pdf-viewport{flex:1;overflow:hidden;position:relative;background:#0a0c12;}
+.pdf-inner{position:absolute;transform-origin:0 0;}
+.cw{position:relative;display:inline-block;box-shadow:0 8px 32px rgba(0,0,0,0.7);}
+#pdf-canvas{display:block;}
+#measure-canvas{position:absolute;top:0;left:0;pointer-events:none;}
+#room-overlay-canvas{position:absolute;top:0;left:0;pointer-events:none;}
+#interact-canvas{position:absolute;top:0;left:0;}
 
-  /* UPLOAD */
-  .upload-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;}
-  .upload-zone{width:100%;max-width:440px;border:2px dashed var(--border);border-radius:14px;padding:44px 28px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);}
-  .upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:rgba(245,158,11,0.05);}
-  .upload-btn-main{background:var(--accent);color:#000;border:none;padding:11px 26px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;}
+/* UPLOAD */
+.upload-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;}
+.upload-zone{width:100%;max-width:460px;border:2px dashed var(--border);border-radius:14px;padding:48px 32px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:rgba(245,158,11,0.05);}
+.upload-btn-main{background:var(--accent);color:#000;border:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-top:18px;}
 
-  /* MODE INDICATOR */
-  .mode-ind{position:absolute;top:10px;left:50%;transform:translateX(-50%);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;pointer-events:none;display:none;white-space:nowrap;z-index:20;}
-  .mode-ind.visible{display:block;}
-  .mode-ind.yellow{background:rgba(245,158,11,0.92);color:#000;}
-  .mode-ind.purple{background:rgba(139,92,246,0.92);color:#fff;}
-  .mode-ind.green{background:rgba(16,185,129,0.92);color:#fff;}
+/* ANALYZE OVERLAY — shown after upload before analyze */
+.analyze-overlay{position:absolute;inset:0;background:rgba(15,17,23,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:30;backdrop-filter:blur(2px);}
+.analyze-overlay.hidden{display:none;}
+.analyze-overlay-card{background:var(--surface);border:1px solid var(--accent);border-radius:14px;padding:32px;text-align:center;max-width:400px;}
+.analyze-overlay-title{font-size:20px;font-weight:800;margin-bottom:8px;color:var(--accent);}
+.analyze-overlay-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;}
+.analyze-big-btn{background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#000;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;width:100%;letter-spacing:0.3px;}
+.analyze-big-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,0.5);}
 
-  /* CURSOR HINT */
-  .cur-hint{position:absolute;background:rgba(245,158,11,0.92);color:#000;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;pointer-events:none;z-index:30;display:none;transform:translate(14px,-50%);white-space:nowrap;}
+/* MODE INDICATOR */
+.mode-ind{position:absolute;top:10px;left:50%;transform:translateX(-50%);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;pointer-events:none;display:none;white-space:nowrap;z-index:20;}
+.mode-ind.visible{display:block;}
+.mode-ind.yellow{background:rgba(245,158,11,0.92);color:#000;}
+.mode-ind.green{background:rgba(16,185,129,0.92);color:#fff;}
+.mode-ind.purple{background:rgba(139,92,246,0.92);color:#fff;}
 
-  /* ROOM CLICK TARGET */
-  .room-hint{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(245,158,11,0.95);color:#000;padding:8px 20px;border-radius:20px;font-size:12px;font-weight:700;pointer-events:none;display:none;z-index:20;text-align:center;}
-  .room-hint.visible{display:block;}
+/* ROOM HOVER TOOLTIP on canvas */
+.room-tooltip{position:absolute;background:rgba(245,158,11,0.95);color:#000;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;pointer-events:none;z-index:25;display:none;white-space:nowrap;transform:translate(-50%,-120%);}
 
-  /* ZOOM */
-  .zoom-ov{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:4px;z-index:10;}
-  .zo-btn{width:32px;height:32px;background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;backdrop-filter:blur(4px);}
-  .zo-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .zo-lbl{background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text2);border-radius:6px;font-size:10px;font-weight:600;text-align:center;padding:4px 2px;}
+/* ZOOM */
+.zoom-ov{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:4px;z-index:10;}
+.zo-btn{width:32px;height:32px;background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.zo-btn:hover{border-color:var(--accent);color:var(--accent);}
+.zo-lbl{background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text2);border-radius:6px;font-size:10px;font-weight:600;text-align:center;padding:4px 2px;}
 
-  /* LOADING */
-  .loading-ov{position:absolute;inset:0;background:rgba(15,17,23,0.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:50;}
-  .loading-ov.visible{display:flex;}
-  .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
-  .spinner.purple{border-top-color:var(--purple);}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .load-txt{font-size:13px;color:var(--text2);}
+/* LOADING */
+.loading-ov{position:absolute;inset:0;background:rgba(15,17,23,0.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:50;}
+.loading-ov.visible{display:flex;}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+.spinner.purple{border-top-color:var(--purple);}
+@keyframes spin{to{transform:rotate(360deg);}}
+.load-txt{font-size:13px;color:var(--text2);max-width:280px;text-align:center;line-height:1.5;}
 
-  /* RIGHT PANEL */
-  .right-panel{width:380px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;}
-  .panel-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
-  .ptab{flex:1;padding:11px 4px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all 0.15s;}
-  .ptab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(245,158,11,0.05);}
-  .pcontent{flex:1;overflow-y:auto;padding:14px;}
+/* RIGHT PANEL */
+.right-panel{width:380px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;}
+.panel-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.ptab{flex:1;padding:11px 4px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all 0.15s;}
+.ptab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(245,158,11,0.05);}
+.pcontent{flex:1;overflow-y:auto;padding:14px;}
 
-  /* CARDS */
-  .sc{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:13px;margin-bottom:11px;}
-  .sc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--accent);margin-bottom:9px;}
-  .cal-status{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:7px;margin-bottom:9px;font-size:12px;font-weight:500;}
-  .cal-status.bad{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red);}
-  .cal-status.good{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--green);}
-  .ci{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 9px;border-radius:5px;font-size:12px;}
-  .ci:focus{outline:none;border-color:var(--accent);}
-  .ci-row{display:flex;gap:7px;align-items:center;margin-bottom:7px;}
+/* CARDS */
+.sc{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:13px;margin-bottom:11px;}
+.sc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--accent);margin-bottom:9px;}
+.cal-status{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:7px;margin-bottom:9px;font-size:12px;font-weight:500;}
+.cal-status.bad{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red);}
+.cal-status.good{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--green);}
+.ci{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 9px;border-radius:5px;font-size:12px;}
+.ci:focus{outline:none;border-color:var(--accent);}
+.ci-row{display:flex;gap:7px;align-items:center;margin-bottom:7px;}
 
-  /* MEASUREMENTS */
-  .mi{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px;margin-bottom:7px;position:relative;}
-  .mi:hover{border-color:var(--accent);}
-  .mi-hdr{display:flex;justify-content:space-between;align-items:flex-start;}
-  .mi-name{font-size:11px;font-weight:600;flex:1;padding-right:8px;line-height:1.3;}
-  .mi-val{font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;}
-  .mi-type{font-size:10px;color:var(--text2);margin-top:2px;}
-  .mi-del{position:absolute;top:7px;right:7px;background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;opacity:0;transition:opacity 0.15s;}
-  .mi:hover .mi-del{opacity:1;}
-  .mi-del:hover{color:var(--red);}
+/* GPS PANEL in right column */
+.gps-room-header{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.05));border:1px solid rgba(245,158,11,0.3);border-radius:9px;padding:12px;margin-bottom:10px;}
+.gps-room-name{font-size:16px;font-weight:800;color:var(--accent);margin-bottom:3px;}
+.gps-room-dims{font-size:11px;color:var(--text2);}
+.gps-room-purpose{font-size:11px;color:var(--text);margin-top:4px;line-height:1.4;}
 
-  /* GPS PANEL */
-  .gps-panel{position:absolute;bottom:0;left:0;right:0;background:rgba(15,17,23,0.97);border-top:2px solid var(--accent);z-index:25;display:none;max-height:70%;overflow-y:auto;}
-  .gps-panel.visible{display:block;}
-  .gps-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);}
-  .gps-title{font-size:14px;font-weight:800;color:var(--accent);}
-  .gps-close{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;}
-  .gps-close:hover{color:var(--red);}
-  .gps-body{padding:16px;}
+/* TOOL ACTIVATE */
+.tool-activate{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:10px;border:1px solid var(--accent);background:rgba(245,158,11,0.08);}
+.ta-icon{font-size:22px;}
+.ta-text{flex:1;}
+.ta-name{font-size:12px;font-weight:800;color:var(--accent);}
+.ta-why{font-size:10px;color:var(--text2);margin-top:1px;line-height:1.3;}
+.ta-btn{background:var(--accent);color:#000;border:none;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
 
-  /* PREVIEW IMAGE */
-  .preview-container{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:12px;text-align:center;}
-  .preview-label{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
-  #preview-canvas{border-radius:4px;max-width:100%;border:1px solid var(--border);}
+/* CURRENT STEP */
+.cur-step{background:var(--surface2);border:2px solid var(--accent);border-radius:9px;padding:12px;margin-bottom:10px;}
+.cur-step-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--accent);margin-bottom:6px;}
+.cur-step-num{font-size:11px;color:var(--text2);margin-bottom:4px;}
+.cur-step-action{font-size:14px;font-weight:800;color:var(--text);margin-bottom:5px;}
+.cur-step-detail{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:8px;}
+.cur-step-dir{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;margin-bottom:8px;}
+.dir-normal{background:rgba(245,158,11,0.2);color:var(--accent);}
+.dir-stop{background:rgba(239,68,68,0.2);color:var(--red);}
+.dir-skip{background:rgba(139,92,246,0.2);color:#a78bfa;}
+.dir-close{background:rgba(16,185,129,0.2);color:var(--green);}
+.step-nav{display:flex;gap:8px;}
+.step-back{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+.step-next{flex:2;background:var(--accent);border:none;color:#000;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+.step-done{flex:2;background:var(--green);border:none;color:#fff;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
 
-  /* TOOL INSTRUCTION */
-  .tool-instruction{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);}
-  .tool-icon{font-size:24px;}
-  .tool-text{flex:1;}
-  .tool-name{font-size:13px;font-weight:800;color:var(--accent);}
-  .tool-why{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4;}
-  .tool-activate-btn{background:var(--accent);color:#000;border:none;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+/* ALL STEPS LIST */
+.step-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+.step-item{display:flex;gap:8px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);cursor:pointer;transition:all 0.15s;}
+.step-item:hover{border-color:var(--accent);}
+.step-item.active{border-color:var(--accent);background:rgba(245,158,11,0.06);}
+.step-item.done{border-color:var(--green);opacity:0.6;}
+.step-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.dot-pending{background:var(--border);color:var(--text2);}
+.dot-active{background:var(--accent);color:#000;}
+.dot-done{background:var(--green);color:#fff;}
+.step-item-action{font-size:11px;font-weight:600;color:var(--text);}
+.step-item-dir{font-size:10px;color:var(--text2);margin-top:1px;}
 
-  /* GPS STEPS */
-  .gps-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
-  .gps-step{display:flex;gap:10px;padding:10px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);transition:all 0.15s;}
-  .gps-step.current{border-color:var(--accent);background:rgba(245,158,11,0.08);}
-  .gps-step.done{border-color:var(--green);background:rgba(16,185,129,0.06);opacity:0.7;}
-  .step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
-  .step-num.pending{background:var(--border);color:var(--text2);}
-  .step-num.current{background:var(--accent);color:#000;}
-  .step-num.done{background:var(--green);color:#fff;}
-  .step-body{flex:1;}
-  .step-action{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
-  .step-detail{font-size:11px;color:var(--text2);line-height:1.4;}
-  .step-dir{display:inline-block;background:rgba(245,158,11,0.15);color:var(--accent);padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-top:4px;}
-  .step-skip{background:rgba(239,68,68,0.15);color:var(--red);padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-top:4px;}
+/* SUBTRACTIONS */
+.sub-box{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:7px;padding:10px;margin-bottom:10px;}
+.sub-title{font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.sub-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;}
+.sub-val{color:var(--red);font-weight:700;}
 
-  /* SUBTRACTIONS */
-  .subtractions{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:7px;padding:10px;margin-bottom:12px;}
-  .sub-title{font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
-  .sub-item{font-size:11px;color:var(--text);margin-bottom:3px;display:flex;justify-content:space-between;}
-  .sub-val{color:var(--red);font-weight:700;}
+/* ROOM LIST (checklist) */
+.room-list-item{display:flex;gap:8px;padding:9px 10px;border:1px solid var(--border);border-radius:7px;margin-bottom:6px;cursor:pointer;transition:all 0.15s;background:var(--surface2);}
+.room-list-item:hover{border-color:var(--accent);}
+.room-list-item.done{border-color:var(--green);opacity:0.7;}
+.rli-icon{font-size:18px;flex-shrink:0;}
+.rli-info{flex:1;}
+.rli-name{font-size:12px;font-weight:700;margin-bottom:2px;}
+.rli-dims{font-size:10px;color:var(--text2);}
+.rli-purpose{font-size:10px;color:var(--text2);margin-top:2px;}
+.rli-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;display:inline-block;margin-top:3px;}
+.badge-area{background:rgba(59,130,246,0.2);color:#60a5fa;}
+.badge-linear{background:rgba(16,185,129,0.2);color:#34d399;}
+.badge-count{background:rgba(139,92,246,0.2);color:#a78bfa;}
 
-  /* WARNINGS */
-  .warnings{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:7px;padding:10px;margin-bottom:12px;}
-  .warn-title{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
-  .warn-item{font-size:11px;color:var(--text2);margin-bottom:3px;}
+/* MEASUREMENTS */
+.mi{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px;margin-bottom:7px;position:relative;}
+.mi:hover{border-color:var(--accent);}
+.mi-hdr{display:flex;justify-content:space-between;align-items:flex-start;}
+.mi-name{font-size:11px;font-weight:600;flex:1;padding-right:8px;}
+.mi-val{font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;}
+.mi-type{font-size:10px;color:var(--text2);margin-top:2px;}
+.mi-del{position:absolute;top:7px;right:7px;background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;opacity:0;}
+.mi:hover .mi-del{opacity:1;}
+.mi-del:hover{color:var(--red);}
 
-  /* GPS NAV BUTTONS */
-  .gps-nav{display:flex;gap:8px;margin-top:4px;}
-  .gps-prev{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
-  .gps-next{flex:2;background:var(--accent);border:none;color:#000;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
-  .gps-done{flex:2;background:var(--green);border:none;color:#fff;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+/* STATS */
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px;}
+.stat-box{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px;text-align:center;}
+.sv{font-size:17px;font-weight:700;color:var(--accent);}
+.sl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;}
 
-  /* CHECKLIST PANEL */
-  .checklist-panel{position:absolute;top:52px;right:0;width:360px;background:rgba(15,17,23,0.97);border-left:2px solid var(--purple);z-index:25;display:none;height:calc(100% - 52px);overflow-y:auto;}
-  .checklist-panel.visible{display:block;}
-  .cl-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;}
-  .cl-title{font-size:13px;font-weight:800;color:#a78bfa;}
-  .cl-body{padding:12px;}
-  .cl-item{display:flex;gap:10px;padding:10px;border:1px solid var(--border);border-radius:7px;margin-bottom:7px;cursor:pointer;transition:all 0.15s;background:var(--surface2);}
-  .cl-item:hover{border-color:var(--accent);}
-  .cl-item.done{border-color:var(--green);opacity:0.6;}
-  .cl-num{width:22px;height:22px;border-radius:50%;background:var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
-  .cl-num.done{background:var(--green);color:#fff;}
-  .cl-info{flex:1;}
-  .cl-name{font-size:12px;font-weight:600;margin-bottom:2px;}
-  .cl-why{font-size:10px;color:var(--text2);line-height:1.3;}
-  .cl-priority{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;}
-  .cl-priority.HIGH{background:rgba(239,68,68,0.2);color:var(--red);}
-  .cl-priority.MEDIUM{background:rgba(245,158,11,0.2);color:var(--accent);}
+/* BADGES */
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;margin-right:3px;margin-bottom:3px;cursor:pointer;}
+.b-area{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);}
+.b-linear{background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.3);}
+.b-count{background:rgba(139,92,246,0.2);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);}
 
-  /* STATS */
-  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px;}
-  .stat-box{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px;text-align:center;}
-  .sv{font-size:17px;font-weight:700;color:var(--accent);}
-  .sl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;}
+/* EXPORT */
+.export-section{padding:13px;border-top:1px solid var(--border);flex-shrink:0;}
+.exp-btn{width:100%;background:var(--accent);color:#000;border:none;padding:10px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:7px;}
+.exp-btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.exp-btn.sec:hover{border-color:var(--accent);color:var(--accent);}
 
-  /* BADGES */
-  .badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;margin-right:3px;margin-bottom:3px;cursor:pointer;}
-  .b-area{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);}
-  .b-linear{background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.3);}
-  .b-count{background:rgba(139,92,246,0.2);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);}
+.empty{text-align:center;padding:24px 14px;color:var(--text2);}
+.empty-icon{font-size:26px;margin-bottom:6px;}
+.empty-txt{font-size:12px;line-height:1.5;}
+.info-bar{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:6px;font-size:11px;margin-bottom:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;line-height:1.4;}
 
-  /* EXPORT */
-  .export-section{padding:13px;border-top:1px solid var(--border);flex-shrink:0;}
-  .exp-btn{width:100%;background:var(--accent);color:#000;border:none;padding:10px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:7px;}
-  .exp-btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-  .exp-btn.sec:hover{border-color:var(--accent);color:var(--accent);}
-
-  .empty{text-align:center;padding:24px 14px;color:var(--text2);}
-  .empty-icon{font-size:26px;margin-bottom:6px;}
-  .empty-txt{font-size:12px;line-height:1.5;}
-  .info-bar{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:6px;font-size:11px;margin-bottom:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;line-height:1.4;}
-
-  ::-webkit-scrollbar{width:5px;}
-  ::-webkit-scrollbar-track{background:transparent;}
-  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-  input[type="file"]{display:none;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+input[type="file"]{display:none;}
 </style>
 </head>
 <body>
@@ -218,7 +211,7 @@
     <div class="logo-text">Build<span>IQ</span></div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
-    <span id="proj-name" style="font-size:12px;color:var(--text2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+    <span id="proj-name" style="font-size:12px;color:var(--text2);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
     <div class="hbadge">AI CHIEF ESTIMATOR</div>
   </div>
 </header>
@@ -236,29 +229,22 @@
         </div>
         <button class="tb" onclick="changePage(1)">▶</button>
       </div>
-
       <div class="tg">
         <span class="tl">Tools</span>
-        <button class="tb" id="btn-area"   onclick="setTool('area')"   title="Area (A)">▪ Area</button>
-        <button class="tb" id="btn-linear" onclick="setTool('linear')" title="Linear (L)">⟷ Linear</button>
-        <button class="tb" id="btn-count"  onclick="setTool('count')"  title="Count (C)">⊕ Count</button>
-        <button class="tb" id="btn-none"   onclick="setTool(null)"     title="Deselect (Esc)">✕ None</button>
+        <button class="tb" id="btn-area"   onclick="setTool('area')"  >▪ Area</button>
+        <button class="tb" id="btn-linear" onclick="setTool('linear')">⟷ Linear</button>
+        <button class="tb" id="btn-count"  onclick="setTool('count')" >⊕ Count</button>
+        <button class="tb" id="btn-none"   onclick="setTool(null)"    >✕ None</button>
       </div>
-
       <div class="tg">
         <button class="tb danger" onclick="undoLast()">↩ Undo</button>
         <button class="tb danger" onclick="clearAll()">🗑 Clear</button>
       </div>
-
-      <div class="tg">
-        <button class="ai-room-btn" id="btn-room" onclick="toggleRoomMode()">
-          🎯 Click a Room
-        </button>
-        <button class="ai-sheet-btn" id="btn-sheet" onclick="analyzeFullSheet()">
-          📋 Full Sheet Scan
+      <div class="tg" style="border:none;">
+        <button class="analyze-btn" id="analyze-btn" onclick="analyzeDrawing()">
+          🤖 Analyze This Sheet
         </button>
       </div>
-
       <div class="tg" style="border:none;">
         <span style="font-size:10px;color:var(--text2);">Scroll=zoom · Drag=pan</span>
       </div>
@@ -267,17 +253,18 @@
     <!-- UPLOAD -->
     <div class="upload-screen" id="upload-screen">
       <div style="text-align:center;">
-        <div style="font-size:48px;margin-bottom:10px;">🏗️</div>
-        <div style="font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:5px;">Build<span style="color:var(--accent);">IQ</span></div>
+        <div style="font-size:52px;margin-bottom:12px;">🏗️</div>
+        <div style="font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;">Build<span style="color:var(--accent);">IQ</span></div>
         <div style="font-size:14px;color:var(--text2);margin-bottom:4px;">AI Chief Estimator</div>
-        <div style="font-size:12px;color:var(--text2);">Click a room — AI gives you GPS instructions step by step</div>
+        <div style="font-size:12px;color:var(--text2);">Upload drawings → AI maps every room → click any room for GPS instructions</div>
       </div>
       <div class="upload-zone" id="upload-zone"
            onclick="document.getElementById('file-in').click()"
            ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="drop(event)">
         <div style="font-size:44px;margin-bottom:14px;">📋</div>
         <div style="font-size:19px;font-weight:700;margin-bottom:7px;">Upload Drawing Set</div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5;">Drop PDF here or click to browse.<br>AI guides every measurement step by step.</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:4px;line-height:1.5;">Drop PDF here or click to browse</div>
+        <div style="font-size:11px;color:var(--text2);">AI reads every sheet · Maps every room · GPS guides every measurement</div>
         <button class="upload-btn-main" onclick="event.stopPropagation();document.getElementById('file-in').click()">Choose PDF File</button>
       </div>
     </div>
@@ -294,35 +281,32 @@
         <div class="cw" id="cw">
           <canvas id="pdf-canvas"></canvas>
           <canvas id="measure-canvas"></canvas>
+          <canvas id="room-overlay-canvas"></canvas>
           <canvas id="interact-canvas"></canvas>
         </div>
       </div>
 
-      <!-- MODE INDICATORS -->
-      <div class="mode-ind yellow" id="mode-ind"></div>
-      <div class="cur-hint" id="cur-hint"></div>
-
-      <!-- ROOM MODE HINT -->
-      <div class="room-hint" id="room-hint">
-        🎯 ROOM MODE — Click anywhere inside a room to get GPS measurement instructions
-      </div>
-
-      <!-- GPS CLICK MARKER - shows where user clicked -->
-      <div id="click-marker" style="position:absolute;width:24px;height:24px;border:3px solid #f59e0b;border-radius:50%;pointer-events:none;display:none;transform:translate(-50%,-50%);z-index:25;box-shadow:0 0 0 4px rgba(245,158,11,0.3);">
-        <div style="position:absolute;top:50%;left:50%;width:4px;height:4px;background:#f59e0b;border-radius:50%;transform:translate(-50%,-50%);"></div>
-      </div>
-
-      <!-- CHECKLIST PANEL -->
-      <div class="checklist-panel" id="checklist-panel">
-        <div class="cl-header">
-          <div>
-            <div class="cl-title">📋 Full Sheet Takeoff Checklist</div>
-            <div style="font-size:10px;color:var(--text2);margin-top:2px;" id="cl-subtitle">Click any item to start measuring</div>
+      <!-- ANALYZE OVERLAY — shown after PDF loads before analysis -->
+      <div class="analyze-overlay" id="analyze-overlay">
+        <div class="analyze-overlay-card">
+          <div style="font-size:36px;margin-bottom:10px;">🤖</div>
+          <div class="analyze-overlay-title">Ready to Analyze</div>
+          <div class="analyze-overlay-sub">
+            BuildIQ will read this entire sheet, identify every room, wall, door and window, then give you GPS instructions to measure everything.
+            <br><br>
+            <strong style="color:var(--accent);">First calibrate your scale</strong> in the right panel, then click Analyze.
           </div>
-          <button class="gps-close" onclick="closeChecklist()">✕</button>
+          <button class="analyze-big-btn" onclick="analyzeDrawing()">
+            🤖 Analyze This Sheet — Map All Rooms
+          </button>
         </div>
-        <div class="cl-body" id="cl-body"></div>
       </div>
+
+      <!-- ROOM TOOLTIP -->
+      <div class="room-tooltip" id="room-tooltip"></div>
+
+      <!-- MODE INDICATOR -->
+      <div class="mode-ind yellow" id="mode-ind"></div>
 
       <!-- ZOOM -->
       <div class="zoom-ov">
@@ -344,20 +328,20 @@
   <!-- RIGHT PANEL -->
   <div class="right-panel">
     <div class="panel-tabs">
-      <div class="ptab active" onclick="switchTab('measure')" id="tab-measure">📐 MEASURE</div>
-      <div class="ptab" onclick="switchTab('gps')" id="tab-gps" style="display:none;">🎯 GPS</div>
-      <div class="ptab" onclick="switchTab('results')" id="tab-results">📊 RESULTS</div>
-      <div class="ptab" onclick="switchTab('help')" id="tab-help">❓ HELP</div>
+      <div class="ptab active" onclick="switchTab('rooms')"   id="tab-rooms">🗺️ ROOMS</div>
+      <div class="ptab"        onclick="switchTab('gps')"     id="tab-gps"  >🎯 GPS</div>
+      <div class="ptab"        onclick="switchTab('measure')" id="tab-measure">📐 MEASURE</div>
+      <div class="ptab"        onclick="switchTab('results')" id="tab-results">📊 RESULTS</div>
     </div>
 
-    <!-- MEASURE TAB -->
-    <div class="pcontent" id="panel-measure">
+    <!-- ROOMS TAB -->
+    <div class="pcontent" id="panel-rooms">
       <div class="sc">
         <div class="sc-title">⚖️ Scale Calibration</div>
         <div class="cal-status bad" id="cal-status">⚠️ Not calibrated — set scale first</div>
-        <div class="info-bar">💡 Zoom in close. Enter a known dimension. Click 2 endpoints on the drawing. Verify with a second measurement.</div>
+        <div class="info-bar">💡 Find a labeled dimension. Enter value. Click 2 endpoints on drawing.</div>
         <div class="ci-row">
-          <input class="ci" type="number" id="cal-val" placeholder="Known distance e.g. 20" step="0.1" style="flex:1;">
+          <input class="ci" type="number" id="cal-val" placeholder="Known distance" step="0.1" style="flex:1;">
           <select class="ci" id="cal-unit" style="width:60px;">
             <option value="ft">ft</option>
             <option value="in">in</option>
@@ -368,6 +352,26 @@
         <button class="tb danger" onclick="resetCal()" style="width:100%;display:flex;justify-content:center;font-size:11px;">Reset Scale</button>
       </div>
 
+      <div id="room-list-container">
+        <div class="empty">
+          <div class="empty-icon">🤖</div>
+          <div class="empty-txt">Upload a drawing then click<br><strong style="color:var(--accent);">🤖 Analyze This Sheet</strong><br>AI will map every room automatically.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GPS TAB -->
+    <div class="pcontent" id="panel-gps" style="display:none;">
+      <div id="gps-content">
+        <div class="empty">
+          <div class="empty-icon">🎯</div>
+          <div class="empty-txt">Click any room on the map list<br>to get GPS instructions.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEASURE TAB -->
+    <div class="pcontent" id="panel-measure" style="display:none;">
       <div class="sc">
         <div class="sc-title">🏷️ Label</div>
         <input class="ci" type="text" id="m-label" placeholder="Name this measurement..." style="width:100%;margin-bottom:7px;">
@@ -381,10 +385,8 @@
           <span class="badge b-linear" onclick="setLbl('Curb & Gutter')">Curb</span>
           <span class="badge b-count"  onclick="setLbl('Doors')">Doors</span>
           <span class="badge b-count"  onclick="setLbl('Windows')">Windows</span>
-          <span class="badge b-count"  onclick="setLbl('Columns')">Columns</span>
         </div>
       </div>
-
       <div class="sc">
         <div class="sc-title">📏 Measurements</div>
         <div class="stats-bar">
@@ -393,58 +395,9 @@
           <div class="stat-box"><div class="sv" id="s-lin">0</div><div class="sl">Lines</div></div>
         </div>
         <div id="m-list">
-          <div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">Calibrate scale → use 🎯 Click a Room<br>or pick a tool and measure manually.</div></div>
+          <div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">No measurements yet.</div></div>
         </div>
       </div>
-    </div>
-
-    <!-- GPS TAB — shown when user clicks a room -->
-    <div class="pcontent" id="panel-gps" style="display:none;padding:10px;">
-
-      <!-- PREVIEW IMAGE -->
-      <div class="preview-container" id="preview-container" style="margin-bottom:10px;">
-        <div class="preview-label">📐 What Your Trace Should Look Like</div>
-        <canvas id="preview-canvas" style="max-width:100%;border-radius:4px;border:1px solid var(--border);"></canvas>
-      </div>
-
-      <!-- TOOL INSTRUCTION -->
-      <div class="tool-instruction" id="tool-instruction" style="margin-bottom:10px;">
-        <div class="tool-icon" id="tool-icon">📐</div>
-        <div class="tool-text">
-          <div class="tool-name" id="tool-name">SELECT AREA TOOL</div>
-          <div class="tool-why" id="tool-why">Loading...</div>
-        </div>
-        <button class="tool-activate-btn" id="tool-activate-btn" onclick="activateGPSTool()">Activate ▶</button>
-      </div>
-
-      <!-- CURRENT STEP HIGHLIGHT -->
-      <div id="current-step-card" style="background:rgba(245,158,11,0.12);border:2px solid var(--accent);border-radius:9px;padding:12px;margin-bottom:10px;display:none;">
-        <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">📍 CURRENT STEP</div>
-        <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:4px;" id="cur-step-action"></div>
-        <div style="font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:6px;" id="cur-step-detail"></div>
-        <div id="cur-step-dir" style="display:inline-block;background:rgba(245,158,11,0.2);color:var(--accent);padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;"></div>
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <button class="gps-prev" onclick="gpsBack()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">◀ Back</button>
-          <button class="gps-next" id="gps-next-btn" onclick="gpsNext()" style="flex:2;background:var(--accent);border:none;color:#000;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Next Step ▶</button>
-        </div>
-      </div>
-
-      <!-- ALL STEPS LIST -->
-      <div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">All Steps</div>
-      <div class="gps-steps" id="gps-steps" style="margin-bottom:10px;"></div>
-
-      <!-- SUBTRACTIONS -->
-      <div class="subtractions" id="subtractions" style="display:none;margin-bottom:10px;">
-        <div class="sub-title">➖ Subtract From Total</div>
-        <div id="sub-list"></div>
-      </div>
-
-      <!-- WARNINGS -->
-      <div class="warnings" id="gps-warnings" style="display:none;margin-bottom:10px;">
-        <div class="warn-title">⚠️ Notes</div>
-        <div id="warn-list"></div>
-      </div>
-
     </div>
 
     <!-- RESULTS TAB -->
@@ -453,46 +406,6 @@
         <div class="sc-title">📊 Takeoff Summary</div>
         <div id="results-content">
           <div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Add measurements to see summary.</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- HELP TAB -->
-    <div class="pcontent" id="panel-help" style="display:none;">
-      <div class="sc">
-        <div class="sc-title">🎯 Click a Room</div>
-        <div style="font-size:12px;color:var(--text);line-height:1.6;">
-          1. Calibrate scale first<br>
-          2. Click <strong style="color:var(--accent);">🎯 Click a Room</strong> button<br>
-          3. Click anywhere inside any room on the drawing<br>
-          4. AI reads that room at high resolution<br>
-          5. See a preview of exactly how to trace it<br>
-          6. Follow GPS step by step instructions<br>
-          7. BuildIQ activates the right tool automatically
-        </div>
-      </div>
-      <div class="sc">
-        <div class="sc-title">📋 Full Sheet Scan</div>
-        <div style="font-size:12px;color:var(--text);line-height:1.6;">
-          1. Click <strong style="color:#a78bfa;">📋 Full Sheet Scan</strong><br>
-          2. AI scans the entire drawing<br>
-          3. Get a complete checklist of everything to measure<br>
-          4. Click any item to start measuring it<br>
-          5. Check items off as you complete them
-        </div>
-      </div>
-      <div class="sc">
-        <div class="sc-title">⌨️ Keyboard Shortcuts</div>
-        <div style="font-size:12px;color:var(--text);line-height:1.8;">
-          <strong style="color:var(--accent);">A</strong> — Area tool<br>
-          <strong style="color:var(--accent);">L</strong> — Linear tool<br>
-          <strong style="color:var(--accent);">C</strong> — Count tool<br>
-          <strong style="color:var(--accent);">Esc</strong> — Deselect tool<br>
-          <strong style="color:var(--accent);">← →</strong> — Previous/Next page<br>
-          <strong style="color:var(--accent);">Space</strong> — Reset view<br>
-          <strong style="color:var(--accent);">Ctrl+Z</strong> — Undo<br>
-          <strong style="color:var(--accent);">Scroll</strong> — Zoom in/out<br>
-          <strong style="color:var(--accent);">Drag</strong> — Pan around
         </div>
       </div>
     </div>
@@ -510,27 +423,28 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 // ── STATE ──
-let pdfDoc=null,curPage=1,totPages=0;
-let renderScale=1.5;
+let pdfDoc=null,curPage=1,totPages=0,renderScale=1.5;
 let vx=0,vy=0,vz=1,fitZ=1;
-let isPan=false,panS={x:0,y:0},panO={x:0,y:0};
-let spaceHeld=false;
+let isPan=false,panS={x:0,y:0},panO={x:0,y:0},spaceHeld=false;
 let curTool=null,calMode=false,calPts=[],pxPerUnit=null,calUnit='ft';
 let measurements=[],curM=null,mPos={x:0,y:0};
 let projName='';
-let roomMode=false;
-let gpsData=null,gpsStep=0;
-let roomCropData=null;
+let drawingMap=null;    // full room map from AI
+let activeRoom=null;    // room user selected
+let gpsStep=0;
+let completedRooms=new Set();
 
 const pdfC=document.getElementById('pdf-canvas');
 const mC=document.getElementById('measure-canvas');
+const rC=document.getElementById('room-overlay-canvas');
 const iC=document.getElementById('interact-canvas');
 const pdfX=pdfC.getContext('2d');
 const mX=mC.getContext('2d');
+const rX=rC.getContext('2d');
 
 // ── PDF LOAD ──
 async function loadPDF(inp){
-  const f=inp.files[0]; if(!f) return;
+  const f=inp.files[0];if(!f)return;
   projName=f.name.replace('.pdf','');
   document.getElementById('proj-name').textContent=projName;
   showLoad(true,'Loading PDF...');
@@ -553,7 +467,7 @@ async function renderPage(num,reset=false){
   document.getElementById('pg-in').value=num;
   const page=await pdfDoc.getPage(num);
   const vp=page.getViewport({scale:renderScale});
-  [pdfC,mC,iC].forEach(c=>{c.width=vp.width;c.height=vp.height;});
+  [pdfC,mC,rC,iC].forEach(c=>{c.width=vp.width;c.height=vp.height;});
   await page.render({canvasContext:pdfX,viewport:vp}).promise;
   if(reset){
     const vpEl=document.getElementById('pdf-viewport');
@@ -562,6 +476,11 @@ async function renderPage(num,reset=false){
     vx=(vpEl.clientWidth-vp.width*vz)/2;
     vy=(vpEl.clientHeight-vp.height*vz)/2;
   }
+  // Show analyze overlay when page changes
+  document.getElementById('analyze-overlay').classList.remove('hidden');
+  drawingMap=null;
+  rX.clearRect(0,0,rC.width,rC.height);
+  document.getElementById('room-list-container').innerHTML=`<div class="empty"><div class="empty-icon">🤖</div><div class="empty-txt">Click <strong style="color:var(--accent);">🤖 Analyze This Sheet</strong> to map all rooms.</div></div>`;
   applyT();redraw();
   showLoad(false);
 }
@@ -583,12 +502,12 @@ function onWheel(e){
 }
 
 function onVPDown(e){
-  if(e.button===1||e.button===2||(!curTool&&!calMode&&!roomMode)||spaceHeld){
+  // Middle click or right click or no tool = pan
+  if(e.button===1||e.button===2||(!curTool&&!calMode)||spaceHeld){
     isPan=true;panS={x:e.clientX,y:e.clientY};panO={x:vx,y:vy};
     document.getElementById('pdf-viewport').style.cursor='grabbing';return;
   }
   const cp=v2c(e);mPos=cp;
-  if(roomMode){handleRoomClick(cp,e);return;}
   handleClick(cp);
 }
 
@@ -596,10 +515,12 @@ function onVPMove(e){
   if(isPan){vx=panO.x+(e.clientX-panS.x);vy=panO.y+(e.clientY-panS.y);applyT();return;}
   const cp=v2c(e);mPos=cp;
   if(curM)redraw();
-  updateHint(e,cp);
+  updateCursorHint(e,cp);
+  // Show room tooltip on hover
+  if(drawingMap)showRoomTooltip(e,cp);
 }
 
-function onVPUp(e){
+function onVPUp(){
   if(isPan){isPan=false;updateCursor();}
 }
 
@@ -610,7 +531,7 @@ document.getElementById('pdf-viewport').addEventListener('dblclick',e=>{
 document.addEventListener('keydown',e=>{
   if(e.code==='Space'&&!e.target.matches('input,select,textarea')){e.preventDefault();spaceHeld=true;document.getElementById('pdf-viewport').style.cursor='grab';}
   if(e.target.matches('input,select,textarea'))return;
-  if(e.key==='Escape'){setTool(null);calMode=false;roomMode=false;curM=null;calPts=[];redraw();showMode('');hideRoomHint();}
+  if(e.key==='Escape'){setTool(null);calMode=false;curM=null;calPts=[];redraw();showMode('');}
   if(e.key==='a'||e.key==='A')setTool('area');
   if(e.key==='l'||e.key==='L')setTool('linear');
   if(e.key==='c'||e.key==='C')setTool('count');
@@ -638,28 +559,14 @@ function resetView(){
 }
 
 function updateCursor(){
-  const vp=document.getElementById('pdf-viewport');
-  if(roomMode)vp.style.cursor='crosshair';
-  else if(curTool||calMode)vp.style.cursor='crosshair';
-  else vp.style.cursor='grab';
+  document.getElementById('pdf-viewport').style.cursor=(curTool||calMode)?'crosshair':'grab';
 }
 
-function updateHint(e,cp){
-  const h=document.getElementById('cur-hint');
-  if(!curTool&&!calMode&&!roomMode){h.style.display='none';return;}
-  const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
-  h.style.display='block';
-  h.style.left=(e.clientX-vp.left+14)+'px';
-  h.style.top=(e.clientY-vp.top)+'px';
-  if(roomMode)h.textContent='🎯 Click inside a room';
-  else if(calMode)h.textContent=calPts.length===0?'📍 Click point 1':'📍 Click point 2';
-  else if(curTool==='linear')h.textContent=curM?'📍 Click end point':'📍 Click start';
-  else if(curTool==='area')h.textContent=curM?`📍 Add point (${curM.points.length}) — dbl-click finish`:'📍 Click first corner';
-  else if(curTool==='count')h.textContent='🔢 Click to count';
+function updateCursorHint(e,cp){
+  // minimal cursor hint
 }
 
-// ── PAGE NAV ──
-function changePage(d){const n=curPage+d;if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);closeGPS();closeChecklist();}}
+function changePage(d){const n=curPage+d;if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);}}
 function goPage(v){const n=parseInt(v);if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);}}
 
 // ── CALIBRATION ──
@@ -667,11 +574,10 @@ function startCal(){
   const v=parseFloat(document.getElementById('cal-val').value);
   if(!v||v<=0){alert('Enter a known dimension value first.');return;}
   calUnit=document.getElementById('cal-unit').value;
-  calMode=true;calPts=[];roomMode=false;
-  setTool(null,true);
+  calMode=true;calPts=[];setTool(null,true);
   document.getElementById('btn-cal').classList.add('active');
   updateCursor();
-  showMode('⚖️ CALIBRATE — Click point 1 of the known dimension','yellow');
+  showMode('⚖️ Click point 1 of the known dimension','yellow');
   document.getElementById('cal-status').className='cal-status bad';
   document.getElementById('cal-status').textContent='📍 Click first calibration point...';
 }
@@ -684,135 +590,47 @@ function resetCal(){
   showMode('');updateCursor();redraw();
 }
 
-// ── ROOM MODE ──
-function toggleRoomMode(){
-  roomMode=!roomMode;
-  const btn=document.getElementById('btn-room');
-  if(roomMode){
-    setTool(null,true);calMode=false;
-    btn.classList.add('active');
-    showRoomHint();
-    updateCursor();
-    showMode('🎯 ROOM MODE — Click anywhere inside a room','yellow');
-  }else{
-    btn.classList.remove('active');
-    hideRoomHint();
-    showMode('');
-    updateCursor();
-  }
-}
-
-function showRoomHint(){document.getElementById('room-hint').classList.add('visible');}
-function hideRoomHint(){document.getElementById('room-hint').classList.remove('visible');}
-
-async function handleRoomClick(canvasPos,e){
-  if(!pxPerUnit){
-    alert('Calibrate the scale first, then use Click a Room.');
-    return;
-  }
-
-  // Capture the VIEWPORT (what user sees) as the crop
-  const vpEl=document.getElementById('pdf-viewport');
-  const vpRect=vpEl.getBoundingClientRect();
-  const vpW=vpRect.width;
-  const vpH=vpRect.height;
-
-  // Create a canvas of the visible area
-  const cropCanvas=document.createElement('canvas');
-  const maxW=900,maxH=700;
-  cropCanvas.width=Math.min(vpW,maxW);
-  cropCanvas.height=Math.min(vpH,maxH);
-  const cropCtx=cropCanvas.getContext('2d');
-
-  // Draw the PDF canvas scaled to the viewport
-  cropCtx.save();
-  cropCtx.translate(vx,vy);
-  cropCtx.scale(vz,vz);
-  cropCtx.drawImage(pdfC,0,0);
-  cropCtx.restore();
-
-  const imgData=cropCanvas.toDataURL('image/jpeg',0.75);
-  const base64=imgData.split(',')[1];
-
-  // Store for preview
-  roomCropData={canvas:cropCanvas,imgData,base64,w:cropCanvas.width,h:cropCanvas.height};
-
-  // Show click marker on drawing
-  showClickMarker(e);
-
-  // Show preview immediately
-  showPreview(cropCanvas);
-
-  // Hide room hint
-  hideRoomHint();
-  roomMode=false;
-  document.getElementById('btn-room').classList.remove('active');
-  updateCursor();
-  showMode('🤖 AI is reading this room...','purple');
-
-  showLoad(true,'AI is analyzing this room...');
-  document.getElementById('spinner').classList.add('purple');
-  document.getElementById('load-txt').textContent='AI is reading your drawing...';
-
-  try{
-    const resp=await fetch('/api/analyze-room',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        imageBase64:base64,
-        width:cropCanvas.width,
-        height:cropCanvas.height,
-        mode:'room',
-        clickX: Math.round(canvasPos.x * (cropCanvas.width / pdfC.width)),
-        clickY: Math.round(canvasPos.y * (cropCanvas.height / pdfC.height))
-      })
-    });
-
-    if(!resp.ok){
-      const err=await resp.json().catch(()=>({}));
-      throw new Error(err.error||'Server error '+resp.status);
-    }
-
-    gpsData=await resp.json();
-    gpsStep=0;
-    showGPS();
-    showMode('');
-
-  }catch(e){
-    showMode('');
-    alert('AI Analysis error: '+e.message);
-  }
-
-  showLoad(false);
-  document.getElementById('spinner').classList.remove('purple');
-}
-
-// ── FULL SHEET SCAN ──
-async function analyzeFullSheet(){
+// ── ANALYZE DRAWING ──
+async function analyzeDrawing(){
   if(!pdfDoc){alert('Upload a drawing first.');return;}
 
-  showLoad(true,'AI is scanning the full sheet...');
+  // Hide analyze overlay
+  document.getElementById('analyze-overlay').classList.add('hidden');
+
+  const btn=document.getElementById('analyze-btn');
+  btn.disabled=true;btn.textContent='🤖 Analyzing...';
+
+  showLoad(true,'🤖 AI is reading the full drawing...\nIdentifying every room, wall, door and window.\nThis takes 15-20 seconds.');
   document.getElementById('spinner').classList.add('purple');
-  document.getElementById('load-txt').textContent='Scanning all rooms and areas...';
 
   try{
-    // Capture full page compressed
-    const scanCanvas=document.createElement('canvas');
-    scanCanvas.width=Math.min(pdfC.width,1200);
-    scanCanvas.height=Math.min(pdfC.height,900);
-    const scanCtx=scanCanvas.getContext('2d');
-    scanCtx.drawImage(pdfC,0,0,pdfC.width,pdfC.height,0,0,scanCanvas.width,scanCanvas.height);
-    const imgData=scanCanvas.toDataURL('image/jpeg',0.5);
+    // Render full page at higher res for analysis
+    const analysisCanvas=document.createElement('canvas');
+    const page=await pdfDoc.getPage(curPage);
+    const vp=page.getViewport({scale:2.0});
+    analysisCanvas.width=Math.min(vp.width,1400);
+    analysisCanvas.height=Math.min(vp.height,1100);
+    const actx=analysisCanvas.getContext('2d');
+    const scaledVp=page.getViewport({scale:analysisCanvas.width/page.getViewport({scale:1}).width});
+    await page.render({canvasContext:actx,viewport:scaledVp}).promise;
+
+    const imgData=analysisCanvas.toDataURL('image/jpeg',0.85);
     const base64=imgData.split(',')[1];
 
-    const resp=await fetch('/api/analyze-room',{
+    const resp=await fetch('/api/analyze-drawing',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         imageBase64:base64,
-        width:scanCanvas.width,
-        height:scanCanvas.height,
-        mode:'fullsheet'
+        width:analysisCanvas.width,
+        height:analysisCanvas.height,
+        pageNum:curPage,
+        totalPages:totPages,
+        // Pass scale factors so AI pixel bounds map to our render canvas
+        analysisWidth:analysisCanvas.width,
+        analysisHeight:analysisCanvas.height,
+        renderWidth:pdfC.width,
+        renderHeight:pdfC.height
       })
     });
 
@@ -821,299 +639,403 @@ async function analyzeFullSheet(){
       throw new Error(err.error||'Server error '+resp.status);
     }
 
-    const data=await resp.json();
-    showChecklist(data);
+    drawingMap=await resp.json();
+
+    // Scale pixel bounds from analysis canvas to render canvas
+    const scaleX=pdfC.width/analysisCanvas.width;
+    const scaleY=pdfC.height/analysisCanvas.height;
+    if(drawingMap.rooms){
+      drawingMap.rooms.forEach(r=>{
+        if(r.pixelBounds){
+          r.pixelBounds.x*=scaleX;r.pixelBounds.y*=scaleY;
+          r.pixelBounds.w*=scaleX;r.pixelBounds.h*=scaleY;
+          r.pixelBounds.centerX*=scaleX;r.pixelBounds.centerY*=scaleY;
+        }
+      });
+    }
+
+    // Draw room overlays
+    drawRoomOverlays();
+
+    // Populate room list
+    populateRoomList();
+
+    showMode('✅ '+(drawingMap.rooms||[]).length+' rooms mapped! Click any room to measure.','green');
+    setTimeout(()=>showMode(''),4000);
+    switchTab('rooms');
 
   }catch(e){
-    alert('Scan error: '+e.message);
+    document.getElementById('analyze-overlay').classList.remove('hidden');
+    alert('Analysis error: '+e.message);
   }
 
   showLoad(false);
   document.getElementById('spinner').classList.remove('purple');
+  btn.disabled=false;btn.textContent='🤖 Analyze This Sheet';
 }
 
-// ── GPS PANEL ──
-function showGPS(){
-  if(!gpsData)return;
+// ── ROOM OVERLAYS ──
+function drawRoomOverlays(){
+  rX.clearRect(0,0,rC.width,rC.height);
+  if(!drawingMap||!drawingMap.rooms)return;
 
-  // Switch to GPS tab in right panel
-  document.getElementById('tab-gps').style.display='block';
-  document.getElementById('tab-gps').textContent='🎯 '+(gpsData.roomName||'GPS');
-  switchTab('gps');
+  drawingMap.rooms.forEach(room=>{
+    if(!room.pixelBounds)return;
+    const{x,y,w,h}=room.pixelBounds;
+    const isDone=completedRooms.has(room.id);
 
-  // Show current step card
-  document.getElementById('current-step-card').style.display='block';
+    // Semi-transparent fill
+    rX.fillStyle=isDone?'rgba(16,185,129,0.12)':'rgba(245,158,11,0.08)';
+    rX.fillRect(x,y,w,h);
 
-  // Tool instruction
-  const toolIcons={area:'📐',linear:'📏',count:'🔢'};
-  document.getElementById('tool-icon').textContent=toolIcons[gpsData.tool]||'📐';
-  document.getElementById('tool-name').textContent=gpsData.toolInstruction||'Select the '+gpsData.tool+' tool';
-  document.getElementById('tool-why').textContent=gpsData.whyThisTool||'';
+    // Border
+    rX.strokeStyle=isDone?'#10b981':'rgba(245,158,11,0.5)';
+    rX.lineWidth=1.5;
+    rX.setLineDash([4,3]);
+    rX.strokeRect(x,y,w,h);
+    rX.setLineDash([]);
 
-  // Render steps
-  renderGPSSteps();
+    // Room name label
+    const label=room.name||(room.label||'Room');
+    rX.font='bold 11px sans-serif';
+    const tw=rX.measureText(label).width+8;
+    rX.fillStyle=isDone?'rgba(16,185,129,0.9)':'rgba(245,158,11,0.9)';
+    rX.fillRect(x+2,y+2,tw,18);
+    rX.fillStyle='#000';
+    rX.textAlign='left';
+    rX.textBaseline='middle';
+    rX.fillText(label,x+6,y+11);
+  });
+}
 
-  // Subtractions
-  const subs=document.getElementById('subtractions');
-  const subList=document.getElementById('sub-list');
-  const allSubs=[...(gpsData.doorsToSubtract||[]),...(gpsData.windowsToSubtract||[])];
-  if(allSubs.length>0){
-    subs.style.display='block';
-    subList.innerHTML=allSubs.map(s=>`
-      <div class="sub-item">
-        <span>${s.doorId||s.windowId||'Opening'} — ${s.size}</span>
-        <span class="sub-val">−${s.area} SF</span>
-      </div>
-    `).join('');
+// ── ROOM HOVER TOOLTIP ──
+function showRoomTooltip(e,cp){
+  if(!drawingMap||!drawingMap.rooms)return;
+  const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
+  const tooltip=document.getElementById('room-tooltip');
+  const room=getRoomAtPoint(cp);
+  if(room){
+    tooltip.style.display='block';
+    tooltip.style.left=(e.clientX-vp.left)+'px';
+    tooltip.style.top=(e.clientY-vp.top)+'px';
+    tooltip.textContent='Click to measure: '+room.name;
+    document.getElementById('pdf-viewport').style.cursor='pointer';
   }else{
-    subs.style.display='none';
-  }
-
-  // Warnings
-  const warns=document.getElementById('gps-warnings');
-  const warnList=document.getElementById('warn-list');
-  if(gpsData.warnings&&gpsData.warnings.length>0){
-    warns.style.display='block';
-    warnList.innerHTML=gpsData.warnings.map(w=>`<div class="warn-item">⚠️ ${w}</div>`).join('');
-  }else{
-    warns.style.display='none';
+    tooltip.style.display='none';
+    if(!curTool&&!calMode)document.getElementById('pdf-viewport').style.cursor='grab';
   }
 }
 
-function renderGPSSteps(){
-  if(!gpsData||!gpsData.steps)return;
-  const container=document.getElementById('gps-steps');
-  const steps=gpsData.steps;
-
-  container.innerHTML=steps.map((s,i)=>{
-    const status=i<gpsStep?'done':i===gpsStep?'current':'pending';
-    const isDoor=s.action&&s.action.toLowerCase().includes('skip');
-    return`
-      <div class="gps-step ${status}" id="gps-step-${i}" onclick="jumpToStep(${i})">
-        <div class="step-num ${status}">${status==='done'?'✓':s.stepNumber}</div>
-        <div class="step-body">
-          <div class="step-action">${s.action}</div>
-          <div class="step-detail">${s.detail}</div>
-          ${s.direction?`<span class="${isDoor?'step-skip':'step-dir'}">${s.direction}</span>`:''}
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  // Update the CURRENT STEP CARD at the top
-  if(gpsStep<steps.length){
-    const cur=steps[gpsStep];
-    document.getElementById('cur-step-action').textContent=(gpsStep+1)+'. '+cur.action;
-    document.getElementById('cur-step-detail').textContent=cur.detail;
-    const dirEl=document.getElementById('cur-step-dir');
-    if(cur.direction){
-      dirEl.style.display='inline-block';
-      dirEl.textContent=cur.direction;
-      const isDoor=cur.action&&cur.action.toLowerCase().includes('skip');
-      dirEl.style.background=isDoor?'rgba(239,68,68,0.2)':'rgba(245,158,11,0.2)';
-      dirEl.style.color=isDoor?'var(--red)':'var(--accent)';
-    }else{
-      dirEl.style.display='none';
-    }
-  }
-
-  // Update step counter in tab
-  document.getElementById('tab-gps').textContent=`🎯 GPS (${gpsStep+1}/${steps.length})`;
-
-  // Scroll step list
-  const curEl=document.getElementById('gps-step-'+gpsStep);
-  if(curEl)curEl.scrollIntoView({behavior:'smooth',block:'nearest'});
-
-  // Update nav button
-  const nextBtn=document.getElementById('gps-next-btn');
-  if(gpsStep>=steps.length-1){
-    nextBtn.textContent='✅ Done';
-    nextBtn.style.background='var(--green)';
-    nextBtn.style.color='#fff';
-  }else{
-    nextBtn.textContent='Next Step ▶';
-    nextBtn.style.background='var(--accent)';
-    nextBtn.style.color='#000';
-  }
+function getRoomAtPoint(cp){
+  if(!drawingMap||!drawingMap.rooms)return null;
+  return drawingMap.rooms.find(r=>{
+    if(!r.pixelBounds)return false;
+    const{x,y,w,h}=r.pixelBounds;
+    return cp.x>=x&&cp.x<=x+w&&cp.y>=y&&cp.y<=y+h;
+  })||null;
 }
 
-function jumpToStep(i){
-  gpsStep=i;
-  renderGPSSteps();
-}
-
-function gpsNext(){
-  if(!gpsData)return;
-  if(gpsStep>=gpsData.steps.length-1){
-    // Done — finalize
-    closeGPS();
-    showMode('✅ '+gpsData.roomName+' complete! Check Results tab.','green');
-    setTimeout(()=>showMode(''),3000);
-    switchTab('results');
-    return;
-  }
-  gpsStep++;
-  renderGPSSteps();
-}
-
-function gpsBack(){
-  if(gpsStep>0){gpsStep--;renderGPSSteps();}
-}
-
-function activateGPSTool(){
-  if(!gpsData)return;
-  setTool(gpsData.tool);
-  setLbl(gpsData.roomName||'Room');
-  showMode('📐 '+gpsData.tool.toUpperCase()+' TOOL ACTIVE — follow the GPS steps','yellow');
-}
-
-function closeGPS(){
-  document.getElementById('tab-gps').style.display='none';
-  document.getElementById('current-step-card').style.display='none';
-  gpsData=null;gpsStep=0;
-  switchTab('measure');
-  hideClickMarker();
-}
-
-// ── PREVIEW IMAGE ──
-function showPreview(srcCanvas){
-  const prev=document.getElementById('preview-canvas');
-  const maxW=document.getElementById('preview-container').clientWidth-20;
-  const ratio=srcCanvas.height/srcCanvas.width;
-  prev.width=Math.min(srcCanvas.width,maxW);
-  prev.height=prev.width*ratio;
-  const ctx=prev.getContext('2d');
-  ctx.drawImage(srcCanvas,0,0,prev.width,prev.height);
-
-  // Draw orange trace outline hint
-  ctx.strokeStyle='rgba(245,158,11,0.6)';
-  ctx.lineWidth=3;
-  ctx.setLineDash([8,4]);
-  ctx.strokeRect(20,20,prev.width-40,prev.height-40);
-  ctx.setLineDash([]);
-
-  // Label
-  ctx.fillStyle='rgba(245,158,11,0.9)';
-  ctx.fillRect(10,10,120,22);
-  ctx.fillStyle='#000';
-  ctx.font='bold 11px sans-serif';
-  ctx.fillText('Trace this area →',14,25);
-}
-
-// ── CHECKLIST PANEL ──
-function showChecklist(data){
-  const panel=document.getElementById('checklist-panel');
-  panel.classList.add('visible');
-
-  document.getElementById('cl-subtitle').textContent=
-    (data.sheetDescription||'Click any item to start measuring')+
-    ' — '+((data.measurementChecklist||[]).length+(data.linearMeasurements||[]).length+
-    (data.countsNeeded||[]).length)+' items';
+// ── POPULATE ROOM LIST ──
+function populateRoomList(){
+  if(!drawingMap)return;
+  const container=document.getElementById('room-list-container');
+  const rooms=drawingMap.rooms||[];
+  const linears=drawingMap.linearItems||[];
+  const counts=drawingMap.countItems||[];
+  const stated=drawingMap.statedQuantities||[];
 
   let html='';
 
-  if(data.statedQuantities&&data.statedQuantities.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:4px;">✅ Already Stated on Drawing</div>`;
-    data.statedQuantities.forEach(q=>{
-      html+=`<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12px;">
-        <strong>${q.item}:</strong> <span style="color:var(--green);font-weight:700;">${q.value}</span>
-        <span style="font-size:10px;color:var(--text2);"> — ${q.source}</span>
-      </div>`;
+  if(stated.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;margin-top:4px;">✅ Stated on Drawing</div>`;
+    stated.forEach(q=>{
+      html+=`<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:11px;"><strong>${q.item}:</strong> <span style="color:var(--green);font-weight:700;">${q.value}</span></div>`;
     });
+    html+='<div style="height:8px;"></div>';
   }
 
-  if(data.measurementChecklist&&data.measurementChecklist.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">📐 Area Measurements</div>`;
-    data.measurementChecklist.forEach((item,i)=>{
-      html+=`<div class="cl-item" onclick="startChecklistItem('${item.tool}','${item.name}')">
-        <div class="cl-num" id="cl-${i}">${i+1}</div>
-        <div class="cl-info">
-          <div class="cl-name">${item.name} <span class="cl-priority ${item.priority}">${item.priority}</span></div>
-          <div class="cl-why">${item.why}</div>
-          ${item.estimatedSF?`<div style="font-size:10px;color:var(--accent);margin-top:2px;">Est: ${item.estimatedSF}</div>`:''}
+  if(rooms.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">📐 Rooms — Click to Measure</div>`;
+    rooms.forEach(r=>{
+      const done=completedRooms.has(r.id);
+      html+=`<div class="room-list-item ${done?'done':''}" onclick="selectRoom('${r.id}')">
+        <div class="rli-icon">${getRoomIcon(r.type)}</div>
+        <div class="rli-info">
+          <div class="rli-name">${r.name||r.label}</div>
+          <div class="rli-dims">${r.width||''} ${r.height?'× '+r.height:''}</div>
+          <div class="rli-purpose">${r.measurementPurpose||''}</div>
+          <span class="rli-badge badge-${r.tool||'area'}">${(r.tool||'area').toUpperCase()}</span>
+          ${done?'<span class="rli-badge" style="background:rgba(16,185,129,0.2);color:var(--green);">✓ DONE</span>':''}
         </div>
       </div>`;
     });
   }
 
-  if(data.linearMeasurements&&data.linearMeasurements.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">📏 Linear Measurements</div>`;
-    data.linearMeasurements.forEach((item,i)=>{
-      html+=`<div class="cl-item" onclick="startChecklistItem('${item.tool}','${item.name}')">
-        <div class="cl-num">${i+1}</div>
-        <div class="cl-info">
-          <div class="cl-name">${item.name} <span class="cl-priority ${item.priority}">${item.priority}</span></div>
-          <div class="cl-why">${item.why}</div>
+  if(linears.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;margin-top:10px;">📏 Linear Measurements</div>`;
+    linears.forEach(r=>{
+      html+=`<div class="room-list-item" onclick="selectLinear('${r.id}')">
+        <div class="rli-icon">📏</div>
+        <div class="rli-info">
+          <div class="rli-name">${r.name}</div>
+          <div class="rli-purpose">${r.description||''}</div>
+          <span class="rli-badge badge-linear">LINEAR</span>
         </div>
       </div>`;
     });
   }
 
-  if(data.countsNeeded&&data.countsNeeded.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">🔢 Count Items</div>`;
-    data.countsNeeded.forEach((item,i)=>{
-      html+=`<div class="cl-item" onclick="startChecklistItem('${item.tool}','${item.name}')">
-        <div class="cl-num">${i+1}</div>
-        <div class="cl-info">
-          <div class="cl-name">${item.name}</div>
-          <div class="cl-why">${item.why}</div>
+  if(counts.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;margin-top:10px;">🔢 Count Items</div>`;
+    counts.forEach(r=>{
+      html+=`<div class="room-list-item" onclick="selectCount('${r.id}')">
+        <div class="rli-icon">🔢</div>
+        <div class="rli-info">
+          <div class="rli-name">${r.name} ${r.estimatedCount?'(~'+r.estimatedCount+')':''}</div>
+          <div class="rli-purpose">${r.description||''}</div>
+          <span class="rli-badge badge-count">COUNT</span>
         </div>
       </div>`;
     });
   }
 
-  if(data.warnings&&data.warnings.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">⚠️ Flags & Warnings</div>`;
-    data.warnings.forEach(w=>{
-      html+=`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:11px;color:var(--text2);">⚠️ ${w}</div>`;
+  if(drawingMap.warnings&&drawingMap.warnings.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;margin-top:10px;">⚠️ Flags</div>`;
+    drawingMap.warnings.forEach(w=>{
+      html+=`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:11px;color:var(--text2);">⚠️ ${w}</div>`;
     });
   }
 
-  document.getElementById('cl-body').innerHTML=html||'<div class="empty"><div class="empty-txt">No items found.</div></div>';
+  container.innerHTML=html||'<div class="empty"><div class="empty-txt">No items found.</div></div>';
 }
 
-function startChecklistItem(tool,name){
-  setTool(tool);
-  setLbl(name);
-  closeChecklist();
-  showMode('📐 '+tool.toUpperCase()+' — measuring: '+name,'yellow');
+function getRoomIcon(type){
+  const icons={restroom:'🚻',bathroom:'🚿',kitchen:'🍳',hall:'🏛️',stage:'🎭',storage:'📦',office:'💼',lobby:'🚪',foyer:'🚪',corridor:'🚶',mechanical:'⚙️',electrical:'⚡',sprinkler:'💧',green:'🟢',room:'🏠'};
+  if(!type)return'🏠';
+  const t=type.toLowerCase();
+  for(const[k,v]of Object.entries(icons)){if(t.includes(k))return v;}
+  return'🏠';
+}
+
+// ── SELECT ROOM — pan to it and show GPS ──
+function selectRoom(roomId){
+  if(!drawingMap)return;
+  const room=drawingMap.rooms.find(r=>r.id===roomId);
+  if(!room)return;
+  activeRoom=room;
+  gpsStep=0;
+
+  // Pan view to center on this room
+  if(room.pixelBounds){
+    const{centerX,centerY}=room.pixelBounds;
+    const vpEl=document.getElementById('pdf-viewport');
+    vx=(vpEl.clientWidth/2)-centerX*vz;
+    vy=(vpEl.clientHeight/2)-centerY*vz;
+    applyT();
+  }
+
+  // Highlight room on overlay
+  drawRoomOverlays();
+  if(room.pixelBounds){
+    const{x,y,w,h}=room.pixelBounds;
+    rX.strokeStyle='#f59e0b';
+    rX.lineWidth=3;
+    rX.setLineDash([]);
+    rX.strokeRect(x,y,w,h);
+    // Pulse fill
+    rX.fillStyle='rgba(245,158,11,0.15)';
+    rX.fillRect(x,y,w,h);
+  }
+
+  showGPS(room);
+  switchTab('gps');
+}
+
+function selectLinear(id){
+  if(!drawingMap)return;
+  const item=drawingMap.linearItems.find(r=>r.id===id);
+  if(!item)return;
+  activeRoom=item;gpsStep=0;
+  showGPS(item);switchTab('gps');
+}
+
+function selectCount(id){
+  if(!drawingMap)return;
+  const item=drawingMap.countItems.find(r=>r.id===id);
+  if(!item)return;
+  activeRoom=item;gpsStep=0;
+  showGPS(item);switchTab('gps');
+}
+
+// ── GPS DISPLAY ──
+function showGPS(item){
+  const steps=item.gpsSteps||[];
+  const tool=item.tool||'area';
+  const toolIcons={area:'📐',linear:'📏',count:'🔢'};
+  const toolNames={area:'AREA TOOL',linear:'LINEAR TOOL',count:'COUNT TOOL'};
+  const toolWhys={
+    area:'Use Area tool to measure square footage for flooring, drywall and ceiling',
+    linear:'Use Linear tool to measure length for framing, beams and perimeter',
+    count:'Use Count tool to click and count individual items'
+  };
+
+  let html=`
+    <div class="gps-room-header">
+      <div class="gps-room-name">${item.name||item.label}</div>
+      <div class="gps-room-dims">${item.width||''} ${item.height?'× '+item.height:''}</div>
+      <div class="gps-room-purpose">${item.measurementPurpose||item.description||''}</div>
+    </div>
+
+    <div class="tool-activate">
+      <div class="ta-icon">${toolIcons[tool]}</div>
+      <div class="ta-text">
+        <div class="ta-name">SELECT ${toolNames[tool]}</div>
+        <div class="ta-why">${toolWhys[tool]}</div>
+      </div>
+      <button class="ta-btn" onclick="activateTool('${tool}','${item.name||item.label}')">Activate ▶</button>
+    </div>`;
+
+  // Current step card
+  if(steps.length>0){
+    const cur=steps[gpsStep]||steps[0];
+    const isDoor=(cur.direction||'').toLowerCase().includes('stop')||(cur.direction||'').toLowerCase().includes('skip');
+    const isClose=(cur.direction||'').toLowerCase().includes('close')||(cur.direction||'').toLowerCase().includes('double');
+    const dirClass=isClose?'dir-close':isDoor?'dir-stop':'dir-normal';
+
+    html+=`
+    <div class="cur-step">
+      <div class="cur-step-label">📍 Current Step — ${gpsStep+1} of ${steps.length}</div>
+      <div class="cur-step-action">${cur.action}</div>
+      <div class="cur-step-detail">${cur.detail}</div>
+      ${cur.direction?`<div class="cur-step-dir ${dirClass}">${cur.direction}</div>`:''}
+      <div class="step-nav">
+        <button class="step-back" onclick="gpsBack()" ${gpsStep===0?'disabled style="opacity:0.4"':''}>◀ Back</button>
+        ${gpsStep>=steps.length-1
+          ?`<button class="step-done" onclick="gpsDone('${item.id||''}','${tool}','${item.name||item.label}')">✅ Done — Save Measurement</button>`
+          :`<button class="step-next" onclick="gpsNext()">Next Step ▶</button>`
+        }
+      </div>
+    </div>`;
+  }
+
+  // All steps list
+  html+=`<div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">All Steps</div>
+    <div class="step-list">`;
+
+  steps.forEach((s,i)=>{
+    const status=i<gpsStep?'done':i===gpsStep?'active':'';
+    const dotClass=i<gpsStep?'dot-done':i===gpsStep?'dot-active':'dot-pending';
+    html+=`
+      <div class="step-item ${status}" onclick="jumpStep(${i})">
+        <div class="step-dot ${dotClass}">${i<gpsStep?'✓':s.step||i+1}</div>
+        <div>
+          <div class="step-item-action">${s.action}</div>
+          ${s.direction?`<div class="step-item-dir">${s.direction}</div>`:''}
+        </div>
+      </div>`;
+  });
+
+  html+='</div>';
+
+  // Subtractions
+  const doors=item.doors||[];
+  const windows=item.windows||[];
+  const allSubs=[...doors,...windows];
+  if(allSubs.length>0){
+    html+=`<div class="sub-box"><div class="sub-title">➖ Subtract From Total</div>`;
+    allSubs.forEach(s=>{
+      html+=`<div class="sub-row"><span>${s.id||'Opening'} — ${s.width||s.size||''} ${s.location?'('+s.location+')':''}</span><span class="sub-val">−${s.subtractSF||0} SF</span></div>`;
+    });
+    if(item.calculations){
+      html+=`<div style="border-top:1px solid rgba(239,68,68,0.2);margin-top:6px;padding-top:6px;">`;
+      Object.entries(item.calculations).forEach(([k,v])=>{
+        html+=`<div class="sub-row"><span>${k.replace(/([A-Z])/g,' $1').trim()}</span><span style="color:var(--text);font-weight:600;">${v}</span></div>`;
+      });
+      html+=`</div>`;
+    }
+    html+='</div>';
+  }
+
+  // Warnings
+  if(item.warnings&&item.warnings.length>0){
+    html+=`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:7px;padding:10px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;margin-bottom:5px;">⚠️ Notes</div>`;
+    item.warnings.forEach(w=>{html+=`<div style="font-size:11px;color:var(--text2);margin-bottom:3px;">• ${w}</div>`;});
+    html+='</div>';
+  }
+
+  if(item.nextRoom){
+    html+=`<div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:7px;padding:8px 10px;font-size:11px;color:#60a5fa;">📋 Next: ${item.nextRoom}</div>`;
+  }
+
+  document.getElementById('gps-content').innerHTML=html;
+}
+
+function gpsNext(){
+  if(!activeRoom)return;
+  const steps=activeRoom.gpsSteps||[];
+  if(gpsStep<steps.length-1){gpsStep++;showGPS(activeRoom);}
+}
+
+function gpsBack(){
+  if(gpsStep>0){gpsStep--;showGPS(activeRoom);}
+}
+
+function jumpStep(i){gpsStep=i;if(activeRoom)showGPS(activeRoom);}
+
+function gpsDone(id,tool,label){
+  // Mark room as done
+  if(id)completedRooms.add(id);
+  drawRoomOverlays();
+  populateRoomList();
   switchTab('measure');
+  showMode('✅ '+label+' complete — check Results tab','green');
+  setTimeout(()=>showMode(''),3000);
+  activeRoom=null;gpsStep=0;
 }
 
-function closeChecklist(){
-  document.getElementById('checklist-panel').classList.remove('visible');
+function activateTool(tool,label){
+  setTool(tool);
+  setLbl(label);
+  switchTab('measure');
+  showMode('📐 '+tool.toUpperCase()+' TOOL ACTIVE — follow GPS steps in GPS tab','yellow');
 }
 
-// ── CALIBRATION CLICK ──
+// ── CLICK HANDLER — check for room click ──
 function handleClick(pos){
   if(!pdfDoc)return;
 
+  // Calibration
   if(calMode){
     calPts.push(pos);redraw();
     if(calPts.length===1){
+      showMode('⚖️ Click second point','yellow');
       document.getElementById('cal-status').textContent='📍 Click second point...';
-      showMode('⚖️ CALIBRATE — Click point 2','yellow');
     }else if(calPts.length===2){
       const dx=calPts[1].x-calPts[0].x,dy=calPts[1].y-calPts[0].y;
-      const px=Math.sqrt(dx*dx+dy*dy);
-      const kn=parseFloat(document.getElementById('cal-val').value);
-      pxPerUnit=px/kn;calUnit=document.getElementById('cal-unit').value;
+      pxPerUnit=Math.sqrt(dx*dx+dy*dy)/parseFloat(document.getElementById('cal-val').value);
+      calUnit=document.getElementById('cal-unit').value;
       calMode=false;
       document.getElementById('btn-cal').classList.remove('active');
       document.getElementById('cal-status').className='cal-status good';
       document.getElementById('cal-status').textContent=`✅ Calibrated: 1 ${calUnit} = ${pxPerUnit.toFixed(1)}px`;
-      showMode('✅ Calibrated! Now use 🎯 Click a Room or select a tool.','green');
-      setTimeout(()=>showMode(''),3000);
+      showMode('✅ Calibrated! Now click 🤖 Analyze This Sheet','green');
+      setTimeout(()=>showMode(''),4000);
       updateCursor();redraw();
     }
     return;
+  }
+
+  // Room click — if no tool active and drawing is mapped
+  if(!curTool&&drawingMap){
+    const room=getRoomAtPoint(pos);
+    if(room){selectRoom(room.id);return;}
   }
 
   if(!curTool)return;
   if(!pxPerUnit){showMode('⚠️ Calibrate scale first!','yellow');setTimeout(()=>showMode(''),2000);return;}
 
   if(curTool==='count'){addCount(pos);return;}
-
   if(!curM){
     curM={id:Date.now(),type:curTool,label:document.getElementById('m-label').value||(curTool==='area'?'Area':'Linear'),points:[pos],page:curPage,complete:false};
   }else{
@@ -1127,15 +1049,13 @@ function addCount(pos){
   const lbl=document.getElementById('m-label').value||'Count';
   let m=measurements.find(m=>m.type==='count'&&m.label===lbl&&m.page===curPage);
   if(!m){m={id:Date.now(),type:'count',label:lbl,points:[],page:curPage,complete:false};measurements.push(m);}
-  m.points.push(pos);m.value=m.points.length;
-  redraw();updateList();updateStats();
+  m.points.push(pos);m.value=m.points.length;redraw();updateList();updateStats();
 }
 
 function finalizeM(){
   if(!curM)return;
   curM.complete=true;curM.value=calcVal(curM);
-  measurements.push(curM);curM=null;
-  redraw();updateList();updateStats();
+  measurements.push(curM);curM=null;redraw();updateList();updateStats();
 }
 
 function calcVal(m){
@@ -1167,8 +1087,7 @@ function redraw(){
     drawM(mX,curM,true);
     if(curM.points.length>0){
       const last=curM.points[curM.points.length-1];
-      const col=curTool==='area'?'#3b82f6':'#10b981';
-      mX.strokeStyle=col+'66';mX.lineWidth=1;mX.setLineDash([4,4]);
+      mX.strokeStyle=(curTool==='area'?'#3b82f6':'#10b981')+'66';mX.lineWidth=1;mX.setLineDash([4,4]);
       mX.beginPath();mX.moveTo(last.x,last.y);mX.lineTo(mPos.x,mPos.y);mX.stroke();mX.setLineDash([]);
     }
   }
@@ -1194,16 +1113,12 @@ function drawM(ctx,m,prog){
   if(m.type==='linear'&&m.points.length>=2){
     ctx.beginPath();ctx.moveTo(m.points[0].x,m.points[0].y);ctx.lineTo(m.points[1].x,m.points[1].y);ctx.stroke();
     [m.points[0],m.points[1]].forEach(p=>dot(ctx,p,col,4));
-    if(!prog&&m.value){
-      const mx=(m.points[0].x+m.points[1].x)/2,my=(m.points[0].y+m.points[1].y)/2;
-      lbl(ctx,mx,my-14,`${m.label}: ${m.value.toFixed(1)} LF`,col);
-    }
+    if(!prog&&m.value)lbl(ctx,(m.points[0].x+m.points[1].x)/2,(m.points[0].y+m.points[1].y)/2-14,`${m.label}: ${m.value.toFixed(1)} LF`,col);
   }
   if(m.type==='count'){
     m.points.forEach((p,i)=>{
       ctx.fillStyle=col;ctx.beginPath();ctx.arc(p.x,p.y,8,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(i+1,p.x,p.y);
+      ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i+1,p.x,p.y);
     });
   }
   ctx.setLineDash([]);
@@ -1222,20 +1137,17 @@ function lbl(ctx,x,y,text,color){
 }
 
 // ── TOOLS ──
-function setTool(t,skipClear=false){
+function setTool(t,skip=false){
   if(curM)finalizeM();
   curTool=t;
-  if(!skipClear){calMode=false;roomMode=false;document.getElementById('btn-room').classList.remove('active');hideRoomHint();}
+  if(!skip)calMode=false;
   ['area','linear','count'].forEach(id=>{const el=document.getElementById('btn-'+id);if(el)el.classList.toggle('active',t===id);});
-  document.getElementById('btn-none').classList.toggle('active',t===null&&!calMode&&!roomMode);
+  document.getElementById('btn-none').classList.toggle('active',t===null&&!calMode);
   updateCursor();
   if(t){
-    const labels={area:'📐 AREA TOOL — click corners, double-click to finish',linear:'📏 LINEAR TOOL — click start then end point',count:'🔢 COUNT TOOL — click each item'};
-    showMode(labels[t],'yellow');
-  }else if(!calMode&&!roomMode){
-    showMode('');
-    document.getElementById('cur-hint').style.display='none';
-  }
+    const L={area:'📐 AREA — click corners, double-click to finish',linear:'📏 LINEAR — click start then end',count:'🔢 COUNT — click each item'};
+    showMode(L[t],'yellow');
+  }else if(!calMode)showMode('');
 }
 
 function undoLast(){
@@ -1257,10 +1169,7 @@ function deleteMeasurement(i){measurements.splice(i,1);updateList();updateStats(
 // ── UI ──
 function updateList(){
   const el=document.getElementById('m-list');
-  if(!measurements.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">Calibrate → use 🎯 Click a Room<br>or pick a tool and measure manually.</div></div>';
-    updateResults();return;
-  }
+  if(!measurements.length){el.innerHTML='<div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">No measurements yet.</div></div>';updateResults();return;}
   const units={area:'SF',linear:'LF',count:'EA'};
   el.innerHTML=measurements.map((m,i)=>`
     <div class="mi">
@@ -1272,16 +1181,14 @@ function updateList(){
         </div>
         <div class="mi-val">${fmtV(m)} <span style="font-size:10px;font-weight:400;">${units[m.type]}</span></div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
   updateResults();
 }
 
 function fmtV(m){
   if(m.type==='count')return m.points.length;
   if(m.type==='linear')return m.value?m.value.toFixed(1):'—';
-  if(m.type==='area')return m.value?m.value.toFixed(0):'—';
-  return'—';
+  return m.value?m.value.toFixed(0):'—';
 }
 
 function updateStats(){
@@ -1298,22 +1205,9 @@ function updateResults(){
   const cnts=measurements.filter(m=>m.type==='count');
   const row=(l,v,u,c)=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;"><span>${l}</span><span style="color:${c};font-weight:700;">${v} ${u}</span></div>`;
   el.innerHTML=`
-    ${areas.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:6px;">📐 AREAS</div>${areas.map(m=>row(m.label,m.value?m.value.toFixed(0):'—','SF','#3b82f6')).join('')}<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:12px;font-weight:700;"><span>TOTAL</span><span style="color:var(--accent);">${areas.reduce((s,m)=>s+(m.value||0),0).toFixed(0)} SF</span></div></div>`:''}
+    ${areas.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:6px;">📐 AREAS</div>${areas.map(m=>row(m.label,m.value?m.value.toFixed(0):'—','SF','#3b82f6')).join('')}<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:13px;font-weight:700;"><span>TOTAL SF</span><span style="color:var(--accent);">${areas.reduce((s,m)=>s+(m.value||0),0).toFixed(0)} SF</span></div></div>`:''}
     ${lins.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#10b981;margin-bottom:6px;">📏 LINEAR</div>${lins.map(m=>row(m.label,m.value?m.value.toFixed(1):'—','LF','#10b981')).join('')}</div>`:''}
-    ${cnts.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px;">🔢 COUNTS</div>${cnts.map(m=>row(m.label,m.points.length,'EA','#8b5cf6')).join('')}</div>`:''}
-  `;
-}
-
-function showClickMarker(e){
-  const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
-  const marker=document.getElementById('click-marker');
-  marker.style.display='block';
-  marker.style.left=(e.clientX-vp.left)+'px';
-  marker.style.top=(e.clientY-vp.top)+'px';
-}
-
-function hideClickMarker(){
-  document.getElementById('click-marker').style.display='none';
+    ${cnts.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px;">🔢 COUNTS</div>${cnts.map(m=>row(m.label,m.points.length,'EA','#8b5cf6')).join('')}</div>`:''}`;
 }
 
 function switchTab(t){
@@ -1324,12 +1218,14 @@ function switchTab(t){
 }
 
 function setLbl(t){document.getElementById('m-label').value=t;}
+
 function showMode(txt,style='yellow'){
   const el=document.getElementById('mode-ind');
   el.className='mode-ind '+style;
   if(txt){el.textContent=txt;el.classList.add('visible');}
   else el.classList.remove('visible');
 }
+
 function showLoad(v,txt='Loading...'){
   document.getElementById('loading-ov').classList.toggle('visible',v);
   document.getElementById('load-txt').textContent=txt;
@@ -1368,7 +1264,7 @@ function copyQty(){
   });
 }
 
-switchTab('measure');
+switchTab('rooms');
 </script>
 </body>
 </html>

@@ -9,15 +9,11 @@ const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    res.writeHead(204); res.end(); return;
-  }
+  if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
 
   // Serve index.html
   if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
-    const filePath = path.join(__dirname, 'index.html');
-    fs.readFile(filePath, (err, data) => {
+    fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
       if (err) { res.writeHead(404); res.end('Not found'); return; }
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(data);
@@ -25,197 +21,174 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // AI Room Analysis endpoint
-  if (req.method === 'POST' && req.url === '/api/analyze-room') {
+  // ENDPOINT: Analyze full drawing page — builds complete room map
+  if (req.method === 'POST' && req.url === '/api/analyze-drawing') {
     let body = '';
-    req.on('data', chunk => body += chunk.toString());
+    req.on('data', c => body += c.toString());
     req.on('end', async () => {
       try {
-        const body_parsed = JSON.parse(body);
-        const { imageBase64, width, height, mode } = body_parsed;
+        const { imageBase64, width, height, pageNum, totalPages } = JSON.parse(body);
 
-        if (!ANTHROPIC_API_KEY) {
-          res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'API key not configured' }));
-          return;
-        }
+        const prompt = `You are BuildIQ, an expert AI construction estimator with 30 years experience reading construction drawings.
 
-        let prompt;
+You are analyzing page ${pageNum} of ${totalPages} of a construction drawing set.
+Image dimensions: ${width} x ${height} pixels.
 
-        const clickInfo = (body_parsed.clickX !== undefined) 
-          ? `The user clicked at pixel coordinates (${body_parsed.clickX}, ${body_parsed.clickY}) on this image. This is the CENTER of the room they want to measure. Focus on identifying the room at THAT EXACT LOCATION.`
-          : '';
+READ THIS DRAWING COMPLETELY and identify EVERY room, space, and area visible.
 
-        if (mode === 'room') {
-          prompt = `You are BuildIQ, an expert AI construction estimator. You are looking at what is currently visible on a user's screen from a construction floor plan drawing. Image size: ${width}x${height} pixels.
+For EACH room or space you find:
+1. Read the EXACT room label text as printed on the drawing
+2. Read ALL dimension numbers shown (like 17'-0", 20'-0", 66'-10")
+3. Identify the approximate pixel boundaries of that room on this image
+4. Find every door symbol (line + arc = door swing) in or bordering that room
+5. Find every window symbol (parallel lines in wall) in that room
+6. Determine what tool to use: area for rooms/floors, linear for walls/beams, count for items
 
-${clickInfo}
+DOOR SYMBOLS: A straight line showing door width + a quarter-circle arc showing swing direction
+WINDOW SYMBOLS: Two parallel lines that break through a wall line
+GRID LINES: Thin lines with circles containing numbers (1,2,3) or letters (A,B,C) at the edges
+DIMENSIONS: Numbers between tick marks or arrows showing distances
 
-CRITICAL: The user clicked at a specific point. Identify ONLY the room or space at that click location. Do NOT analyze other rooms visible on screen.
-
-Your job:
-1. Look at coordinates (${body_parsed.clickX||Math.round(width/2)}, ${body_parsed.clickY||Math.round(height/2)}) — what room label is at or nearest to that point?
-2. Read any text labels, dimensions, or room names visible near that click point
-3. Identify every wall boundary of THAT SPECIFIC ROOM
-4. Find every door symbol (arc+line) and window symbol (parallel lines) in THAT ROOM ONLY
-5. Give GPS step by step instructions to trace THAT ROOM from corner to corner
-6. Tell user exactly where to stop for doors and windows
-
-Respond with ONLY this exact JSON format, no other text:
+Return ONLY this exact JSON — no other text:
 {
-  "roomName": "Green Room 1",
-  "roomType": "interior room",
-  "tool": "area",
-  "toolInstruction": "SELECT THE AREA TOOL — click the Area button in the toolbar",
-  "whyThisTool": "We use Area tool because we need square footage of this room for flooring and drywall calculations",
-  "dimensions": "approximately 15'-6\" x 11'-6\" based on dimensions shown",
-  "tracePath": "Trace the interior face of all 4 walls starting from the bottom-left corner going clockwise",
-  "steps": [
+  "pageType": "floor_plan",
+  "pageDescription": "First floor architectural plan",
+  "scale": "1/8 inch = 1 foot",
+  "rooms": [
     {
-      "stepNumber": 1,
-      "action": "Click SW corner",
-      "detail": "Click the bottom-left corner where the south wall meets the west wall — right at the inside corner",
-      "direction": "START HERE"
-    },
-    {
-      "stepNumber": 2,
-      "action": "Click NW corner",
-      "detail": "Move UP along the west wall and click the top-left corner",
-      "direction": "GO NORTH"
-    },
-    {
-      "stepNumber": 3,
-      "action": "Click NE corner — STOP before door",
-      "detail": "Move RIGHT along the north wall — STOP just before the door opening on the right side",
-      "direction": "GO EAST — STOP AT DOOR"
-    },
-    {
-      "stepNumber": 4,
-      "action": "SKIP the door opening",
-      "detail": "Do NOT click inside the door opening. The door will be subtracted from the total automatically",
-      "direction": "SKIP DOOR"
-    },
-    {
-      "stepNumber": 5,
-      "action": "Continue from other side of door",
-      "detail": "Click at the point where the wall continues after the door opening",
-      "direction": "CONTINUE EAST"
-    },
-    {
-      "stepNumber": 6,
-      "action": "Click SE corner",
-      "detail": "Move DOWN along the east wall and click the bottom-right corner",
-      "direction": "GO SOUTH"
-    },
-    {
-      "stepNumber": 7,
-      "action": "Double-click to close",
-      "detail": "Double-click back near your starting point to close the shape and calculate the area",
-      "direction": "CLOSE SHAPE"
-    }
-  ],
-  "doorsToSubtract": [
-    {
-      "doorId": "D3",
-      "size": "3'-0\" x 7'-0\"",
-      "area": 21,
-      "instruction": "Subtract door D3 — 3 ft wide x 7 ft tall = 21 SF"
-    }
-  ],
-  "windowsToSubtract": [],
-  "calculations": {
-    "grossArea": "estimated from dimensions on drawing",
-    "doorDeductions": "21 SF per door",
-    "windowDeductions": "0 SF",
-    "netDrywall": "gross area minus door and window deductions",
-    "flooring": "full gross area including under door openings"
-  },
-  "warnings": [
-    "Stage area has 100 PSF live load — flag for structural sub",
-    "Measure to inside face of walls not centerline"
-  ],
-  "nextRoom": "Measure Green Room 2 next — directly below this room"
-}
-
-IMPORTANT RULES:
-- Give step by step instructions specific to what you actually see in this image
-- If you can read room labels on the drawing call them by their exact name
-- If you see door symbols (arc with line) tell the user exactly where they are and to skip them
-- If you see window symbols (parallel lines in wall) note them for subtraction
-- If you see dimensions noted on the drawing use those exact numbers
-- Tell the user which direction to move at each step (NORTH=up, SOUTH=down, EAST=right, WEST=left)
-- Be specific about corners — SW=bottom-left, NW=top-left, NE=top-right, SE=bottom-right
-- Return ONLY the JSON, no markdown, no explanation`;
+      "id": "room_1",
+      "name": "WOMEN RESTROOM",
+      "label": "WOMEN RESTROOM",
+      "type": "restroom",
+      "width": "approximately 13'-6\"",
+      "height": "17'-0\"",
+      "pixelBounds": {
+        "x": 850,
+        "y": 420,
+        "w": 180,
+        "h": 240,
+        "centerX": 940,
+        "centerY": 540
+      },
+      "tool": "area",
+      "measurementPurpose": "Flooring, wall tile, ceiling, and plumbing fixture layout",
+      "gpsSteps": [
+        {
+          "step": 1,
+          "action": "Click SW corner — START HERE",
+          "detail": "Click the bottom-left inside corner where the south wall meets the west wall of the Women Restroom",
+          "direction": "START HERE"
+        },
+        {
+          "step": 2,
+          "action": "Click NW corner",
+          "detail": "Move NORTH along the west wall approximately 17'-0\" and click the top-left corner",
+          "direction": "GO NORTH — 17'-0\""
+        },
+        {
+          "step": 3,
+          "action": "Click NE corner",
+          "detail": "Move EAST along the north wall and click the top-right corner",
+          "direction": "GO EAST"
+        },
+        {
+          "step": 4,
+          "action": "Click SE corner",
+          "detail": "Move SOUTH along the east wall approximately 17'-0\" and click the bottom-right corner",
+          "direction": "GO SOUTH — 17'-0\""
+        },
+        {
+          "step": 5,
+          "action": "Double-click to close",
+          "detail": "Double-click near your starting point to close the shape and calculate the area",
+          "direction": "CLOSE SHAPE"
         }
-
-        if (mode === 'fullsheet') {
-          prompt = `You are BuildIQ, an expert AI construction estimator. You are looking at a full construction drawing sheet (${width}x${height} pixels).
-
-Scan the ENTIRE drawing and identify EVERY area that needs to be measured for a complete construction takeoff.
-
-Respond with ONLY this exact JSON format:
-{
-  "sheetType": "floor_plan",
-  "sheetDescription": "First floor architectural plan showing all rooms and spaces",
-  "totalItems": 12,
-  "measurementChecklist": [
-    {
-      "id": 1,
-      "name": "Building Footprint",
-      "type": "area",
-      "tool": "area",
-      "priority": "HIGH",
-      "why": "Drives concrete slab, roofing, and overall project size",
-      "instruction": "Trace entire outer building perimeter",
-      "estimatedSF": "7652 SF per cover sheet"
-    },
-    {
-      "id": 2,
-      "name": "Main Hall",
-      "type": "area",
-      "tool": "area",
-      "priority": "HIGH",
-      "why": "Largest space — drives flooring, ceiling, and HVAC quantities",
-      "instruction": "Trace interior perimeter of main hall",
-      "estimatedSF": "approximately 3330 SF"
+      ],
+      "doors": [
+        {
+          "id": "D5",
+          "width": "2'-8\"",
+          "location": "south wall",
+          "subtractSF": 18.7
+        }
+      ],
+      "windows": [],
+      "calculations": {
+        "grossArea": "approximately 229 SF based on 13'-6\" x 17'-0\"",
+        "doorDeductions": "18.7 SF (door D5)",
+        "netFloorArea": "229 SF (no deduction for flooring — measure full floor)",
+        "netWallArea": "229 SF minus 18.7 SF door = 210 SF net drywall/tile"
+      },
+      "warnings": ["Verify exact dimensions on drawing", "Moisture resistant drywall required in restrooms"]
     }
   ],
-  "linearMeasurements": [
+  "linearItems": [
     {
-      "id": 1,
+      "id": "linear_1",
       "name": "Building Perimeter",
+      "description": "Outer building boundary for grade beam and exterior wall",
       "tool": "linear",
-      "priority": "HIGH",
-      "why": "Grade beam and exterior wall linear footage",
-      "instruction": "Trace outer building perimeter with linear tool"
+      "gpsSteps": [
+        {
+          "step": 1,
+          "action": "Click any exterior corner",
+          "detail": "Start at any outside corner of the building",
+          "direction": "START"
+        },
+        {
+          "step": 2,
+          "action": "Trace the full perimeter",
+          "detail": "Click each corner going clockwise around the outside of the building",
+          "direction": "GO CLOCKWISE"
+        }
+      ]
     }
   ],
-  "countsNeeded": [
+  "countItems": [
     {
-      "name": "Doors",
+      "id": "count_1",
+      "name": "Interior Doors",
+      "description": "Count all interior door symbols on this sheet",
       "tool": "count",
-      "why": "Door count drives hardware and framing scope",
-      "instruction": "Click each door symbol on the plan"
+      "estimatedCount": 31,
+      "gpsSteps": [
+        {
+          "step": 1,
+          "action": "Select COUNT tool",
+          "detail": "Click the Count button in the toolbar",
+          "direction": "SELECT COUNT"
+        },
+        {
+          "step": 2,
+          "action": "Click each door",
+          "detail": "Click once on each door symbol you see — look for the arc shapes throughout the plan",
+          "direction": "CLICK EACH DOOR"
+        }
+      ]
     }
   ],
   "statedQuantities": [
     {
       "item": "Total Building Area",
-      "value": "7652 SF",
-      "source": "Title block or cover sheet"
+      "value": "7,652 SF",
+      "foundOn": "Title block or cover sheet notes"
     }
   ],
   "warnings": [
-    "Stage has 100 PSF live load — verify with structural",
-    "Fire sprinkler room requires separate permit"
+    "Stage has 100 PSF live load — flag for structural sub",
+    "Fire sprinkler system is separate permit"
   ]
 }
 
-Identify EVERY room, every wall measurement, every count needed. Be thorough.
-Return ONLY the JSON.`;
-        }
+CRITICAL RULES:
+- pixelBounds must be accurate — this is how users click on rooms
+- centerX and centerY must be inside the room so click detection works
+- Read EVERY room label exactly as printed
+- Include EVERY room visible — do not skip any
+- GPS steps must reference actual dimensions shown on the drawing
+- Return ONLY the JSON object, nothing else`;
 
-        const apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
+        const apiResp = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -224,46 +197,38 @@ Return ONLY the JSON.`;
           },
           body: JSON.stringify({
             model: 'claude-sonnet-4-6',
-            max_tokens: 2000,
+            max_tokens: 4000,
             messages: [{
               role: 'user',
               content: [
-                {
-                  type: 'image',
-                  source: {
-                    type: 'base64',
-                    media_type: 'image/jpeg',
-                    data: imageBase64
-                  }
-                },
+                { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 } },
                 { type: 'text', text: prompt }
               ]
             }]
           })
         });
 
-        const data = await apiResponse.json();
-
-        if (!apiResponse.ok) {
+        const data = await apiResp.json();
+        if (!apiResp.ok) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Anthropic error: ' + JSON.stringify(data) }));
+          res.end(JSON.stringify({ error: 'API error: ' + JSON.stringify(data) }));
           return;
         }
 
-        const rawText = data.content[0].text.trim();
+        const raw = data.content[0].text.trim();
         let result;
         try {
-          result = JSON.parse(rawText.replace(/```json|```/g, '').trim());
-        } catch (e) {
+          result = JSON.parse(raw.replace(/```json|```/g, '').trim());
+        } catch(e) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Parse error', raw: rawText.substring(0, 300) }));
+          res.end(JSON.stringify({ error: 'Parse error', raw: raw.substring(0, 300) }));
           return;
         }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(result));
 
-      } catch (e) {
+      } catch(e) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: e.message }));
       }
