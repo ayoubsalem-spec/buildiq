@@ -287,7 +287,7 @@ input[type="file"]{display:none;}
       </div>
 
       <!-- ANALYZE OVERLAY — shown after PDF loads before analysis -->
-      <div class="analyze-overlay" id="analyze-overlay">
+      <div class="analyze-overlay hidden" id="analyze-overlay">
         <div class="analyze-overlay-card">
           <div style="font-size:36px;margin-bottom:10px;">🤖</div>
           <div class="analyze-overlay-title">Ready to Analyze</div>
@@ -476,8 +476,7 @@ async function renderPage(num,reset=false){
     vx=(vpEl.clientWidth-vp.width*vz)/2;
     vy=(vpEl.clientHeight-vp.height*vz)/2;
   }
-  // Show analyze overlay when page changes
-  document.getElementById('analyze-overlay').classList.remove('hidden');
+  // Only show analyze overlay if already calibrated
   drawingMap=null;
   rX.clearRect(0,0,rC.width,rC.height);
   document.getElementById('room-list-container').innerHTML=`<div class="empty"><div class="empty-icon">🤖</div><div class="empty-txt">Click <strong style="color:var(--accent);">🤖 Analyze This Sheet</strong> to map all rooms.</div></div>`;
@@ -1021,6 +1020,8 @@ function handleClick(pos){
       document.getElementById('cal-status').textContent=`✅ Calibrated: 1 ${calUnit} = ${pxPerUnit.toFixed(1)}px`;
       showMode('✅ Calibrated! Now click 🤖 Analyze This Sheet','green');
       setTimeout(()=>showMode(''),4000);
+      // NOW show the analyze overlay since calibration is done
+      document.getElementById('analyze-overlay').classList.remove('hidden');
       updateCursor();redraw();
     }
     return;
