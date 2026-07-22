@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BuildIQ - AI Chief Estimator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222535;--border:#2e3348;--accent:#f59e0b;--text:#e8eaf0;--text2:#8b90a7;--green:#10b981;--red:#ef4444;--purple:#8b5cf6;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.logo-text{font-size:17px;font-weight:800;letter-spacing:-0.5px;}
+.logo-text span{color:var(--accent);}
+.badge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.app{display:flex;flex:1;overflow:hidden;}
+.left{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;}
+.toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.tg{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid var(--border);}
+.tg:last-child{border-right:none;padding-right:0;}
+.tb{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.tb:hover{border-color:var(--accent);color:var(--accent);}
+.tb.active{background:rgba(245,158,11,0.15);border-color:var(--accent);color:var(--accent);}
+.tb.danger{border-color:var(--red);color:var(--red);}
+.pg-nav{display:flex;align-items:center;gap:6px;font-size:12px;}
+.pg-nav input{width:44px;text-align:center;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px;border-radius:4px;font-size:12px;}
+.btn-room{background:rgba(245,158,11,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 12px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.btn-room.active{background:rgba(245,158,11,0.3);}
+.btn-scan{background:rgba(139,92,246,0.15);border:1px solid var(--purple);color:#a78bfa;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.viewport{flex:1;overflow:hidden;position:relative;background:#0a0c12;}
+.pdf-inner{position:absolute;transform-origin:0 0;}
+.cw{position:relative;display:inline-block;}
+#pdf-canvas{display:block;}
+#m-canvas{position:absolute;top:0;left:0;pointer-events:none;}
+#i-canvas{position:absolute;top:0;left:0;}
+.upload-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;}
+.upload-zone{width:100%;max-width:420px;border:2px dashed var(--border);border-radius:14px;padding:44px 28px;text-align:center;cursor:pointer;background:var(--surface);}
+.upload-zone:hover{border-color:var(--accent);background:rgba(245,158,11,0.04);}
+.upload-btn{background:var(--accent);color:#000;border:none;padding:11px 26px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;margin-top:14px;}
+.mode-bar{position:absolute;top:10px;left:50%;transform:translateX(-50%);padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;pointer-events:none;display:none;white-space:nowrap;z-index:20;}
+.mode-bar.show{display:block;}
+.mode-bar.yellow{background:rgba(245,158,11,0.92);color:#000;}
+.mode-bar.green{background:rgba(16,185,129,0.92);color:#fff;}
+.mode-bar.purple{background:rgba(139,92,246,0.92);color:#fff;}
+.room-banner{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(245,158,11,0.95);color:#000;padding:8px 20px;border-radius:20px;font-size:12px;font-weight:700;pointer-events:none;display:none;z-index:20;}
+.room-banner.show{display:block;}
+.zoom-btns{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:4px;z-index:10;}
+.zb{width:32px;height:32px;background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.zb:hover{border-color:var(--accent);color:var(--accent);}
+.zlbl{background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text2);border-radius:6px;font-size:10px;font-weight:600;text-align:center;padding:4px 2px;}
+.loader{position:absolute;inset:0;background:rgba(15,17,23,0.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:50;}
+.loader.show{display:flex;}
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+.spin.purple{border-top-color:var(--purple);}
+@keyframes spin{to{transform:rotate(360deg);}}
+.load-msg{font-size:13px;color:var(--text2);text-align:center;max-width:260px;line-height:1.5;}
+.gps-panel{position:absolute;bottom:0;left:0;right:0;background:rgba(15,17,23,0.97);border-top:2px solid var(--accent);z-index:25;display:none;max-height:65%;overflow-y:auto;}
+.gps-panel.show{display:block;}
+.gps-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);}
+.gps-title{font-size:14px;font-weight:800;color:var(--accent);}
+.gps-x{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;}
+.gps-body{padding:14px;}
+.prev-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:12px;text-align:center;}
+.prev-lbl{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;margin-bottom:6px;}
+#prev-canvas{border-radius:4px;max-width:100%;}
+.tool-box{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);}
+.tool-ico{font-size:22px;}
+.tool-info{flex:1;}
+.tool-name{font-size:13px;font-weight:800;color:var(--accent);}
+.tool-why{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4;}
+.tool-go{background:var(--accent);color:#000;border:none;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.steps{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.step{display:flex;gap:10px;padding:10px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);}
+.step.cur{border-color:var(--accent);background:rgba(245,158,11,0.07);}
+.step.done{border-color:var(--green);opacity:0.6;}
+.step-n{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.step-n.pending{background:var(--border);color:var(--text2);}
+.step-n.cur{background:var(--accent);color:#000;}
+.step-n.done{background:var(--green);color:#fff;}
+.step-body{flex:1;}
+.step-act{font-size:12px;font-weight:700;margin-bottom:3px;}
+.step-det{font-size:11px;color:var(--text2);line-height:1.4;}
+.step-dir{display:inline-block;background:rgba(245,158,11,0.15);color:var(--accent);padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-top:3px;}
+.nav-row{display:flex;gap:8px;margin-top:4px;}
+.nav-back{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+.nav-next{flex:2;background:var(--accent);border:none;color:#000;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+.nav-done{flex:2;background:var(--green);border:none;color:#fff;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+.cl-panel{position:absolute;top:0;right:0;width:360px;height:100%;background:rgba(15,17,23,0.97);border-left:2px solid var(--purple);z-index:25;display:none;overflow-y:auto;}
+.cl-panel.show{display:block;}
+.cl-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;}
+.cl-title{font-size:13px;font-weight:800;color:#a78bfa;}
+.cl-body{padding:12px;}
+.cl-item{display:flex;gap:10px;padding:10px;border:1px solid var(--border);border-radius:7px;margin-bottom:7px;cursor:pointer;background:var(--surface2);}
+.cl-item:hover{border-color:var(--accent);}
+.cl-num{width:22px;height:22px;border-radius:50%;background:var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.cl-info{flex:1;}
+.cl-name{font-size:12px;font-weight:600;margin-bottom:2px;}
+.cl-why{font-size:10px;color:var(--text2);}
+.pri{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;display:inline-block;margin-top:2px;}
+.pri.HIGH{background:rgba(239,68,68,0.2);color:var(--red);}
+.pri.MEDIUM{background:rgba(245,158,11,0.2);color:var(--accent);}
+.right{width:360px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;}
+.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.tab{flex:1;padding:11px 4px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(245,158,11,0.04);}
+.panel{flex:1;overflow-y:auto;padding:14px;}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:13px;margin-bottom:11px;}
+.card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--accent);margin-bottom:9px;}
+.cal-bar{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:7px;margin-bottom:9px;font-size:12px;font-weight:500;}
+.cal-bar.bad{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red);}
+.cal-bar.good{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--green);}
+.inp{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 9px;border-radius:5px;font-size:12px;}
+.inp:focus{outline:none;border-color:var(--accent);}
+.row{display:flex;gap:7px;align-items:center;margin-bottom:7px;}
+.m-item{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px;margin-bottom:7px;position:relative;}
+.m-item:hover{border-color:var(--accent);}
+.m-hdr{display:flex;justify-content:space-between;align-items:flex-start;}
+.m-name{font-size:11px;font-weight:600;flex:1;padding-right:8px;}
+.m-val{font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;}
+.m-type{font-size:10px;color:var(--text2);margin-top:2px;}
+.m-del{position:absolute;top:7px;right:7px;background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;opacity:0;}
+.m-item:hover .m-del{opacity:1;}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px;text-align:center;}
+.stat-v{font-size:17px;font-weight:700;color:var(--accent);}
+.stat-l{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;}
+.lbl-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;margin-right:3px;margin-bottom:3px;cursor:pointer;}
+.t-area{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);}
+.t-linear{background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.3);}
+.t-count{background:rgba(139,92,246,0.2);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);}
+.exp-sec{padding:13px;border-top:1px solid var(--border);flex-shrink:0;}
+.exp-btn{width:100%;background:var(--accent);color:#000;border:none;padding:10px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:7px;}
+.exp-btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.empty{text-align:center;padding:24px 14px;color:var(--text2);}
+.empty-ico{font-size:26px;margin-bottom:6px;}
+.empty-txt{font-size:12px;line-height:1.5;}
+.tip{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:6px;font-size:11px;margin-bottom:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;line-height:1.4;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">&#x1F3D7;</div>
+    <div class="logo-text">Build<span>IQ</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span id="proj-name" style="font-size:12px;color:var(--text2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+    <div class="badge">AI CHIEF ESTIMATOR</div>
+  </div>
+</header>
+
+<div class="app">
+  <div class="left">
+
+    <div class="toolbar" id="toolbar" style="display:none;">
+      <div class="tg">
+        <button class="tb" onclick="changePg(-1)">&#9664;</button>
+        <div class="pg-nav">
+          <input type="number" id="pg-in" value="1" min="1" onchange="goPage(this.value)">
+          <span>/ <span id="total-pg">1</span></span>
+        </div>
+        <button class="tb" onclick="changePg(1)">&#9654;</button>
+      </div>
+      <div class="tg">
+        <button class="tb" id="btn-area"   onclick="setTool('area')">Area</button>
+        <button class="tb" id="btn-linear" onclick="setTool('linear')">Linear</button>
+        <button class="tb" id="btn-count"  onclick="setTool('count')">Count</button>
+        <button class="tb" id="btn-none"   onclick="setTool(null)">&#x2715; None</button>
+      </div>
+      <div class="tg">
+        <button class="tb danger" onclick="undoLast()">&#8617; Undo</button>
+        <button class="tb danger" onclick="clearAll()">Clear</button>
+      </div>
+      <div class="tg">
+        <button class="btn-room" id="btn-room" onclick="toggleRoom()">&#x1F3AF; Click a Room</button>
+        <button class="btn-scan" onclick="fullScan()">&#x1F4CB; Full Sheet Scan</button>
+      </div>
+      <div class="tg" style="border:none;">
+        <span style="font-size:10px;color:var(--text2);">Scroll=zoom &middot; Drag=pan</span>
+      </div>
+    </div>
+
+    <div class="upload-screen" id="upload-screen">
+      <div style="text-align:center;">
+        <div style="font-size:48px;margin-bottom:10px;">&#x1F3D7;</div>
+        <div style="font-size:24px;font-weight:800;margin-bottom:5px;">Build<span style="color:var(--accent);">IQ</span></div>
+        <div style="font-size:13px;color:var(--text2);">AI Chief Estimator &mdash; Upload drawings, AI guides every measurement</div>
+      </div>
+      <div class="upload-zone" id="upload-zone" onclick="openFile()">
+        <div style="font-size:40px;margin-bottom:12px;">&#x1F4CB;</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:6px;">Upload Drawing Set</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.5;">Drop a PDF here or click to browse</div>
+        <button class="upload-btn" onclick="event.stopPropagation();openFile()">Choose PDF File</button>
+      </div>
+    </div>
+
+    <div class="viewport" id="viewport" style="display:none;"
+         onwheel="onWheel(event)"
+         onmousedown="onDown(event)"
+         onmousemove="onMove(event)"
+         onmouseup="onUp(event)"
+         onmouseleave="onUp(event)">
+      <div class="pdf-inner" id="pdf-inner">
+        <div class="cw">
+          <canvas id="pdf-canvas"></canvas>
+          <canvas id="m-canvas"></canvas>
+          <canvas id="i-canvas"></canvas>
+        </div>
+      </div>
+      <div class="mode-bar" id="mode-bar"></div>
+      <div class="room-banner" id="room-banner">&#x1F3AF; ROOM MODE &mdash; Click anywhere inside a room</div>
+      <div class="gps-panel" id="gps-panel">
+        <div class="gps-head">
+          <div>
+            <div class="gps-title" id="gps-title">...</div>
+            <div style="font-size:11px;color:var(--text2);" id="gps-dims"></div>
+          </div>
+          <button class="gps-x" onclick="closeGPS()">&#x2715;</button>
+        </div>
+        <div class="gps-body">
+          <div class="prev-box">
+            <div class="prev-lbl">Your trace should look like this</div>
+            <canvas id="prev-canvas"></canvas>
+          </div>
+          <div class="tool-box">
+            <div class="tool-ico" id="tool-ico">&#x1F4D0;</div>
+            <div class="tool-info">
+              <div class="tool-name" id="tool-name">SELECT AREA TOOL</div>
+              <div class="tool-why" id="tool-why"></div>
+            </div>
+            <button class="tool-go" onclick="activateTool()">Activate &#9654;</button>
+          </div>
+          <div class="steps" id="steps"></div>
+          <div class="nav-row">
+            <button class="nav-back" onclick="stepBack()">&#9664; Back</button>
+            <button class="nav-next" id="nav-next" onclick="stepNext()">Next &#9654;</button>
+          </div>
+        </div>
+      </div>
+      <div class="cl-panel" id="cl-panel">
+        <div class="cl-head">
+          <div class="cl-title">&#x1F4CB; Full Sheet Checklist</div>
+          <button class="gps-x" onclick="closeCL()">&#x2715;</button>
+        </div>
+        <div class="cl-body" id="cl-body"></div>
+      </div>
+      <div class="zoom-btns">
+        <button class="zb" onclick="zoom(0.25)">+</button>
+        <div class="zlbl" id="zlbl">100%</div>
+        <button class="zb" onclick="zoom(-0.25)">&minus;</button>
+        <button class="zb" onclick="resetView()" style="font-size:11px;">&#8865;</button>
+      </div>
+      <div class="loader" id="loader">
+        <div class="spin" id="spin"></div>
+        <div class="load-msg" id="load-msg">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('measure')" id="tab-measure">&#x1F4D0; MEASURE</div>
+      <div class="tab" onclick="showTab('results')" id="tab-results">&#x1F4CA; RESULTS</div>
+      <div class="tab" onclick="showTab('help')" id="tab-help">? HELP</div>
+    </div>
+    <div class="panel" id="panel-measure">
+      <div class="card">
+        <div class="card-title">Scale Calibration</div>
+        <div class="cal-bar bad" id="cal-bar">Not calibrated &mdash; set scale first</div>
+        <div class="tip">Tip: Zoom in, enter a known dimension, click 2 endpoints on the drawing.</div>
+        <div class="row">
+          <input class="inp" type="number" id="cal-val" placeholder="Known distance e.g. 20" step="0.1" style="flex:1;">
+          <select class="inp" id="cal-unit" style="width:60px;">
+            <option value="ft">ft</option>
+            <option value="in">in</option>
+            <option value="m">m</option>
+          </select>
+        </div>
+        <button class="tb" id="btn-cal" onclick="startCal()" style="width:100%;display:flex;justify-content:center;margin-bottom:5px;">Set Scale &mdash; Click 2 Points</button>
+        <button class="tb danger" onclick="resetCal()" style="width:100%;display:flex;justify-content:center;font-size:11px;">Reset Scale</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Label</div>
+        <input class="inp" type="text" id="m-label" placeholder="Name this measurement..." style="width:100%;margin-bottom:7px;">
+        <div>
+          <span class="lbl-tag t-area"   onclick="setLbl('Concrete Slab')">Slab</span>
+          <span class="lbl-tag t-area"   onclick="setLbl('Brick Veneer')">Brick</span>
+          <span class="lbl-tag t-area"   onclick="setLbl('Roof Area')">Roof</span>
+          <span class="lbl-tag t-area"   onclick="setLbl('Parking Lot')">Parking</span>
+          <span class="lbl-tag t-linear" onclick="setLbl('Grade Beam')">Grade Beam</span>
+          <span class="lbl-tag t-linear" onclick="setLbl('Interior Walls')">Walls</span>
+          <span class="lbl-tag t-count"  onclick="setLbl('Doors')">Doors</span>
+          <span class="lbl-tag t-count"  onclick="setLbl('Windows')">Windows</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Measurements</div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-v" id="s-total">0</div><div class="stat-l">Total</div></div>
+          <div class="stat"><div class="stat-v" id="s-area">0</div><div class="stat-l">Areas</div></div>
+          <div class="stat"><div class="stat-v" id="s-lin">0</div><div class="stat-l">Lines</div></div>
+        </div>
+        <div id="m-list"><div class="empty"><div class="empty-ico">&#x1F4D0;</div><div class="empty-txt">Calibrate scale, then use Click a Room or pick a tool.</div></div></div>
+      </div>
+    </div>
+    <div class="panel" id="panel-results" style="display:none;">
+      <div class="card">
+        <div class="card-title">Takeoff Summary</div>
+        <div id="results-body"><div class="empty"><div class="empty-ico">&#x1F4CA;</div><div class="empty-txt">Add measurements to see summary.</div></div></div>
+      </div>
+    </div>
+    <div class="panel" id="panel-help" style="display:none;">
+      <div class="card">
+        <div class="card-title">&#x1F3AF; Click a Room</div>
+        <div style="font-size:12px;line-height:1.7;">
+          1. Calibrate scale first<br>
+          2. Click <strong style="color:var(--accent);">Click a Room</strong><br>
+          3. Click anywhere inside a room<br>
+          4. AI gives GPS step-by-step instructions<br>
+          5. Follow the steps to measure it
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#x1F4CB; Full Sheet Scan</div>
+        <div style="font-size:12px;line-height:1.7;">
+          1. Click <strong style="color:#a78bfa;">Full Sheet Scan</strong><br>
+          2. AI reads the whole drawing<br>
+          3. Get a checklist of everything to measure<br>
+          4. Click any item to start
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Keyboard Shortcuts</div>
+        <div style="font-size:12px;line-height:1.8;">
+          <strong style="color:var(--accent);">A</strong> &mdash; Area &nbsp;
+          <strong style="color:var(--accent);">L</strong> &mdash; Linear &nbsp;
+          <strong style="color:var(--accent);">C</strong> &mdash; Count<br>
+          <strong style="color:var(--accent);">Esc</strong> &mdash; Deselect tool<br>
+          <strong style="color:var(--accent);">Scroll</strong> &mdash; Zoom &nbsp;
+          <strong style="color:var(--accent);">Drag</strong> &mdash; Pan<br>
+          <strong style="color:var(--accent);">Ctrl+Z</strong> &mdash; Undo
+        </div>
+      </div>
+    </div>
+    <div class="exp-sec">
+      <button class="exp-btn" onclick="exportCSV()">Export to CSV / Excel</button>
+      <button class="exp-btn sec" onclick="copyAll()">Copy All Quantities</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept=".pdf" style="display:none;">
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// Wire up file input PROPERLY
+var fileInput = document.getElementById('file-input');
+fileInput.addEventListener('change', function() {
+  if (this.files && this.files.length > 0) {
+    loadPDF(this.files[0]);
+  }
+});
+
+// Wire up drag and drop on upload zone
+var uploadZone = document.getElementById('upload-zone');
+uploadZone.addEventListener('dragover', function(e) { e.preventDefault(); this.style.borderColor = 'var(--accent)'; });
+uploadZone.addEventListener('dragleave', function() { this.style.borderColor = ''; });
+uploadZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  this.style.borderColor = '';
+  var f = e.dataTransfer.files[0];
+  if (f && f.type === 'application/pdf') loadPDF(f);
+});
+
+function openFile() {
+  fileInput.value = '';
+  fileInput.click();
+}
+
+// STATE
+var pdfDoc = null, curPage = 1, totPages = 0, scale = 1.5;
+var vx = 0, vy = 0, vz = 1, fitZ = 1;
+var isPan = false, panStart = {x:0,y:0}, panOrigin = {x:0,y:0}, spaceDown = false;
+var tool = null, calMode = false, calPts = [], pxPerUnit = null, calUnit = 'ft';
+var measurements = [], curM = null, mousePos = {x:0,y:0};
+var projName = '';
+var roomMode = false, gpsData = null, gpsStep = 0;
+
+var pdfC = document.getElementById('pdf-canvas');
+var mC = document.getElementById('m-canvas');
+var iC = document.getElementById('i-canvas');
+var pdfX = pdfC.getContext('2d');
+var mX = mC.getContext('2d');
+
+async function loadPDF(file) {
+  projName = file.name.replace('.pdf', '');
+  document.getElementById('proj-name').textContent = projName;
+  showLoader(true, 'Loading PDF...');
+  try {
+    var buf = await file.arrayBuffer();
+    pdfDoc = await pdfjsLib.getDocument({data: buf}).promise;
+    totPages = pdfDoc.numPages;
+    document.getElementById('total-pg').textContent = totPages;
+    document.getElementById('upload-screen').style.display = 'none';
+    document.getElementById('viewport').style.display = 'block';
+    document.getElementById('toolbar').style.display = 'flex';
+    curPage = 1;
+    await renderPage(curPage, true);
+  } catch(e) {
+    alert('Error loading PDF: ' + e.message);
+  }
+  showLoader(false);
+}
+
+async function renderPage(num, reset) {
+  showLoader(true, 'Loading page ' + num + '...');
+  document.getElementById('pg-in').value = num;
+  var page = await pdfDoc.getPage(num);
+  var vp = page.getViewport({scale: scale});
+  [pdfC, mC, iC].forEach(function(c) { c.width = vp.width; c.height = vp.height; });
+  await page.render({canvasContext: pdfX, viewport: vp}).promise;
+  if (reset) {
+    var vpEl = document.getElementById('viewport');
+    fitZ = Math.min((vpEl.clientWidth - 40) / vp.width, (vpEl.clientHeight - 40) / vp.height);
+    vz = fitZ;
+    vx = (vpEl.clientWidth - vp.width * vz) / 2;
+    vy = (vpEl.clientHeight - vp.height * vz) / 2;
+  }
+  applyTransform();
+  redraw();
+  showLoader(false);
+}
+
+function applyTransform() {
+  document.getElementById('pdf-inner').style.transform = 'translate(' + vx + 'px,' + vy + 'px) scale(' + vz + ')';
+  document.getElementById('pdf-inner').style.transformOrigin = '0 0';
+  document.getElementById('zlbl').textContent = Math.round(vz / fitZ * 100) + '%';
+}
+
+function onWheel(e) {
+  e.preventDefault();
+  var vp = document.getElementById('viewport').getBoundingClientRect();
+  var mx = e.clientX - vp.left, my = e.clientY - vp.top;
+  var d = e.deltaY < 0 ? 1.12 : 0.89;
+  var nz = Math.max(fitZ * 0.4, Math.min(vz * d, fitZ * 12));
+  vx = mx - (mx - vx) * (nz / vz);
+  vy = my - (my - vy) * (nz / vz);
+  vz = nz;
+  applyTransform();
+}
+
+function onDown(e) {
+  if (e.button === 1 || e.button === 2 || (!tool && !calMode && !roomMode) || spaceDown) {
+    isPan = true;
+    panStart = {x: e.clientX, y: e.clientY};
+    panOrigin = {x: vx, y: vy};
+    document.getElementById('viewport').style.cursor = 'grabbing';
+    return;
+  }
+  var cp = toCanvas(e);
+  mousePos = cp;
+  if (roomMode) { doRoomClick(cp); return; }
+  handleClick(cp);
+}
+
+function onMove(e) {
+  if (isPan) {
+    vx = panOrigin.x + (e.clientX - panStart.x);
+    vy = panOrigin.y + (e.clientY - panStart.y);
+    applyTransform();
+    return;
+  }
+  mousePos = toCanvas(e);
+  if (curM) redraw();
+}
+
+function onUp() {
+  if (isPan) { isPan = false; updateCursor(); }
+}
+
+document.getElementById('viewport').addEventListener('dblclick', function(e) {
+  if (tool === 'area' && curM && curM.pts.length >= 3) finalizeM();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.code === 'Space' && !e.target.matches('input,select,textarea')) {
+    e.preventDefault(); spaceDown = true;
+    document.getElementById('viewport').style.cursor = 'grab';
+  }
+  if (e.target.matches('input,select,textarea')) return;
+  if (e.key === 'Escape') { setTool(null); calMode = false; roomMode = false; curM = null; calPts = []; redraw(); hideMode(); hideRoomBanner(); document.getElementById('btn-room').classList.remove('active'); }
+  if (e.key === 'a' || e.key === 'A') setTool('area');
+  if (e.key === 'l' || e.key === 'L') setTool('linear');
+  if (e.key === 'c' || e.key === 'C') setTool('count');
+  if (e.key === 'ArrowLeft') changePg(-1);
+  if (e.key === 'ArrowRight') changePg(1);
+  if (e.key === 'z' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); undoLast(); }
+});
+document.addEventListener('keyup', function(e) {
+  if (e.code === 'Space') { spaceDown = false; updateCursor(); }
+});
+
+function toCanvas(e) {
+  var vp = document.getElementById('viewport').getBoundingClientRect();
+  return { x: (e.clientX - vp.left - vx) / vz, y: (e.clientY - vp.top - vy) / vz };
+}
+
+function zoom(d) {
+  var vpEl = document.getElementById('viewport');
+  var cx = vpEl.clientWidth / 2, cy = vpEl.clientHeight / 2;
+  var nz = Math.max(fitZ * 0.4, Math.min(vz + d * fitZ, fitZ * 12));
+  vx = cx - (cx - vx) * (nz / vz);
+  vy = cy - (cy - vy) * (nz / vz);
+  vz = nz;
+  applyTransform();
+}
+
+function resetView() {
+  var vpEl = document.getElementById('viewport');
+  vz = fitZ;
+  vx = (vpEl.clientWidth - pdfC.width * vz) / 2;
+  vy = (vpEl.clientHeight - pdfC.height * vz) / 2;
+  applyTransform();
+}
+
+function updateCursor() {
+  var vp = document.getElementById('viewport');
+  if (roomMode || tool || calMode) vp.style.cursor = 'crosshair';
+  else vp.style.cursor = 'grab';
+}
+
+function changePg(d) {
+  var n = curPage + d;
+  if (n >= 1 && n <= totPages) { curPage = n; renderPage(curPage, true); closeGPS(); closeCL(); }
+}
+function goPage(v) {
+  var n = parseInt(v);
+  if (n >= 1 && n <= totPages) { curPage = n; renderPage(curPage, true); }
+}
+
+// CALIBRATION
+function startCal() {
+  var v = parseFloat(document.getElementById('cal-val').value);
+  if (!v || v <= 0) { alert('Enter a known dimension first.'); return; }
+  calUnit = document.getElementById('cal-unit').value;
+  calMode = true; calPts = []; roomMode = false;
+  setTool(null, true);
+  document.getElementById('btn-cal').classList.add('active');
+  updateCursor();
+  showMode('CALIBRATE - Click point 1', 'yellow');
+  document.getElementById('cal-bar').className = 'cal-bar bad';
+  document.getElementById('cal-bar').textContent = 'Click first calibration point...';
+}
+function resetCal() {
+  pxPerUnit = null; calMode = false; calPts = [];
+  document.getElementById('cal-bar').className = 'cal-bar bad';
+  document.getElementById('cal-bar').textContent = 'Not calibrated - set scale first';
+  document.getElementById('btn-cal').classList.remove('active');
+  hideMode(); updateCursor(); redraw();
+}
+
+// ROOM MODE
+function toggleRoom() {
+  roomMode = !roomMode;
+  var btn = document.getElementById('btn-room');
+  if (roomMode) {
+    setTool(null, true); calMode = false;
+    btn.classList.add('active');
+    showRoomBanner();
+    updateCursor();
+    showMode('ROOM MODE - Click inside a room', 'yellow');
+  } else {
+    btn.classList.remove('active');
+    hideRoomBanner();
+    hideMode();
+    updateCursor();
+  }
+}
+
+function showRoomBanner() { document.getElementById('room-banner').classList.add('show'); }
+function hideRoomBanner() { document.getElementById('room-banner').classList.remove('show'); }
+
+async function doRoomClick(cp) {
+  if (!pxPerUnit) { alert('Calibrate scale first.'); return; }
+  var vpEl = document.getElementById('viewport');
+  var vpRect = vpEl.getBoundingClientRect();
+  var cropC = document.createElement('canvas');
+  cropC.width = Math.min(vpRect.width, 900);
+  cropC.height = Math.min(vpRect.height, 700);
+  var ctx = cropC.getContext('2d');
+  ctx.save(); ctx.translate(vx, vy); ctx.scale(vz, vz);
+  ctx.drawImage(pdfC, 0, 0); ctx.restore();
+  var b64 = cropC.toDataURL('image/jpeg', 0.75).split(',')[1];
+  showPreview(cropC);
+  roomMode = false;
+  document.getElementById('btn-room').classList.remove('active');
+  hideRoomBanner(); updateCursor();
+  showMode('AI is reading this room...', 'purple');
+  showLoader(true, 'AI is analyzing this room...');
+  document.getElementById('spin').classList.add('purple');
+  try {
+    var resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({imageBase64: b64, width: cropC.width, height: cropC.height, mode: 'room'})
+    });
+    if (!resp.ok) { var err = await resp.json().catch(function(){return{};}); throw new Error(err.error || 'Server error ' + resp.status); }
+    gpsData = await resp.json();
+    gpsStep = 0;
+    showGPS();
+    hideMode();
+  } catch(e) { hideMode(); alert('AI error: ' + e.message); }
+  showLoader(false);
+  document.getElementById('spin').classList.remove('purple');
+}
+
+async function fullScan() {
+  if (!pdfDoc) { alert('Upload a drawing first.'); return; }
+  showLoader(true, 'AI is scanning the full sheet...');
+  document.getElementById('spin').classList.add('purple');
+  try {
+    var scanC = document.createElement('canvas');
+    scanC.width = Math.min(pdfC.width, 1200);
+    scanC.height = Math.min(pdfC.height, 900);
+    var ctx = scanC.getContext('2d');
+    ctx.drawImage(pdfC, 0, 0, pdfC.width, pdfC.height, 0, 0, scanC.width, scanC.height);
+    var b64 = scanC.toDataURL('image/jpeg', 0.5).split(',')[1];
+    var resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({imageBase64: b64, width: scanC.width, height: scanC.height, mode: 'fullsheet'})
+    });
+    if (!resp.ok) { var err = await resp.json().catch(function(){return{};}); throw new Error(err.error || 'Server error ' + resp.status); }
+    var data = await resp.json();
+    showChecklist(data);
+  } catch(e) { alert('Scan error: ' + e.message); }
+  showLoader(false);
+  document.getElementById('spin').classList.remove('purple');
+}
+
+// GPS
+function showGPS() {
+  if (!gpsData) return;
+  var panel = document.getElementById('gps-panel');
+  panel.classList.add('show');
+  document.getElementById('gps-title').textContent = gpsData.roomName || 'Room Analysis';
+  document.getElementById('gps-dims').textContent = gpsData.dimensions || '';
+  var icons = {area: '&#x1F4D0;', linear: '&#x1F4CF;', count: '&#x1F522;'};
+  document.getElementById('tool-ico').innerHTML = icons[gpsData.tool] || '&#x1F4D0;';
+  document.getElementById('tool-name').textContent = gpsData.toolInstruction || 'SELECT ' + (gpsData.tool || 'AREA').toUpperCase() + ' TOOL';
+  document.getElementById('tool-why').textContent = gpsData.whyThisTool || '';
+  renderSteps();
+}
+
+function renderSteps() {
+  if (!gpsData || !gpsData.steps) return;
+  var container = document.getElementById('steps');
+  container.innerHTML = gpsData.steps.map(function(s, i) {
+    var status = i < gpsStep ? 'done' : i === gpsStep ? 'cur' : 'pending';
+    var nStatus = i < gpsStep ? 'done' : i === gpsStep ? 'cur' : 'pending';
+    return '<div class="step ' + status + '">' +
+      '<div class="step-n ' + nStatus + '">' + (status === 'done' ? '&#10003;' : s.stepNumber) + '</div>' +
+      '<div class="step-body">' +
+        '<div class="step-act">' + s.action + '</div>' +
+        '<div class="step-det">' + s.detail + '</div>' +
+        (s.direction ? '<div class="step-dir">' + s.direction + '</div>' : '') +
+      '</div></div>';
+  }).join('');
+  var cur = document.getElementById('steps').children[gpsStep];
+  if (cur) cur.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+  var nextBtn = document.getElementById('nav-next');
+  if (gpsStep >= gpsData.steps.length - 1) {
+    nextBtn.textContent = 'Done - Record Measurement';
+    nextBtn.className = 'nav-done';
+  } else {
+    nextBtn.textContent = 'Next Step &#9654;';
+    nextBtn.className = 'nav-next';
+  }
+}
+
+function stepNext() {
+  if (!gpsData) return;
+  if (gpsStep >= gpsData.steps.length - 1) {
+    closeGPS();
+    showMode(gpsData.roomName + ' complete! Check Results.', 'green');
+    setTimeout(hideMode, 3000);
+    showTab('results');
+    return;
+  }
+  gpsStep++;
+  renderSteps();
+}
+function stepBack() { if (gpsStep > 0) { gpsStep--; renderSteps(); } }
+function activateTool() {
+  if (!gpsData) return;
+  setTool(gpsData.tool);
+  document.getElementById('m-label').value = gpsData.roomName || 'Room';
+  showMode((gpsData.tool || 'area').toUpperCase() + ' TOOL ACTIVE - follow GPS steps', 'yellow');
+}
+function closeGPS() { document.getElementById('gps-panel').classList.remove('show'); gpsData = null; gpsStep = 0; }
+
+function showPreview(srcC) {
+  var prev = document.getElementById('prev-canvas');
+  var maxW = document.getElementById('gps-panel').clientWidth - 60 || 300;
+  var ratio = srcC.height / srcC.width;
+  prev.width = Math.min(srcC.width, maxW);
+  prev.height = prev.width * ratio;
+  var ctx = prev.getContext('2d');
+  ctx.drawImage(srcC, 0, 0, prev.width, prev.height);
+  ctx.strokeStyle = 'rgba(245,158,11,0.7)'; ctx.lineWidth = 3; ctx.setLineDash([8,4]);
+  ctx.strokeRect(15, 15, prev.width - 30, prev.height - 30); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(245,158,11,0.9)'; ctx.fillRect(8, 8, 110, 20);
+  ctx.fillStyle = '#000'; ctx.font = 'bold 11px sans-serif'; ctx.fillText('Trace this area', 12, 22);
+}
+
+// CHECKLIST
+function showChecklist(data) {
+  var panel = document.getElementById('cl-panel');
+  panel.classList.add('show');
+  var html = '';
+  var all = (data.measurementChecklist || []).concat(data.linearMeasurements || []).concat(data.countsNeeded || []);
+  if (data.statedQuantities && data.statedQuantities.length) {
+    html += '<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;margin-bottom:6px;">Already Stated on Drawing</div>';
+    data.statedQuantities.forEach(function(q) {
+      html += '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:7px 10px;margin-bottom:6px;font-size:11px;"><strong>' + q.item + ':</strong> <span style="color:var(--green);font-weight:700;">' + q.value + '</span></div>';
+    });
+  }
+  if (data.measurementChecklist && data.measurementChecklist.length) {
+    html += '<div style="font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;margin-bottom:6px;margin-top:10px;">Area Measurements</div>';
+    data.measurementChecklist.forEach(function(item, i) {
+      html += '<div class="cl-item" onclick="startItem(\'' + (item.tool||'area') + '\',\'' + item.name.replace(/'/g,"\\'") + '\')">' +
+        '<div class="cl-num">' + (i+1) + '</div><div class="cl-info">' +
+        '<div class="cl-name">' + item.name + ' <span class="pri ' + (item.priority||'') + '">' + (item.priority||'') + '</span></div>' +
+        '<div class="cl-why">' + (item.why||'') + '</div>' +
+        (item.estimatedSF ? '<div style="font-size:10px;color:var(--accent);margin-top:2px;">Est: ' + item.estimatedSF + '</div>' : '') +
+        '</div></div>';
+    });
+  }
+  if (data.linearMeasurements && data.linearMeasurements.length) {
+    html += '<div style="font-size:10px;font-weight:700;color:#34d399;text-transform:uppercase;margin-bottom:6px;margin-top:10px;">Linear Measurements</div>';
+    data.linearMeasurements.forEach(function(item, i) {
+      html += '<div class="cl-item" onclick="startItem(\'' + (item.tool||'linear') + '\',\'' + item.name.replace(/'/g,"\\'") + '\')">' +
+        '<div class="cl-num">' + (i+1) + '</div><div class="cl-info">' +
+        '<div class="cl-name">' + item.name + ' <span class="pri ' + (item.priority||'') + '">' + (item.priority||'') + '</span></div>' +
+        '<div class="cl-why">' + (item.why||'') + '</div></div></div>';
+    });
+  }
+  if (data.countsNeeded && data.countsNeeded.length) {
+    html += '<div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;margin-bottom:6px;margin-top:10px;">Count Items</div>';
+    data.countsNeeded.forEach(function(item, i) {
+      html += '<div class="cl-item" onclick="startItem(\'count\',\'' + item.name.replace(/'/g,"\\'") + '\')">' +
+        '<div class="cl-num">' + (i+1) + '</div><div class="cl-info">' +
+        '<div class="cl-name">' + item.name + '</div>' +
+        '<div class="cl-why">' + (item.why||'') + '</div></div></div>';
+    });
+  }
+  if (data.warnings && data.warnings.length) {
+    html += '<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;margin-bottom:6px;margin-top:10px;">Flags</div>';
+    data.warnings.forEach(function(w) {
+      html += '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:11px;color:var(--text2);">' + w + '</div>';
+    });
+  }
+  document.getElementById('cl-body').innerHTML = html || '<div class="empty"><div class="empty-txt">No items found.</div></div>';
+}
+function startItem(t, name) { setTool(t); document.getElementById('m-label').value = name; closeCL(); showMode(t.toUpperCase() + ' - ' + name, 'yellow'); showTab('measure'); }
+function closeCL() { document.getElementById('cl-panel').classList.remove('show'); }
+
+// CLICK HANDLER
+function handleClick(pos) {
+  if (!pdfDoc) return;
+  if (calMode) {
+    calPts.push(pos); redraw();
+    if (calPts.length === 1) {
+      document.getElementById('cal-bar').textContent = 'Click second point...';
+      showMode('CALIBRATE - Click point 2', 'yellow');
+    } else if (calPts.length === 2) {
+      var dx = calPts[1].x - calPts[0].x, dy = calPts[1].y - calPts[0].y;
+      pxPerUnit = Math.sqrt(dx*dx + dy*dy) / parseFloat(document.getElementById('cal-val').value);
+      calUnit = document.getElementById('cal-unit').value;
+      calMode = false;
+      document.getElementById('btn-cal').classList.remove('active');
+      document.getElementById('cal-bar').className = 'cal-bar good';
+      document.getElementById('cal-bar').textContent = 'Calibrated: 1 ' + calUnit + ' = ' + pxPerUnit.toFixed(1) + 'px';
+      showMode('Calibrated! Now use Click a Room or pick a tool.', 'green');
+      setTimeout(hideMode, 3000);
+      updateCursor(); redraw();
+    }
+    return;
+  }
+  if (!tool) return;
+  if (!pxPerUnit) { showMode('Calibrate scale first!', 'yellow'); setTimeout(hideMode, 2000); return; }
+  if (tool === 'count') { addCount(pos); return; }
+  if (!curM) {
+    curM = {id: Date.now(), type: tool, label: document.getElementById('m-label').value || (tool === 'area' ? 'Area' : 'Linear'), pts: [pos], page: curPage};
+  } else {
+    curM.pts.push(pos);
+    if (tool === 'linear' && curM.pts.length === 2) finalizeM();
+  }
+  redraw();
+}
+
+function addCount(pos) {
+  var lbl = document.getElementById('m-label').value || 'Count';
+  var m = measurements.find(function(m) { return m.type === 'count' && m.label === lbl && m.page === curPage; });
+  if (!m) { m = {id: Date.now(), type: 'count', label: lbl, pts: [], page: curPage}; measurements.push(m); }
+  m.pts.push(pos); m.value = m.pts.length;
+  redraw(); updateList(); updateStats();
+}
+
+function finalizeM() {
+  if (!curM) return;
+  curM.value = calcVal(curM);
+  measurements.push(curM); curM = null;
+  redraw(); updateList(); updateStats();
+}
+
+function calcVal(m) {
+  if (!pxPerUnit) return 0;
+  if (m.type === 'linear' && m.pts.length >= 2) {
+    var dx = m.pts[1].x - m.pts[0].x, dy = m.pts[1].y - m.pts[0].y;
+    return Math.sqrt(dx*dx + dy*dy) / pxPerUnit;
+  }
+  if (m.type === 'area' && m.pts.length >= 3) {
+    var a = 0;
+    for (var i = 0; i < m.pts.length; i++) { var j = (i+1) % m.pts.length; a += m.pts[i].x * m.pts[j].y - m.pts[j].x * m.pts[i].y; }
+    return Math.abs(a / 2) / (pxPerUnit * pxPerUnit);
+  }
+  return m.pts.length;
+}
+
+// DRAW
+function redraw() {
+  mX.clearRect(0, 0, mC.width, mC.height);
+  if (calPts.length > 0) {
+    calPts.forEach(function(p, i) { dot(mX, p, '#f59e0b', 6, String(i+1)); });
+    if (calPts.length === 2) {
+      mX.strokeStyle = '#f59e0b'; mX.lineWidth = 1.5; mX.setLineDash([6,3]);
+      mX.beginPath(); mX.moveTo(calPts[0].x, calPts[0].y); mX.lineTo(calPts[1].x, calPts[1].y); mX.stroke(); mX.setLineDash([]);
+    }
+  }
+  measurements.filter(function(m) { return m.page === curPage; }).forEach(function(m) { drawM(mX, m, false); });
+  if (curM) {
+    drawM(mX, curM, true);
+    if (curM.pts.length > 0) {
+      var last = curM.pts[curM.pts.length-1];
+      var col = tool === 'area' ? '#3b82f6' : '#10b981';
+      mX.strokeStyle = col + '66'; mX.lineWidth = 1; mX.setLineDash([4,4]);
+      mX.beginPath(); mX.moveTo(last.x, last.y); mX.lineTo(mousePos.x, mousePos.y); mX.stroke(); mX.setLineDash([]);
+    }
+  }
+}
+
+function drawM(ctx, m, prog) {
+  var cols = {area: '#3b82f6', linear: '#10b981', count: '#8b5cf6'};
+  var col = cols[m.type];
+  ctx.strokeStyle = col; ctx.lineWidth = prog ? 1.5 : 2; ctx.setLineDash(prog ? [5,3] : []);
+  if (m.type === 'area') {
+    if (!m.pts.length) return;
+    ctx.beginPath(); ctx.moveTo(m.pts[0].x, m.pts[0].y);
+    m.pts.slice(1).forEach(function(p) { ctx.lineTo(p.x, p.y); });
+    if (!prog) ctx.closePath(); ctx.stroke();
+    if (!prog && m.pts.length >= 3) { ctx.fillStyle = col + '22'; ctx.fill(); }
+    m.pts.forEach(function(p) { dot(ctx, p, col, 4); });
+    if (!prog && m.value) { var cx = m.pts.reduce(function(s,p){return s+p.x;},0)/m.pts.length; var cy = m.pts.reduce(function(s,p){return s+p.y;},0)/m.pts.length; lbl(ctx, cx, cy, m.label + ': ' + m.value.toFixed(0) + ' SF', col); }
+  }
+  if (m.type === 'linear' && m.pts.length >= 2) {
+    ctx.beginPath(); ctx.moveTo(m.pts[0].x, m.pts[0].y); ctx.lineTo(m.pts[1].x, m.pts[1].y); ctx.stroke();
+    [m.pts[0], m.pts[1]].forEach(function(p) { dot(ctx, p, col, 4); });
+    if (!prog && m.value) { lbl(ctx, (m.pts[0].x+m.pts[1].x)/2, (m.pts[0].y+m.pts[1].y)/2-14, m.label + ': ' + m.value.toFixed(1) + ' LF', col); }
+  }
+  if (m.type === 'count') {
+    m.pts.forEach(function(p, i) {
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(i+1, p.x, p.y);
+    });
+  }
+  ctx.setLineDash([]);
+}
+
+function dot(ctx, p, color, r, label) {
+  ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI*2); ctx.fill();
+  if (label) { ctx.fillStyle = '#000'; ctx.font = 'bold ' + (r+2) + 'px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, p.x, p.y); }
+}
+function lbl(ctx, x, y, text, color) {
+  ctx.font = 'bold 12px sans-serif';
+  var w = ctx.measureText(text).width + 12;
+  ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillRect(x - w/2, y - 11, w, 22);
+  ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, x, y);
+}
+
+// TOOLS
+function setTool(t, skipClear) {
+  if (curM) finalizeM();
+  tool = t;
+  if (!skipClear) { calMode = false; roomMode = false; document.getElementById('btn-room').classList.remove('active'); hideRoomBanner(); }
+  ['area','linear','count'].forEach(function(id) {
+    var el = document.getElementById('btn-' + id);
+    if (el) el.classList.toggle('active', t === id);
+  });
+  var noneEl = document.getElementById('btn-none');
+  if (noneEl) noneEl.classList.toggle('active', t === null && !calMode && !roomMode);
+  updateCursor();
+  if (t) {
+    var lbs = {area: 'AREA - click corners, double-click to finish', linear: 'LINEAR - click start then end', count: 'COUNT - click each item'};
+    showMode(lbs[t], 'yellow');
+  } else if (!calMode && !roomMode) { hideMode(); }
+}
+
+function undoLast() {
+  if (curM && curM.pts.length > 0) { curM.pts.pop(); if (!curM.pts.length) curM = null; }
+  else if (measurements.length > 0) { measurements.pop(); updateList(); updateStats(); }
+  redraw();
+}
+
+function clearAll() {
+  if (!confirm('Clear all measurements?')) return;
+  measurements = []; curM = null; calPts = []; pxPerUnit = null;
+  document.getElementById('cal-bar').className = 'cal-bar bad';
+  document.getElementById('cal-bar').textContent = 'Not calibrated - set scale first';
+  redraw(); updateList(); updateStats();
+}
+
+function delM(i) { measurements.splice(i, 1); updateList(); updateStats(); redraw(); }
+
+// UI
+function updateList() {
+  var el = document.getElementById('m-list');
+  if (!measurements.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">&#x1F4D0;</div><div class="empty-txt">No measurements yet.</div></div>'; updateResults(); return; }
+  var units = {area: 'SF', linear: 'LF', count: 'EA'};
+  el.innerHTML = measurements.map(function(m, i) {
+    var v = m.type === 'count' ? m.pts.length : (m.value ? m.value.toFixed(m.type === 'linear' ? 1 : 0) : '-');
+    return '<div class="m-item"><button class="m-del" onclick="delM(' + i + ')">&#x2715;</button>' +
+      '<div class="m-hdr"><div><div class="m-name">' + m.label + '</div><div class="m-type">' + m.type.toUpperCase() + ' pg ' + m.page + '</div></div>' +
+      '<div class="m-val">' + v + ' <span style="font-size:10px;font-weight:400;">' + units[m.type] + '</span></div></div></div>';
+  }).join('');
+  updateResults();
+}
+
+function updateStats() {
+  document.getElementById('s-total').textContent = measurements.length;
+  document.getElementById('s-area').textContent = measurements.filter(function(m){return m.type==='area';}).length;
+  document.getElementById('s-lin').textContent = measurements.filter(function(m){return m.type==='linear';}).length;
+}
+
+function updateResults() {
+  var el = document.getElementById('results-body');
+  if (!measurements.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">&#x1F4CA;</div><div class="empty-txt">Add measurements to see summary.</div></div>'; return; }
+  var areas = measurements.filter(function(m){return m.type==='area';});
+  var lins = measurements.filter(function(m){return m.type==='linear';});
+  var cnts = measurements.filter(function(m){return m.type==='count';});
+  function row(l,v,u,c) { return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;"><span>'+l+'</span><span style="color:'+c+';font-weight:700;">'+v+' '+u+'</span></div>'; }
+  var html = '';
+  if (areas.length) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:6px;">AREAS</div>' + areas.map(function(m){return row(m.label,m.value?m.value.toFixed(0):'-','SF','#3b82f6');}).join('') + '<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:12px;font-weight:700;"><span>TOTAL</span><span style="color:var(--accent);">' + areas.reduce(function(s,m){return s+(m.value||0);},0).toFixed(0) + ' SF</span></div></div>'; }
+  if (lins.length) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#10b981;margin-bottom:6px;">LINEAR</div>' + lins.map(function(m){return row(m.label,m.value?m.value.toFixed(1):'-','LF','#10b981');}).join('') + '</div>'; }
+  if (cnts.length) { html += '<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px;">COUNTS</div>' + cnts.map(function(m){return row(m.label,m.pts.length,'EA','#8b5cf6');}).join('') + '</div>'; }
+  el.innerHTML = html;
+}
+
+function showTab(t) {
+  document.querySelectorAll('.tab').forEach(function(e){e.classList.remove('active');});
+  document.querySelectorAll('.panel').forEach(function(e){e.style.display='none';});
+  document.getElementById('tab-' + t).classList.add('active');
+  document.getElementById('panel-' + t).style.display = 'block';
+}
+
+function setLbl(t) { document.getElementById('m-label').value = t; }
+function showMode(txt, style) { var el = document.getElementById('mode-bar'); el.className = 'mode-bar show ' + (style||'yellow'); el.textContent = txt; }
+function hideMode() { document.getElementById('mode-bar').classList.remove('show'); }
+function showLoader(v, msg) { document.getElementById('loader').classList.toggle('show', v); if (msg) document.getElementById('load-msg').textContent = msg; }
+
+function exportCSV() {
+  if (!measurements.length) { alert('No measurements yet.'); return; }
+  var csv = 'BuildIQ Takeoff\nProject: ' + projName + '\nDate: ' + new Date().toLocaleDateString() + '\n\nLabel,Type,Value,Unit,Page\n';
+  measurements.forEach(function(m) {
+    var u = m.type==='area'?'SF':m.type==='linear'?'LF':'EA';
+    var v = m.type==='count'?m.pts.length:(m.value?m.value.toFixed(m.type==='linear'?1:0):0);
+    csv += '"' + m.label + '",' + m.type.toUpperCase() + ',' + v + ',' + u + ',' + m.page + '\n';
+  });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv'}));
+  a.download = 'BuildIQ_' + projName + '_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+function copyAll() {
+  if (!measurements.length) { alert('No measurements yet.'); return; }
+  var u = function(m){return m.type==='area'?'SF':m.type==='linear'?'LF':'EA';};
+  var v = function(m){return m.type==='count'?m.pts.length:(m.value?m.value.toFixed(1):0);};
+  navigator.clipboard.writeText(measurements.map(function(m){return m.label+': '+v(m)+' '+u(m);}).join('\n')).then(function() {
+    var btn = document.querySelector('.exp-btn.sec'); var orig = btn.textContent;
+    btn.textContent = 'Copied!'; setTimeout(function(){btn.textContent=orig;}, 2000);
+  });
+}
+
+showTab('measure');
+</script>
+</body>
+</html>
