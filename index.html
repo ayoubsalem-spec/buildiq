@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BuildIQ \u2014 AI Chief Estimator</title>
+<title>BuildIQ — AI Chief Estimator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222535;--border:#2e3348;--accent:#f59e0b;--accent2:#fbbf24;--text:#e8eaf0;--text2:#8b90a7;--green:#10b981;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6;}
@@ -214,7 +214,7 @@
 
 <header>
   <div class="logo">
-    <div class="logo-icon">\ud83c\udfd7\ufe0f</div>
+    <div class="logo-icon">🏗️</div>
     <div class="logo-text">Build<span>IQ</span></div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
@@ -229,53 +229,53 @@
     <!-- TOOLBAR -->
     <div class="toolbar" id="toolbar" style="display:none;">
       <div class="tg">
-        <button class="tb" onclick="changePage(-1)">\u25c0</button>
+        <button class="tb" onclick="changePage(-1)">◀</button>
         <div class="pg-nav">
           <input type="number" id="pg-in" value="1" min="1" onchange="goPage(this.value)">
           <span style="font-size:11px;color:var(--text2);">/ <span id="total-pg">1</span></span>
         </div>
-        <button class="tb" onclick="changePage(1)">\u25b6</button>
+        <button class="tb" onclick="changePage(1)">▶</button>
       </div>
 
       <div class="tg">
         <span class="tl">Tools</span>
-        <button class="tb" id="btn-area"   onclick="setTool('area')"   title="Area (A)">\u25aa Area</button>
-        <button class="tb" id="btn-linear" onclick="setTool('linear')" title="Linear (L)">\u27f7 Linear</button>
-        <button class="tb" id="btn-count"  onclick="setTool('count')"  title="Count (C)">\u2295 Count</button>
-        <button class="tb" id="btn-none"   onclick="setTool(null)"     title="Deselect (Esc)">\u2715 None</button>
+        <button class="tb" id="btn-area"   onclick="setTool('area')"   title="Area (A)">▪ Area</button>
+        <button class="tb" id="btn-linear" onclick="setTool('linear')" title="Linear (L)">⟷ Linear</button>
+        <button class="tb" id="btn-count"  onclick="setTool('count')"  title="Count (C)">⊕ Count</button>
+        <button class="tb" id="btn-none"   onclick="setTool(null)"     title="Deselect (Esc)">✕ None</button>
       </div>
 
       <div class="tg">
-        <button class="tb danger" onclick="undoLast()">\u21a9 Undo</button>
-        <button class="tb danger" onclick="clearAll()">\ud83d\uddd1 Clear</button>
+        <button class="tb danger" onclick="undoLast()">↩ Undo</button>
+        <button class="tb danger" onclick="clearAll()">🗑 Clear</button>
       </div>
 
       <div class="tg">
         <button class="ai-room-btn" id="btn-room" onclick="toggleRoomMode()">
-          \ud83c\udfaf Click a Room
+          🎯 Click a Room
         </button>
         <button class="ai-sheet-btn" id="btn-sheet" onclick="analyzeFullSheet()">
-          \ud83d\udccb Full Sheet Scan
+          📋 Full Sheet Scan
         </button>
       </div>
 
       <div class="tg" style="border:none;">
-        <span style="font-size:10px;color:var(--text2);">Scroll=zoom \u00b7 Drag=pan</span>
+        <span style="font-size:10px;color:var(--text2);">Scroll=zoom · Drag=pan</span>
       </div>
     </div>
 
     <!-- UPLOAD -->
     <div class="upload-screen" id="upload-screen">
       <div style="text-align:center;">
-        <div style="font-size:48px;margin-bottom:10px;">\ud83c\udfd7\ufe0f</div>
+        <div style="font-size:48px;margin-bottom:10px;">🏗️</div>
         <div style="font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:5px;">Build<span style="color:var(--accent);">IQ</span></div>
         <div style="font-size:14px;color:var(--text2);margin-bottom:4px;">AI Chief Estimator</div>
-        <div style="font-size:12px;color:var(--text2);">Click a room \u2014 AI gives you GPS instructions step by step</div>
+        <div style="font-size:12px;color:var(--text2);">Click a room — AI gives you GPS instructions step by step</div>
       </div>
       <div class="upload-zone" id="upload-zone"
            onclick="document.getElementById('file-in').click()"
            ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="drop(event)">
-        <div style="font-size:44px;margin-bottom:14px;">\ud83d\udccb</div>
+        <div style="font-size:44px;margin-bottom:14px;">📋</div>
         <div style="font-size:19px;font-weight:700;margin-bottom:7px;">Upload Drawing Set</div>
         <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5;">Drop PDF here or click to browse.<br>AI guides every measurement step by step.</div>
         <button class="upload-btn-main" onclick="event.stopPropagation();document.getElementById('file-in').click()">Choose PDF File</button>
@@ -304,7 +304,7 @@
 
       <!-- ROOM MODE HINT -->
       <div class="room-hint" id="room-hint">
-        \ud83c\udfaf ROOM MODE \u2014 Click anywhere inside a room to get GPS measurement instructions
+        🎯 ROOM MODE — Click anywhere inside a room to get GPS measurement instructions
       </div>
 
       <!-- GPS PANEL -->
@@ -314,24 +314,24 @@
             <div class="gps-title" id="gps-room-name">Loading...</div>
             <div style="font-size:11px;color:var(--text2);margin-top:2px;" id="gps-room-dims"></div>
           </div>
-          <button class="gps-close" onclick="closeGPS()">\u2715</button>
+          <button class="gps-close" onclick="closeGPS()">✕</button>
         </div>
         <div class="gps-body">
 
           <!-- PREVIEW IMAGE -->
           <div class="preview-container" id="preview-container">
-            <div class="preview-label">\ud83d\udcd0 What Your Trace Should Look Like</div>
+            <div class="preview-label">📐 What Your Trace Should Look Like</div>
             <canvas id="preview-canvas"></canvas>
           </div>
 
           <!-- TOOL INSTRUCTION -->
           <div class="tool-instruction" id="tool-instruction">
-            <div class="tool-icon" id="tool-icon">\ud83d\udcd0</div>
+            <div class="tool-icon" id="tool-icon">📐</div>
             <div class="tool-text">
               <div class="tool-name" id="tool-name">SELECT AREA TOOL</div>
               <div class="tool-why" id="tool-why">Loading...</div>
             </div>
-            <button class="tool-activate-btn" id="tool-activate-btn" onclick="activateGPSTool()">Activate \u25b6</button>
+            <button class="tool-activate-btn" id="tool-activate-btn" onclick="activateGPSTool()">Activate ▶</button>
           </div>
 
           <!-- GPS STEPS -->
@@ -339,20 +339,20 @@
 
           <!-- SUBTRACTIONS -->
           <div class="subtractions" id="subtractions" style="display:none;">
-            <div class="sub-title">\u2796 Subtract From Total</div>
+            <div class="sub-title">➖ Subtract From Total</div>
             <div id="sub-list"></div>
           </div>
 
           <!-- WARNINGS -->
           <div class="warnings" id="gps-warnings" style="display:none;">
-            <div class="warn-title">\u26a0\ufe0f Notes</div>
+            <div class="warn-title">⚠️ Notes</div>
             <div id="warn-list"></div>
           </div>
 
           <!-- NAV BUTTONS -->
           <div class="gps-nav" id="gps-nav">
-            <button class="gps-prev" onclick="gpsBack()">\u25c0 Back</button>
-            <button class="gps-next" id="gps-next-btn" onclick="gpsNext()">Next Step \u25b6</button>
+            <button class="gps-prev" onclick="gpsBack()">◀ Back</button>
+            <button class="gps-next" id="gps-next-btn" onclick="gpsNext()">Next Step ▶</button>
           </div>
 
         </div>
@@ -362,10 +362,10 @@
       <div class="checklist-panel" id="checklist-panel">
         <div class="cl-header">
           <div>
-            <div class="cl-title">\ud83d\udccb Full Sheet Takeoff Checklist</div>
+            <div class="cl-title">📋 Full Sheet Takeoff Checklist</div>
             <div style="font-size:10px;color:var(--text2);margin-top:2px;" id="cl-subtitle">Click any item to start measuring</div>
           </div>
-          <button class="gps-close" onclick="closeChecklist()">\u2715</button>
+          <button class="gps-close" onclick="closeChecklist()">✕</button>
         </div>
         <div class="cl-body" id="cl-body"></div>
       </div>
@@ -374,8 +374,8 @@
       <div class="zoom-ov">
         <button class="zo-btn" onclick="zoomBy(0.25)">+</button>
         <div class="zo-lbl" id="zoom-lbl">100%</div>
-        <button class="zo-btn" onclick="zoomBy(-0.25)">\u2212</button>
-        <button class="zo-btn" onclick="resetView()" style="font-size:11px;">\u22a1</button>
+        <button class="zo-btn" onclick="zoomBy(-0.25)">−</button>
+        <button class="zo-btn" onclick="resetView()" style="font-size:11px;">⊡</button>
       </div>
 
       <!-- LOADING -->
@@ -390,17 +390,17 @@
   <!-- RIGHT PANEL -->
   <div class="right-panel">
     <div class="panel-tabs">
-      <div class="ptab active" onclick="switchTab('measure')" id="tab-measure">\ud83d\udcd0 MEASURE</div>
-      <div class="ptab" onclick="switchTab('results')" id="tab-results">\ud83d\udcca RESULTS</div>
-      <div class="ptab" onclick="switchTab('help')" id="tab-help">\u2753 HELP</div>
+      <div class="ptab active" onclick="switchTab('measure')" id="tab-measure">📐 MEASURE</div>
+      <div class="ptab" onclick="switchTab('results')" id="tab-results">📊 RESULTS</div>
+      <div class="ptab" onclick="switchTab('help')" id="tab-help">❓ HELP</div>
     </div>
 
     <!-- MEASURE TAB -->
     <div class="pcontent" id="panel-measure">
       <div class="sc">
-        <div class="sc-title">\u2696\ufe0f Scale Calibration</div>
-        <div class="cal-status bad" id="cal-status">\u26a0\ufe0f Not calibrated \u2014 set scale first</div>
-        <div class="info-bar">\ud83d\udca1 Zoom in close. Enter a known dimension. Click 2 endpoints on the drawing. Verify with a second measurement.</div>
+        <div class="sc-title">⚖️ Scale Calibration</div>
+        <div class="cal-status bad" id="cal-status">⚠️ Not calibrated — set scale first</div>
+        <div class="info-bar">💡 Zoom in close. Enter a known dimension. Click 2 endpoints on the drawing. Verify with a second measurement.</div>
         <div class="ci-row">
           <input class="ci" type="number" id="cal-val" placeholder="Known distance e.g. 20" step="0.1" style="flex:1;">
           <select class="ci" id="cal-unit" style="width:60px;">
@@ -409,12 +409,12 @@
             <option value="m">m</option>
           </select>
         </div>
-        <button class="tb" id="btn-cal" onclick="startCal()" style="width:100%;display:flex;justify-content:center;margin-bottom:5px;">\ud83d\udccd Set Scale \u2014 Click 2 Points</button>
+        <button class="tb" id="btn-cal" onclick="startCal()" style="width:100%;display:flex;justify-content:center;margin-bottom:5px;">📍 Set Scale — Click 2 Points</button>
         <button class="tb danger" onclick="resetCal()" style="width:100%;display:flex;justify-content:center;font-size:11px;">Reset Scale</button>
       </div>
 
       <div class="sc">
-        <div class="sc-title">\ud83c\udff7\ufe0f Label</div>
+        <div class="sc-title">🏷️ Label</div>
         <input class="ci" type="text" id="m-label" placeholder="Name this measurement..." style="width:100%;margin-bottom:7px;">
         <div>
           <span class="badge b-area"   onclick="setLbl('Concrete Slab')">Slab</span>
@@ -431,14 +431,14 @@
       </div>
 
       <div class="sc">
-        <div class="sc-title">\ud83d\udccf Measurements</div>
+        <div class="sc-title">📏 Measurements</div>
         <div class="stats-bar">
           <div class="stat-box"><div class="sv" id="s-total">0</div><div class="sl">Total</div></div>
           <div class="stat-box"><div class="sv" id="s-area">0</div><div class="sl">Areas</div></div>
           <div class="stat-box"><div class="sv" id="s-lin">0</div><div class="sl">Lines</div></div>
         </div>
         <div id="m-list">
-          <div class="empty"><div class="empty-icon">\ud83d\udcd0</div><div class="empty-txt">Calibrate scale \u2192 use \ud83c\udfaf Click a Room<br>or pick a tool and measure manually.</div></div>
+          <div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">Calibrate scale → use 🎯 Click a Room<br>or pick a tool and measure manually.</div></div>
         </div>
       </div>
     </div>
@@ -446,9 +446,9 @@
     <!-- RESULTS TAB -->
     <div class="pcontent" id="panel-results" style="display:none;">
       <div class="sc">
-        <div class="sc-title">\ud83d\udcca Takeoff Summary</div>
+        <div class="sc-title">📊 Takeoff Summary</div>
         <div id="results-content">
-          <div class="empty"><div class="empty-icon">\ud83d\udcca</div><div class="empty-txt">Add measurements to see summary.</div></div>
+          <div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Add measurements to see summary.</div></div>
         </div>
       </div>
     </div>
@@ -456,10 +456,10 @@
     <!-- HELP TAB -->
     <div class="pcontent" id="panel-help" style="display:none;">
       <div class="sc">
-        <div class="sc-title">\ud83c\udfaf Click a Room</div>
+        <div class="sc-title">🎯 Click a Room</div>
         <div style="font-size:12px;color:var(--text);line-height:1.6;">
           1. Calibrate scale first<br>
-          2. Click <strong style="color:var(--accent);">\ud83c\udfaf Click a Room</strong> button<br>
+          2. Click <strong style="color:var(--accent);">🎯 Click a Room</strong> button<br>
           3. Click anywhere inside any room on the drawing<br>
           4. AI reads that room at high resolution<br>
           5. See a preview of exactly how to trace it<br>
@@ -468,9 +468,9 @@
         </div>
       </div>
       <div class="sc">
-        <div class="sc-title">\ud83d\udccb Full Sheet Scan</div>
+        <div class="sc-title">📋 Full Sheet Scan</div>
         <div style="font-size:12px;color:var(--text);line-height:1.6;">
-          1. Click <strong style="color:#a78bfa;">\ud83d\udccb Full Sheet Scan</strong><br>
+          1. Click <strong style="color:#a78bfa;">📋 Full Sheet Scan</strong><br>
           2. AI scans the entire drawing<br>
           3. Get a complete checklist of everything to measure<br>
           4. Click any item to start measuring it<br>
@@ -478,24 +478,24 @@
         </div>
       </div>
       <div class="sc">
-        <div class="sc-title">\u2328\ufe0f Keyboard Shortcuts</div>
+        <div class="sc-title">⌨️ Keyboard Shortcuts</div>
         <div style="font-size:12px;color:var(--text);line-height:1.8;">
-          <strong style="color:var(--accent);">A</strong> \u2014 Area tool<br>
-          <strong style="color:var(--accent);">L</strong> \u2014 Linear tool<br>
-          <strong style="color:var(--accent);">C</strong> \u2014 Count tool<br>
-          <strong style="color:var(--accent);">Esc</strong> \u2014 Deselect tool<br>
-          <strong style="color:var(--accent);">\u2190 \u2192</strong> \u2014 Previous/Next page<br>
-          <strong style="color:var(--accent);">Space</strong> \u2014 Reset view<br>
-          <strong style="color:var(--accent);">Ctrl+Z</strong> \u2014 Undo<br>
-          <strong style="color:var(--accent);">Scroll</strong> \u2014 Zoom in/out<br>
-          <strong style="color:var(--accent);">Drag</strong> \u2014 Pan around
+          <strong style="color:var(--accent);">A</strong> — Area tool<br>
+          <strong style="color:var(--accent);">L</strong> — Linear tool<br>
+          <strong style="color:var(--accent);">C</strong> — Count tool<br>
+          <strong style="color:var(--accent);">Esc</strong> — Deselect tool<br>
+          <strong style="color:var(--accent);">← →</strong> — Previous/Next page<br>
+          <strong style="color:var(--accent);">Space</strong> — Reset view<br>
+          <strong style="color:var(--accent);">Ctrl+Z</strong> — Undo<br>
+          <strong style="color:var(--accent);">Scroll</strong> — Zoom in/out<br>
+          <strong style="color:var(--accent);">Drag</strong> — Pan around
         </div>
       </div>
     </div>
 
     <div class="export-section">
-      <button class="exp-btn" onclick="exportCSV()">\u2b07\ufe0f Export to CSV / Excel</button>
-      <button class="exp-btn sec" onclick="copyQty()">\ud83d\udccb Copy All Quantities</button>
+      <button class="exp-btn" onclick="exportCSV()">⬇️ Export to CSV / Excel</button>
+      <button class="exp-btn sec" onclick="copyQty()">📋 Copy All Quantities</button>
     </div>
   </div>
 </div>
@@ -505,7 +505,7 @@
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-// \u2500\u2500 STATE \u2500\u2500
+// ── STATE ──
 let pdfDoc=null,curPage=1,totPages=0;
 let renderScale=1.5;
 let vx=0,vy=0,vz=1,fitZ=1;
@@ -524,7 +524,7 @@ const iC=document.getElementById('interact-canvas');
 const pdfX=pdfC.getContext('2d');
 const mX=mC.getContext('2d');
 
-// \u2500\u2500 PDF LOAD \u2500\u2500
+// ── PDF LOAD ──
 async function loadPDF(inp){
   const f=inp.files[0]; if(!f) return;
   projName=f.name.replace('.pdf','');
@@ -568,7 +568,7 @@ function applyT(){
   document.getElementById('zoom-lbl').textContent=Math.round(vz/fitZ*100)+'%';
 }
 
-// \u2500\u2500 PAN/ZOOM \u2500\u2500
+// ── PAN/ZOOM ──
 function onWheel(e){
   e.preventDefault();
   const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
@@ -647,18 +647,18 @@ function updateHint(e,cp){
   h.style.display='block';
   h.style.left=(e.clientX-vp.left+14)+'px';
   h.style.top=(e.clientY-vp.top)+'px';
-  if(roomMode)h.textContent='\ud83c\udfaf Click inside a room';
-  else if(calMode)h.textContent=calPts.length===0?'\ud83d\udccd Click point 1':'\ud83d\udccd Click point 2';
-  else if(curTool==='linear')h.textContent=curM?'\ud83d\udccd Click end point':'\ud83d\udccd Click start';
-  else if(curTool==='area')h.textContent=curM?`\ud83d\udccd Add point (${curM.points.length}) \u2014 dbl-click finish`:'\ud83d\udccd Click first corner';
-  else if(curTool==='count')h.textContent='\ud83d\udd22 Click to count';
+  if(roomMode)h.textContent='🎯 Click inside a room';
+  else if(calMode)h.textContent=calPts.length===0?'📍 Click point 1':'📍 Click point 2';
+  else if(curTool==='linear')h.textContent=curM?'📍 Click end point':'📍 Click start';
+  else if(curTool==='area')h.textContent=curM?`📍 Add point (${curM.points.length}) — dbl-click finish`:'📍 Click first corner';
+  else if(curTool==='count')h.textContent='🔢 Click to count';
 }
 
-// \u2500\u2500 PAGE NAV \u2500\u2500
+// ── PAGE NAV ──
 function changePage(d){const n=curPage+d;if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);closeGPS();closeChecklist();}}
 function goPage(v){const n=parseInt(v);if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);}}
 
-// \u2500\u2500 CALIBRATION \u2500\u2500
+// ── CALIBRATION ──
 function startCal(){
   const v=parseFloat(document.getElementById('cal-val').value);
   if(!v||v<=0){alert('Enter a known dimension value first.');return;}
@@ -667,20 +667,20 @@ function startCal(){
   setTool(null,true);
   document.getElementById('btn-cal').classList.add('active');
   updateCursor();
-  showMode('\u2696\ufe0f CALIBRATE \u2014 Click point 1 of the known dimension','yellow');
+  showMode('⚖️ CALIBRATE — Click point 1 of the known dimension','yellow');
   document.getElementById('cal-status').className='cal-status bad';
-  document.getElementById('cal-status').textContent='\ud83d\udccd Click first calibration point...';
+  document.getElementById('cal-status').textContent='📍 Click first calibration point...';
 }
 
 function resetCal(){
   pxPerUnit=null;calMode=false;calPts=[];
   document.getElementById('cal-status').className='cal-status bad';
-  document.getElementById('cal-status').textContent='\u26a0\ufe0f Not calibrated \u2014 set scale first';
+  document.getElementById('cal-status').textContent='⚠️ Not calibrated — set scale first';
   document.getElementById('btn-cal').classList.remove('active');
   showMode('');updateCursor();redraw();
 }
 
-// \u2500\u2500 ROOM MODE \u2500\u2500
+// ── ROOM MODE ──
 function toggleRoomMode(){
   roomMode=!roomMode;
   const btn=document.getElementById('btn-room');
@@ -689,7 +689,7 @@ function toggleRoomMode(){
     btn.classList.add('active');
     showRoomHint();
     updateCursor();
-    showMode('\ud83c\udfaf ROOM MODE \u2014 Click anywhere inside a room','yellow');
+    showMode('🎯 ROOM MODE — Click anywhere inside a room','yellow');
   }else{
     btn.classList.remove('active');
     hideRoomHint();
@@ -741,7 +741,7 @@ async function handleRoomClick(canvasPos,e){
   roomMode=false;
   document.getElementById('btn-room').classList.remove('active');
   updateCursor();
-  showMode('\ud83e\udd16 AI is reading your drawing...','purple');
+  showMode('🤖 AI is reading your drawing...','purple');
 
   showLoad(true,'AI is analyzing this room...');
   document.getElementById('spinner').classList.add('purple');
@@ -778,7 +778,7 @@ async function handleRoomClick(canvasPos,e){
   document.getElementById('spinner').classList.remove('purple');
 }
 
-// \u2500\u2500 FULL SHEET SCAN \u2500\u2500
+// ── FULL SHEET SCAN ──
 async function analyzeFullSheet(){
   if(!pdfDoc){alert('Upload a drawing first.');return;}
 
@@ -823,7 +823,7 @@ async function analyzeFullSheet(){
   document.getElementById('spinner').classList.remove('purple');
 }
 
-// \u2500\u2500 GPS PANEL \u2500\u2500
+// ── GPS PANEL ──
 function showGPS(){
   if(!gpsData)return;
   const panel=document.getElementById('gps-panel');
@@ -833,8 +833,8 @@ function showGPS(){
   document.getElementById('gps-room-dims').textContent=gpsData.dimensions||'';
 
   // Tool instruction
-  const toolIcons={area:'\ud83d\udcd0',linear:'\ud83d\udccf',count:'\ud83d\udd22'};
-  document.getElementById('tool-icon').textContent=toolIcons[gpsData.tool]||'\ud83d\udcd0';
+  const toolIcons={area:'📐',linear:'📏',count:'🔢'};
+  document.getElementById('tool-icon').textContent=toolIcons[gpsData.tool]||'📐';
   document.getElementById('tool-name').textContent=gpsData.toolInstruction||'Select the '+gpsData.tool+' tool';
   document.getElementById('tool-why').textContent=gpsData.whyThisTool||'';
 
@@ -849,8 +849,8 @@ function showGPS(){
     subs.style.display='block';
     subList.innerHTML=allSubs.map(s=>`
       <div class="sub-item">
-        <span>${s.doorId||s.windowId||'Opening'} \u2014 ${s.size}</span>
-        <span class="sub-val">\u2212${s.area} SF</span>
+        <span>${s.doorId||s.windowId||'Opening'} — ${s.size}</span>
+        <span class="sub-val">−${s.area} SF</span>
       </div>
     `).join('');
   }else{
@@ -862,7 +862,7 @@ function showGPS(){
   const warnList=document.getElementById('warn-list');
   if(gpsData.warnings&&gpsData.warnings.length>0){
     warns.style.display='block';
-    warnList.innerHTML=gpsData.warnings.map(w=>`<div class="warn-item">\u26a0\ufe0f ${w}</div>`).join('');
+    warnList.innerHTML=gpsData.warnings.map(w=>`<div class="warn-item">⚠️ ${w}</div>`).join('');
   }else{
     warns.style.display='none';
   }
@@ -876,7 +876,7 @@ function renderGPSSteps(){
     const isDoor=s.action&&s.action.toLowerCase().includes('skip');
     return`
       <div class="gps-step ${status}" id="gps-step-${i}">
-        <div class="step-num ${status}">${status==='done'?'\u2713':s.stepNumber}</div>
+        <div class="step-num ${status}">${status==='done'?'✓':s.stepNumber}</div>
         <div class="step-body">
           <div class="step-action">${s.action}</div>
           <div class="step-detail">${s.detail}</div>
@@ -893,10 +893,10 @@ function renderGPSSteps(){
   // Update nav button
   const nextBtn=document.getElementById('gps-next-btn');
   if(gpsStep>=gpsData.steps.length-1){
-    nextBtn.textContent='\u2705 Done \u2014 Record Measurement';
+    nextBtn.textContent='✅ Done — Record Measurement';
     nextBtn.className='gps-done';
   }else{
-    nextBtn.textContent='Next Step \u25b6';
+    nextBtn.textContent='Next Step ▶';
     nextBtn.className='gps-next';
   }
 }
@@ -904,9 +904,9 @@ function renderGPSSteps(){
 function gpsNext(){
   if(!gpsData)return;
   if(gpsStep>=gpsData.steps.length-1){
-    // Done \u2014 finalize
+    // Done — finalize
     closeGPS();
-    showMode('\u2705 '+gpsData.roomName+' complete! Check Results tab.','green');
+    showMode('✅ '+gpsData.roomName+' complete! Check Results tab.','green');
     setTimeout(()=>showMode(''),3000);
     switchTab('results');
     return;
@@ -923,7 +923,7 @@ function activateGPSTool(){
   if(!gpsData)return;
   setTool(gpsData.tool);
   setLbl(gpsData.roomName||'Room');
-  showMode('\ud83d\udcd0 '+gpsData.tool.toUpperCase()+' TOOL ACTIVE \u2014 follow the GPS steps','yellow');
+  showMode('📐 '+gpsData.tool.toUpperCase()+' TOOL ACTIVE — follow the GPS steps','yellow');
 }
 
 function closeGPS(){
@@ -931,7 +931,7 @@ function closeGPS(){
   gpsData=null;gpsStep=0;
 }
 
-// \u2500\u2500 PREVIEW IMAGE \u2500\u2500
+// ── PREVIEW IMAGE ──
 function showPreview(srcCanvas){
   const prev=document.getElementById('preview-canvas');
   const maxW=document.getElementById('preview-container').clientWidth-20;
@@ -953,33 +953,33 @@ function showPreview(srcCanvas){
   ctx.fillRect(10,10,120,22);
   ctx.fillStyle='#000';
   ctx.font='bold 11px sans-serif';
-  ctx.fillText('Trace this area \u2192',14,25);
+  ctx.fillText('Trace this area →',14,25);
 }
 
-// \u2500\u2500 CHECKLIST PANEL \u2500\u2500
+// ── CHECKLIST PANEL ──
 function showChecklist(data){
   const panel=document.getElementById('checklist-panel');
   panel.classList.add('visible');
 
   document.getElementById('cl-subtitle').textContent=
     (data.sheetDescription||'Click any item to start measuring')+
-    ' \u2014 '+((data.measurementChecklist||[]).length+(data.linearMeasurements||[]).length+
+    ' — '+((data.measurementChecklist||[]).length+(data.linearMeasurements||[]).length+
     (data.countsNeeded||[]).length)+' items';
 
   let html='';
 
   if(data.statedQuantities&&data.statedQuantities.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:4px;">\u2705 Already Stated on Drawing</div>`;
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:4px;">✅ Already Stated on Drawing</div>`;
     data.statedQuantities.forEach(q=>{
       html+=`<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12px;">
         <strong>${q.item}:</strong> <span style="color:var(--green);font-weight:700;">${q.value}</span>
-        <span style="font-size:10px;color:var(--text2);"> \u2014 ${q.source}</span>
+        <span style="font-size:10px;color:var(--text2);"> — ${q.source}</span>
       </div>`;
     });
   }
 
   if(data.measurementChecklist&&data.measurementChecklist.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">\ud83d\udcd0 Area Measurements</div>`;
+    html+=`<div style="font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">📐 Area Measurements</div>`;
     data.measurementChecklist.forEach((item,i)=>{
       html+=`<div class="cl-item" onclick="startChecklistItem('${item.tool}','${item.name}')">
         <div class="cl-num" id="cl-${i}">${i+1}</div>
@@ -993,7 +993,7 @@ function showChecklist(data){
   }
 
   if(data.linearMeasurements&&data.linearMeasurements.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">\ud83d\udccf Linear Measurements</div>`;
+    html+=`<div style="font-size:10px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">📏 Linear Measurements</div>`;
     data.linearMeasurements.forEach((item,i)=>{
       html+=`<div class="cl-item" onclick="startChecklistItem('${item.tool}','${item.name}')">
         <div class="cl-num">${i+1}</div>
@@ -1006,7 +1006,7 @@ function showChecklist(data){
   }
 
   if(data.countsNeeded&&data.countsNeeded.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">\ud83d\udd22 Count Items</div>`;
+    html+=`<div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">🔢 Count Items</div>`;
     data.countsNeeded.forEach((item,i)=>{
       html+=`<div class="cl-item" onclick="startChecklistItem('${item.tool}','${item.name}')">
         <div class="cl-num">${i+1}</div>
@@ -1019,9 +1019,9 @@ function showChecklist(data){
   }
 
   if(data.warnings&&data.warnings.length>0){
-    html+=`<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">\u26a0\ufe0f Flags & Warnings</div>`;
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">⚠️ Flags & Warnings</div>`;
     data.warnings.forEach(w=>{
-      html+=`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:11px;color:var(--text2);">\u26a0\ufe0f ${w}</div>`;
+      html+=`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:11px;color:var(--text2);">⚠️ ${w}</div>`;
     });
   }
 
@@ -1032,7 +1032,7 @@ function startChecklistItem(tool,name){
   setTool(tool);
   setLbl(name);
   closeChecklist();
-  showMode('\ud83d\udcd0 '+tool.toUpperCase()+' \u2014 measuring: '+name,'yellow');
+  showMode('📐 '+tool.toUpperCase()+' — measuring: '+name,'yellow');
   switchTab('measure');
 }
 
@@ -1040,15 +1040,15 @@ function closeChecklist(){
   document.getElementById('checklist-panel').classList.remove('visible');
 }
 
-// \u2500\u2500 CALIBRATION CLICK \u2500\u2500
+// ── CALIBRATION CLICK ──
 function handleClick(pos){
   if(!pdfDoc)return;
 
   if(calMode){
     calPts.push(pos);redraw();
     if(calPts.length===1){
-      document.getElementById('cal-status').textContent='\ud83d\udccd Click second point...';
-      showMode('\u2696\ufe0f CALIBRATE \u2014 Click point 2','yellow');
+      document.getElementById('cal-status').textContent='📍 Click second point...';
+      showMode('⚖️ CALIBRATE — Click point 2','yellow');
     }else if(calPts.length===2){
       const dx=calPts[1].x-calPts[0].x,dy=calPts[1].y-calPts[0].y;
       const px=Math.sqrt(dx*dx+dy*dy);
@@ -1057,8 +1057,8 @@ function handleClick(pos){
       calMode=false;
       document.getElementById('btn-cal').classList.remove('active');
       document.getElementById('cal-status').className='cal-status good';
-      document.getElementById('cal-status').textContent=`\u2705 Calibrated: 1 ${calUnit} = ${pxPerUnit.toFixed(1)}px`;
-      showMode('\u2705 Calibrated! Now use \ud83c\udfaf Click a Room or select a tool.','green');
+      document.getElementById('cal-status').textContent=`✅ Calibrated: 1 ${calUnit} = ${pxPerUnit.toFixed(1)}px`;
+      showMode('✅ Calibrated! Now use 🎯 Click a Room or select a tool.','green');
       setTimeout(()=>showMode(''),3000);
       updateCursor();redraw();
     }
@@ -1066,7 +1066,7 @@ function handleClick(pos){
   }
 
   if(!curTool)return;
-  if(!pxPerUnit){showMode('\u26a0\ufe0f Calibrate scale first!','yellow');setTimeout(()=>showMode(''),2000);return;}
+  if(!pxPerUnit){showMode('⚠️ Calibrate scale first!','yellow');setTimeout(()=>showMode(''),2000);return;}
 
   if(curTool==='count'){addCount(pos);return;}
 
@@ -1108,7 +1108,7 @@ function calcVal(m){
   return m.points.length;
 }
 
-// \u2500\u2500 DRAWING \u2500\u2500
+// ── DRAWING ──
 function redraw(){
   mX.clearRect(0,0,mC.width,mC.height);
   if(calPts.length>0){
@@ -1177,7 +1177,7 @@ function lbl(ctx,x,y,text,color){
   ctx.fillStyle=color;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,x,y);
 }
 
-// \u2500\u2500 TOOLS \u2500\u2500
+// ── TOOLS ──
 function setTool(t,skipClear=false){
   if(curM)finalizeM();
   curTool=t;
@@ -1186,7 +1186,7 @@ function setTool(t,skipClear=false){
   document.getElementById('btn-none').classList.toggle('active',t===null&&!calMode&&!roomMode);
   updateCursor();
   if(t){
-    const labels={area:'\ud83d\udcd0 AREA TOOL \u2014 click corners, double-click to finish',linear:'\ud83d\udccf LINEAR TOOL \u2014 click start then end point',count:'\ud83d\udd22 COUNT TOOL \u2014 click each item'};
+    const labels={area:'📐 AREA TOOL — click corners, double-click to finish',linear:'📏 LINEAR TOOL — click start then end point',count:'🔢 COUNT TOOL — click each item'};
     showMode(labels[t],'yellow');
   }else if(!calMode&&!roomMode){
     showMode('');
@@ -1204,23 +1204,23 @@ function clearAll(){
   if(!confirm('Clear all measurements?'))return;
   measurements=[];curM=null;calPts=[];pxPerUnit=null;
   document.getElementById('cal-status').className='cal-status bad';
-  document.getElementById('cal-status').textContent='\u26a0\ufe0f Not calibrated \u2014 set scale first';
+  document.getElementById('cal-status').textContent='⚠️ Not calibrated — set scale first';
   redraw();updateList();updateStats();
 }
 
 function deleteMeasurement(i){measurements.splice(i,1);updateList();updateStats();redraw();}
 
-// \u2500\u2500 UI \u2500\u2500
+// ── UI ──
 function updateList(){
   const el=document.getElementById('m-list');
   if(!measurements.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">\ud83d\udcd0</div><div class="empty-txt">Calibrate \u2192 use \ud83c\udfaf Click a Room<br>or pick a tool and measure manually.</div></div>';
+    el.innerHTML='<div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">Calibrate → use 🎯 Click a Room<br>or pick a tool and measure manually.</div></div>';
     updateResults();return;
   }
   const units={area:'SF',linear:'LF',count:'EA'};
   el.innerHTML=measurements.map((m,i)=>`
     <div class="mi">
-      <button class="mi-del" onclick="deleteMeasurement(${i})">\u2715</button>
+      <button class="mi-del" onclick="deleteMeasurement(${i})">✕</button>
       <div class="mi-hdr">
         <div>
           <div class="mi-name">${m.label}</div>
@@ -1235,9 +1235,9 @@ function updateList(){
 
 function fmtV(m){
   if(m.type==='count')return m.points.length;
-  if(m.type==='linear')return m.value?m.value.toFixed(1):'\u2014';
-  if(m.type==='area')return m.value?m.value.toFixed(0):'\u2014';
-  return'\u2014';
+  if(m.type==='linear')return m.value?m.value.toFixed(1):'—';
+  if(m.type==='area')return m.value?m.value.toFixed(0):'—';
+  return'—';
 }
 
 function updateStats(){
@@ -1248,15 +1248,15 @@ function updateStats(){
 
 function updateResults(){
   const el=document.getElementById('results-content');
-  if(!measurements.length){el.innerHTML='<div class="empty"><div class="empty-icon">\ud83d\udcca</div><div class="empty-txt">Add measurements to see summary.</div></div>';return;}
+  if(!measurements.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Add measurements to see summary.</div></div>';return;}
   const areas=measurements.filter(m=>m.type==='area');
   const lins=measurements.filter(m=>m.type==='linear');
   const cnts=measurements.filter(m=>m.type==='count');
   const row=(l,v,u,c)=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;"><span>${l}</span><span style="color:${c};font-weight:700;">${v} ${u}</span></div>`;
   el.innerHTML=`
-    ${areas.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:6px;">\ud83d\udcd0 AREAS</div>${areas.map(m=>row(m.label,m.value?m.value.toFixed(0):'\u2014','SF','#3b82f6')).join('')}<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:12px;font-weight:700;"><span>TOTAL</span><span style="color:var(--accent);">${areas.reduce((s,m)=>s+(m.value||0),0).toFixed(0)} SF</span></div></div>`:''}
-    ${lins.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#10b981;margin-bottom:6px;">\ud83d\udccf LINEAR</div>${lins.map(m=>row(m.label,m.value?m.value.toFixed(1):'\u2014','LF','#10b981')).join('')}</div>`:''}
-    ${cnts.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px;">\ud83d\udd22 COUNTS</div>${cnts.map(m=>row(m.label,m.points.length,'EA','#8b5cf6')).join('')}</div>`:''}
+    ${areas.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:6px;">📐 AREAS</div>${areas.map(m=>row(m.label,m.value?m.value.toFixed(0):'—','SF','#3b82f6')).join('')}<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:12px;font-weight:700;"><span>TOTAL</span><span style="color:var(--accent);">${areas.reduce((s,m)=>s+(m.value||0),0).toFixed(0)} SF</span></div></div>`:''}
+    ${lins.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#10b981;margin-bottom:6px;">📏 LINEAR</div>${lins.map(m=>row(m.label,m.value?m.value.toFixed(1):'—','LF','#10b981')).join('')}</div>`:''}
+    ${cnts.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px;">🔢 COUNTS</div>${cnts.map(m=>row(m.label,m.points.length,'EA','#8b5cf6')).join('')}</div>`:''}
   `;
 }
 
@@ -1315,7 +1315,7 @@ function copyQty(){
   navigator.clipboard.writeText(measurements.map(m=>`${m.label}: ${v(m)} ${u(m)}`).join('
 ')).then(()=>{
     const btn=document.querySelector('.exp-btn.sec');const orig=btn.textContent;
-    btn.textContent='\u2705 Copied!';setTimeout(()=>btn.textContent=orig,2000);
+    btn.textContent='✅ Copied!';setTimeout(()=>btn.textContent=orig,2000);
   });
 }
 
