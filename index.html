@@ -208,12 +208,12 @@ input[type="file"]{display:none;}
         <div style="font-size:12px;color:var(--text2);">Click a room &#8212; AI gives you GPS instructions step by step</div>
       </div>
       <div class="upload-zone" id="upload-zone"
-           onclick="document.getElementById('file-in').click()"
+           onclick="triggerUpload()"
            ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="drop(event)">
         <div style="font-size:44px;margin-bottom:14px;">📋</div>
         <div style="font-size:19px;font-weight:700;margin-bottom:7px;">Upload Drawing Set</div>
         <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5;">Drop PDF here or click to browse.<br>AI guides every measurement step by step.</div>
-        <button class="upload-btn-main" onclick="event.stopPropagation();document.getElementById('file-in').click()">Choose PDF File</button>
+        <button class="upload-btn-main" onclick="event.stopPropagation();triggerUpload()">Choose PDF File</button>
       </div>
     </div>
     <div class="pdf-viewport" id="pdf-viewport" style="display:none;"
@@ -388,7 +388,7 @@ input[type="file"]{display:none;}
     </div>
   </div>
 </div>
-<input type="file" id="file-in" accept=".pdf" onchange="loadPDF(this)">
+<input type="file" id="file-in" accept=".pdf">
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 let pdfDoc=null,curPage=1,totPages=0,renderScale=1.5;
@@ -714,7 +714,15 @@ function showChecklist(data){
   document.getElementById('cl-body').innerHTML=html||'<div class="empty"><div class="empty-txt">No items found.</div></div>';
 }
 
-function startChecklistItem(tool,name){setTool(tool);setLbl(name);closeChecklist();showMode(tool.toUpperCase()+' - measuring: '+name,'yellow');switchTab('measure');}
+function startChecklistItem(tool,name){setTool(tool);setLbl(name);closeChecklist();showMode(tool.toUpperCase()+' - measuring: '+name,'yellow');function triggerUpload(){
+  var inp = document.getElementById('file-in');
+  inp.value = '';
+  inp.click();
+}
+document.getElementById('file-in').addEventListener('change', function(e){
+  if(e.target.files && e.target.files[0]) loadPDF(e.target);
+});
+switchTab('measure');}
 function closeChecklist(){document.getElementById('checklist-panel').classList.remove('visible');}
 
 function handleClick(pos){
@@ -841,6 +849,14 @@ function copyQty(){
   navigator.clipboard.writeText(measurements.map(m=>m.label+': '+v(m)+' '+u(m)).join('\n')).then(()=>{const btn=document.querySelector('.exp-btn.sec');const orig=btn.textContent;btn.textContent='Copied!';setTimeout(()=>btn.textContent=orig,2000);});
 }
 
+function triggerUpload(){
+  var inp = document.getElementById('file-in');
+  inp.value = '';
+  inp.click();
+}
+document.getElementById('file-in').addEventListener('change', function(e){
+  if(e.target.files && e.target.files[0]) loadPDF(e.target);
+});
 switchTab('measure');
 </script>
 </body>
