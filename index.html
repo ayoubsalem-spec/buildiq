@@ -196,6 +196,7 @@ input[type=file]{display:none;}
     <label class="btn btn-ghost" style="font-size:12px;padding:5px 12px;cursor:pointer;" title="Load saved project">
       📂 Load<input type="file" accept=".buildiq" style="display:none;" onchange="loadProject(this)">
     </label>
+    <button class="btn btn-ghost" onclick="exportPDF()" style="font-size:12px;padding:5px 12px;" title="Export results as PDF">📄 PDF</button>
     <div class="badge">KLYRO AI</div>
   </div>
 </header>
@@ -784,16 +785,28 @@ function redrawOverlay() {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // Calibration points
+  // Calibration points — bright orange with dashed line
   if (calPts.length > 0) {
-    calPts.forEach((p,i) => drawDot(ctx, p, '#f59e0b', 7, String(i+1)));
+    // Draw glow effect on cal points
+    calPts.forEach((p,i) => {
+      ctx.fillStyle='rgba(245,158,11,0.25)';
+      ctx.beginPath(); ctx.arc(p.x,p.y,14,0,Math.PI*2); ctx.fill();
+      drawDot(ctx, p, '#f59e0b', 8, String(i+1));
+    });
     if (calPts.length === 2) {
-      ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.5; ctx.setLineDash([6,3]);
+      // Bright orange dashed calibration line
+      ctx.strokeStyle='#f59e0b'; ctx.lineWidth=2.5; ctx.setLineDash([8,4]);
       ctx.beginPath(); ctx.moveTo(calPts[0].x,calPts[0].y); ctx.lineTo(calPts[1].x,calPts[1].y); ctx.stroke();
       ctx.setLineDash([]);
+      // Label showing known dimension
+      const mx=(calPts[0].x+calPts[1].x)/2, my=(calPts[0].y+calPts[1].y)/2;
+      const calVal = document.getElementById('cal-val').value;
+      const calU = document.getElementById('cal-unit').value;
+      if (calVal) drawLabel(ctx,mx,my-20,'⚖️ '+calVal+' '+calU+' calibration line','#f59e0b');
     }
     if (calMode && calPts.length === 1) {
-      ctx.strokeStyle='#f59e0b66'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+      // Preview line to mouse
+      ctx.strokeStyle='rgba(245,158,11,0.5)'; ctx.lineWidth=1.5; ctx.setLineDash([5,5]);
       ctx.beginPath(); ctx.moveTo(calPts[0].x,calPts[0].y); ctx.lineTo(mousePos.x,mousePos.y); ctx.stroke();
       ctx.setLineDash([]);
     }
@@ -816,7 +829,7 @@ function redrawOverlay() {
 
 function drawMeasurement(ctx, m, inProgress) {
   const col = TOOL_COLORS[m.type] || '#fff';
-  ctx.strokeStyle=col; ctx.lineWidth=inProgress?1.5:2; ctx.setLineDash(inProgress?[5,3]:[]);
+  ctx.strokeStyle=col; ctx.lineWidth=inProgress?2:2.5; ctx.setLineDash(inProgress?[6,3]:[]);
 
   if (m.type==='area') {
     if (!m.points||!m.points.length) return;
@@ -824,7 +837,7 @@ function drawMeasurement(ctx, m, inProgress) {
     m.points.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));
     if (!inProgress) ctx.closePath();
     ctx.stroke();
-    if (!inProgress && m.points.length>=3) { ctx.fillStyle=col+'20'; ctx.fill(); }
+    if (!inProgress && m.points.length>=3) { ctx.fillStyle=col+'33'; ctx.fill(); }
     m.points.forEach(p=>drawDot(ctx,p,col,4));
     if (!inProgress && m.value) {
       const cx=m.points.reduce((s,p)=>s+p.x,0)/m.points.length;
@@ -1328,24 +1341,92 @@ function resetView() {
 
 // ── SAVE / LOAD PROJECT ──────────────────────────────────
 function saveProject() {
+  // Save project data as JSON (for re-loading)
   const project = {
     version: "1.0",
     savedAt: new Date().toISOString(),
-    projName,
-    calOk,
-    pxPerUnit,
-    calUnit,
-    measurements,
-    estReport,
-    estPageReports,
-    subs,
+    projName, calOk, pxPerUnit, calUnit,
+    measurements, estReport, estPageReports, subs,
   };
   const json = JSON.stringify(project, null, 2);
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([json], {type:'application/json'}));
   a.download = `${projName||'buildiq-project'}_${new Date().toISOString().split('T')[0]}.buildiq`;
   a.click();
-  toast('✅ Project saved');
+  toast('✅ Project saved — also export Results as PDF below');
+}
+
+function exportPDF() {
+  // Build a clean printable HTML page and trigger print-to-PDF
+  const totalSF = measurements.filter(m=>m.type==='area').reduce((s,m)=>s+m.value,0);
+  const totalLF = measurements.filter(m=>m.type==='linear').reduce((s,m)=>s+m.value,0);
+  const grouped = {};
+  measurements.forEach(m => { if(!grouped[m.roomTag])grouped[m.roomTag]=[]; grouped[m.roomTag].push(m); });
+
+  let html = `<!DOCTYPE html><html><head><title>BuildIQ Takeoff — ${projName}</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:20px;color:#111;}
+    h1{font-size:22px;border-bottom:2px solid #f59e0b;padding-bottom:8px;margin-bottom:16px;}
+    h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f59e0b;margin:20px 0 8px;}
+    .meta{font-size:12px;color:#666;margin-bottom:20px;}
+    .stats{display:flex;gap:20px;margin-bottom:20px;}
+    .stat{background:#f8f8f8;border:1px solid #ddd;border-radius:6px;padding:10px 16px;text-align:center;}
+    .stat-val{font-size:20px;font-weight:700;color:#f59e0b;}
+    .stat-lbl{font-size:10px;color:#666;text-transform:uppercase;}
+    .room{margin-bottom:16px;break-inside:avoid;}
+    .room-header{background:#f59e0b;color:#000;padding:6px 10px;border-radius:4px 4px 0 0;display:flex;justify-content:space-between;}
+    .room-name{font-weight:700;font-size:13px;}
+    .room-total{font-weight:700;font-size:13px;}
+    .room-items{border:1px solid #ddd;border-top:none;border-radius:0 0 4px 4px;}
+    .type-row{background:#f0f0f0;padding:4px 10px;font-size:10px;font-weight:700;text-transform:uppercase;color:#666;}
+    .meas-row{display:flex;justify-content:space-between;padding:5px 10px;font-size:12px;border-top:1px solid #eee;}
+    .meas-val{font-weight:700;color:#333;}
+    .report-section{margin-top:24px;break-inside:avoid;}
+    .report-text{font-size:12px;line-height:1.6;white-space:pre-wrap;}
+    @media print { .no-print{display:none;} }
+  </style></head><body>
+  <h1>🏗️ BuildIQ Takeoff Report</h1>
+  <div class="meta">
+    <strong>Project:</strong> ${projName} &nbsp;|&nbsp;
+    <strong>Date:</strong> ${new Date().toLocaleDateString()} &nbsp;|&nbsp;
+    <strong>Scale:</strong> ${calOk ? '1 '+calUnit+' = '+pxPerUnit.toFixed(1)+'px (calibrated)' : 'Not calibrated'}
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">${measurements.length}</div><div class="stat-lbl">Items</div></div>
+    <div class="stat"><div class="stat-val">${Math.round(totalSF).toLocaleString()}</div><div class="stat-lbl">Total SF</div></div>
+    <div class="stat"><div class="stat-val">${totalLF.toFixed(1)}</div><div class="stat-lbl">Total LF</div></div>
+    <div class="stat"><div class="stat-val">${Object.keys(grouped).length}</div><div class="stat-lbl">Rooms</div></div>
+  </div>
+  <h2>Measurements by Room</h2>`;
+
+  Object.entries(grouped).forEach(([room, items]) => {
+    const sf = items.filter(m=>m.type==='area').reduce((s,m)=>s+m.value,0);
+    const lf = items.filter(m=>m.type==='linear').reduce((s,m)=>s+m.value,0);
+    const ct = items.filter(m=>m.type==='count').reduce((s,m)=>s+m.value,0);
+    const tot = [sf>0&&Math.round(sf)+' SF',lf>0&&lf.toFixed(1)+' LF',ct>0&&ct+' EA'].filter(Boolean).join(' · ');
+    html += `<div class="room"><div class="room-header"><span class="room-name">${room}</span><span class="room-total">${tot}</span></div><div class="room-items">`;
+    ['area','linear','count'].forEach(type => {
+      const ti = items.filter(m=>m.type===type);
+      if (!ti.length) return;
+      const tt = ti.reduce((s,m)=>s+m.value,0);
+      const u = type==='area'?'SF':type==='linear'?'LF':'EA';
+      html += `<div class="type-row">${type.toUpperCase()} — ${type==='area'?Math.round(tt):type==='linear'?tt.toFixed(1):Math.round(tt)} ${u}</div>`;
+      ti.forEach(m => { html += `<div class="meas-row"><span>${m.label} <small style="color:#999;">pg ${m.page}</small></span><span class="meas-val">${m.value} ${m.unit}</span></div>`; });
+    });
+    html += '</div></div>';
+  });
+
+  if (estReport) {
+    html += `<div class="report-section"><h2>BidBoss Report</h2><div class="report-text">${estReport.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div></div>`;
+  }
+
+  html += '</body></html>';
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(() => win.print(), 500);
+  toast('✅ PDF opened — use Print > Save as PDF');
 }
 
 function loadProject(input) {
