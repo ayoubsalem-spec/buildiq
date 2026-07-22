@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BuildIQ — AI Chief Estimator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222535;--border:#2e3348;--accent:#f59e0b;--text:#e8eaf0;--text2:#8b90a7;--green:#10b981;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.logo-text{font-size:17px;font-weight:800;letter-spacing:-0.5px;}
+.logo-text span{color:var(--accent);}
+.hbadge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.app{display:flex;flex:1;overflow:hidden;}
+.pdf-panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;}
+.toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.tg{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid var(--border);}
+.tg:last-child{border-right:none;padding-right:0;}
+.tl{font-size:10px;color:var(--text2);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+.tb{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.tb:hover{background:var(--border);border-color:var(--accent);color:var(--accent);}
+.tb.active{background:rgba(245,158,11,0.15);border-color:var(--accent);color:var(--accent);}
+.tb.danger{border-color:var(--red);color:var(--red);}
+.tb.danger:hover{background:rgba(239,68,68,0.1);}
+.pg-nav{display:flex;align-items:center;gap:6px;}
+.pg-nav input{width:44px;text-align:center;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px;border-radius:4px;font-size:12px;}
+.ai-room-btn{background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(251,191,36,0.1));border:1px solid var(--accent);color:var(--accent);padding:5px 12px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
+.ai-room-btn:hover{background:rgba(245,158,11,0.3);}
+.ai-room-btn.active{background:rgba(245,158,11,0.25);}
+.ai-sheet-btn{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(59,130,246,0.1));border:1px solid var(--purple);color:#a78bfa;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
+.ai-sheet-btn:hover{background:rgba(139,92,246,0.3);}
+.pdf-viewport{flex:1;overflow:hidden;position:relative;background:#0a0c12;}
+.pdf-inner{position:absolute;transform-origin:0 0;}
+.cw{position:relative;display:inline-block;box-shadow:0 8px 32px rgba(0,0,0,0.7);}
+#pdf-canvas{display:block;}
+#measure-canvas{position:absolute;top:0;left:0;pointer-events:none;}
+#interact-canvas{position:absolute;top:0;left:0;}
+.upload-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;}
+.upload-zone{width:100%;max-width:440px;border:2px dashed var(--border);border-radius:14px;padding:44px 28px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:rgba(245,158,11,0.05);}
+.upload-btn-main{background:var(--accent);color:#000;border:none;padding:11px 26px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;}
+.mode-ind{position:absolute;top:10px;left:50%;transform:translateX(-50%);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;pointer-events:none;display:none;white-space:nowrap;z-index:20;}
+.mode-ind.visible{display:block;}
+.mode-ind.yellow{background:rgba(245,158,11,0.92);color:#000;}
+.mode-ind.purple{background:rgba(139,92,246,0.92);color:#fff;}
+.mode-ind.green{background:rgba(16,185,129,0.92);color:#fff;}
+.cur-hint{position:absolute;background:rgba(245,158,11,0.92);color:#000;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;pointer-events:none;z-index:30;display:none;transform:translate(14px,-50%);white-space:nowrap;}
+.room-hint{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(245,158,11,0.95);color:#000;padding:8px 20px;border-radius:20px;font-size:12px;font-weight:700;pointer-events:none;display:none;z-index:20;}
+.room-hint.visible{display:block;}
+.zoom-ov{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:4px;z-index:10;}
+.zo-btn{width:32px;height:32px;background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;backdrop-filter:blur(4px);}
+.zo-btn:hover{border-color:var(--accent);color:var(--accent);}
+.zo-lbl{background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text2);border-radius:6px;font-size:10px;font-weight:600;text-align:center;padding:4px 2px;}
+.loading-ov{position:absolute;inset:0;background:rgba(15,17,23,0.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:50;}
+.loading-ov.visible{display:flex;}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+.spinner.purple{border-top-color:var(--purple);}
+@keyframes spin{to{transform:rotate(360deg);}}
+.load-txt{font-size:13px;color:var(--text2);}
+.gps-panel{position:absolute;bottom:0;left:0;right:0;background:rgba(15,17,23,0.97);border-top:2px solid var(--accent);z-index:25;display:none;max-height:70%;overflow-y:auto;}
+.gps-panel.visible{display:block;}
+.gps-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);}
+.gps-title{font-size:14px;font-weight:800;color:var(--accent);}
+.gps-close{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;}
+.gps-close:hover{color:var(--red);}
+.gps-body{padding:16px;}
+.preview-container{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:12px;text-align:center;}
+.preview-label{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+#preview-canvas{border-radius:4px;max-width:100%;border:1px solid var(--border);}
+.tool-instruction{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);}
+.tool-icon{font-size:24px;}
+.tool-text{flex:1;}
+.tool-name{font-size:13px;font-weight:800;color:var(--accent);}
+.tool-why{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4;}
+.tool-activate-btn{background:var(--accent);color:#000;border:none;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.gps-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.gps-step{display:flex;gap:10px;padding:10px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);transition:all 0.15s;}
+.gps-step.current{border-color:var(--accent);background:rgba(245,158,11,0.08);}
+.gps-step.done{border-color:var(--green);background:rgba(16,185,129,0.06);opacity:0.7;}
+.step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.step-num.pending{background:var(--border);color:var(--text2);}
+.step-num.current{background:var(--accent);color:#000;}
+.step-num.done{background:var(--green);color:#fff;}
+.step-body{flex:1;}
+.step-action{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.step-detail{font-size:11px;color:var(--text2);line-height:1.4;}
+.step-dir{display:inline-block;background:rgba(245,158,11,0.15);color:var(--accent);padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-top:4px;}
+.step-skip{background:rgba(239,68,68,0.15);color:var(--red);padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-top:4px;}
+.subtractions{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:7px;padding:10px;margin-bottom:12px;}
+.sub-title{font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.sub-item{font-size:11px;color:var(--text);margin-bottom:3px;display:flex;justify-content:space-between;}
+.sub-val{color:var(--red);font-weight:700;}
+.warnings{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:7px;padding:10px;margin-bottom:12px;}
+.warn-title{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.warn-item{font-size:11px;color:var(--text2);margin-bottom:3px;}
+.gps-nav{display:flex;gap:8px;margin-top:4px;}
+.gps-prev{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+.gps-next{flex:2;background:var(--accent);border:none;color:#000;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+.gps-done{flex:2;background:var(--green);border:none;color:#fff;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+.checklist-panel{position:absolute;top:52px;right:0;width:360px;background:rgba(15,17,23,0.97);border-left:2px solid var(--purple);z-index:25;display:none;height:calc(100% - 52px);overflow-y:auto;}
+.checklist-panel.visible{display:block;}
+.cl-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;}
+.cl-title{font-size:13px;font-weight:800;color:#a78bfa;}
+.cl-body{padding:12px;}
+.cl-item{display:flex;gap:10px;padding:10px;border:1px solid var(--border);border-radius:7px;margin-bottom:7px;cursor:pointer;transition:all 0.15s;background:var(--surface2);}
+.cl-item:hover{border-color:var(--accent);}
+.cl-num{width:22px;height:22px;border-radius:50%;background:var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.cl-info{flex:1;}
+.cl-name{font-size:12px;font-weight:600;margin-bottom:2px;}
+.cl-why{font-size:10px;color:var(--text2);line-height:1.3;}
+.cl-priority{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;}
+.cl-priority.HIGH{background:rgba(239,68,68,0.2);color:var(--red);}
+.cl-priority.MEDIUM{background:rgba(245,158,11,0.2);color:var(--accent);}
+.right-panel{width:380px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;}
+.panel-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.ptab{flex:1;padding:11px 4px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all 0.15s;}
+.ptab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(245,158,11,0.05);}
+.pcontent{flex:1;overflow-y:auto;padding:14px;}
+.sc{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:13px;margin-bottom:11px;}
+.sc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--accent);margin-bottom:9px;}
+.cal-status{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:7px;margin-bottom:9px;font-size:12px;font-weight:500;}
+.cal-status.bad{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red);}
+.cal-status.good{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--green);}
+.ci{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 9px;border-radius:5px;font-size:12px;}
+.ci:focus{outline:none;border-color:var(--accent);}
+.ci-row{display:flex;gap:7px;align-items:center;margin-bottom:7px;}
+.mi{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px;margin-bottom:7px;position:relative;}
+.mi:hover{border-color:var(--accent);}
+.mi-hdr{display:flex;justify-content:space-between;align-items:flex-start;}
+.mi-name{font-size:11px;font-weight:600;flex:1;padding-right:8px;line-height:1.3;}
+.mi-val{font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;}
+.mi-type{font-size:10px;color:var(--text2);margin-top:2px;}
+.mi-del{position:absolute;top:7px;right:7px;background:none;border:none;color:var(--text2);cursor:pointer;font-size:13px;opacity:0;transition:opacity 0.15s;}
+.mi:hover .mi-del{opacity:1;}
+.mi-del:hover{color:var(--red);}
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px;}
+.stat-box{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px;text-align:center;}
+.sv{font-size:17px;font-weight:700;color:var(--accent);}
+.sl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;margin-right:3px;margin-bottom:3px;cursor:pointer;}
+.b-area{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);}
+.b-linear{background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.3);}
+.b-count{background:rgba(139,92,246,0.2);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);}
+.export-section{padding:13px;border-top:1px solid var(--border);flex-shrink:0;}
+.exp-btn{width:100%;background:var(--accent);color:#000;border:none;padding:10px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:7px;}
+.exp-btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.exp-btn.sec:hover{border-color:var(--accent);color:var(--accent);}
+.empty{text-align:center;padding:24px 14px;color:var(--text2);}
+.empty-icon{font-size:26px;margin-bottom:6px;}
+.empty-txt{font-size:12px;line-height:1.5;}
+.info-bar{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:6px;font-size:11px;margin-bottom:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;line-height:1.4;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+input[type="file"]{display:none;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏗️</div>
+    <div class="logo-text">Build<span>IQ</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span id="proj-name" style="font-size:12px;color:var(--text2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+    <div class="hbadge">AI CHIEF ESTIMATOR</div>
+  </div>
+</header>
+<div class="app">
+  <div class="pdf-panel">
+    <div class="toolbar" id="toolbar" style="display:none;">
+      <div class="tg">
+        <button class="tb" onclick="changePage(-1)">&#9664;</button>
+        <div class="pg-nav">
+          <input type="number" id="pg-in" value="1" min="1" onchange="goPage(this.value)">
+          <span style="font-size:11px;color:var(--text2);">/ <span id="total-pg">1</span></span>
+        </div>
+        <button class="tb" onclick="changePage(1)">&#9654;</button>
+      </div>
+      <div class="tg">
+        <span class="tl">Tools</span>
+        <button class="tb" id="btn-area"   onclick="setTool('area')">&#9642; Area</button>
+        <button class="tb" id="btn-linear" onclick="setTool('linear')">&#10231; Linear</button>
+        <button class="tb" id="btn-count"  onclick="setTool('count')">&#8853; Count</button>
+        <button class="tb" id="btn-none"   onclick="setTool(null)">&#10005; None</button>
+      </div>
+      <div class="tg">
+        <button class="tb danger" onclick="undoLast()">&#8617; Undo</button>
+        <button class="tb danger" onclick="clearAll()">🗑 Clear</button>
+      </div>
+      <div class="tg">
+        <button class="ai-room-btn" id="btn-room" onclick="toggleRoomMode()">🎯 Click a Room</button>
+        <button class="ai-sheet-btn" id="btn-sheet" onclick="analyzeFullSheet()">📋 Full Sheet Scan</button>
+      </div>
+      <div class="tg" style="border:none;">
+        <span style="font-size:10px;color:var(--text2);">Scroll=zoom &middot; Drag=pan</span>
+      </div>
+    </div>
+    <div class="upload-screen" id="upload-screen">
+      <div style="text-align:center;">
+        <div style="font-size:48px;margin-bottom:10px;">🏗️</div>
+        <div style="font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:5px;">Build<span style="color:var(--accent);">IQ</span></div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:4px;">AI Chief Estimator</div>
+        <div style="font-size:12px;color:var(--text2);">Click a room &#8212; AI gives you GPS instructions step by step</div>
+      </div>
+      <div class="upload-zone" id="upload-zone"
+           onclick="document.getElementById('file-in').click()"
+           ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="drop(event)">
+        <div style="font-size:44px;margin-bottom:14px;">📋</div>
+        <div style="font-size:19px;font-weight:700;margin-bottom:7px;">Upload Drawing Set</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5;">Drop PDF here or click to browse.<br>AI guides every measurement step by step.</div>
+        <button class="upload-btn-main" onclick="event.stopPropagation();document.getElementById('file-in').click()">Choose PDF File</button>
+      </div>
+    </div>
+    <div class="pdf-viewport" id="pdf-viewport" style="display:none;"
+         onwheel="onWheel(event)"
+         onmousedown="onVPDown(event)"
+         onmousemove="onVPMove(event)"
+         onmouseup="onVPUp(event)"
+         onmouseleave="onVPUp(event)">
+      <div class="pdf-inner" id="pdf-inner">
+        <div class="cw" id="cw">
+          <canvas id="pdf-canvas"></canvas>
+          <canvas id="measure-canvas"></canvas>
+          <canvas id="interact-canvas"></canvas>
+        </div>
+      </div>
+      <div class="mode-ind yellow" id="mode-ind"></div>
+      <div class="cur-hint" id="cur-hint"></div>
+      <div class="room-hint" id="room-hint">🎯 ROOM MODE &#8212; Click anywhere inside a room to get GPS measurement instructions</div>
+      <div class="gps-panel" id="gps-panel">
+        <div class="gps-header">
+          <div>
+            <div class="gps-title" id="gps-room-name">Loading...</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px;" id="gps-room-dims"></div>
+          </div>
+          <button class="gps-close" onclick="closeGPS()">&#10005;</button>
+        </div>
+        <div class="gps-body">
+          <div class="preview-container" id="preview-container">
+            <div class="preview-label">📐 What Your Trace Should Look Like</div>
+            <canvas id="preview-canvas"></canvas>
+          </div>
+          <div class="tool-instruction" id="tool-instruction">
+            <div class="tool-icon" id="tool-icon">📐</div>
+            <div class="tool-text">
+              <div class="tool-name" id="tool-name">SELECT AREA TOOL</div>
+              <div class="tool-why" id="tool-why">Loading...</div>
+            </div>
+            <button class="tool-activate-btn" id="tool-activate-btn" onclick="activateGPSTool()">Activate &#9654;</button>
+          </div>
+          <div class="gps-steps" id="gps-steps"></div>
+          <div class="subtractions" id="subtractions" style="display:none;">
+            <div class="sub-title">&#10134; Subtract From Total</div>
+            <div id="sub-list"></div>
+          </div>
+          <div class="warnings" id="gps-warnings" style="display:none;">
+            <div class="warn-title">&#9888;&#65039; Notes</div>
+            <div id="warn-list"></div>
+          </div>
+          <div class="gps-nav" id="gps-nav">
+            <button class="gps-prev" onclick="gpsBack()">&#9664; Back</button>
+            <button class="gps-next" id="gps-next-btn" onclick="gpsNext()">Next Step &#9654;</button>
+          </div>
+        </div>
+      </div>
+      <div class="checklist-panel" id="checklist-panel">
+        <div class="cl-header">
+          <div>
+            <div class="cl-title">📋 Full Sheet Takeoff Checklist</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:2px;" id="cl-subtitle">Click any item to start measuring</div>
+          </div>
+          <button class="gps-close" onclick="closeChecklist()">&#10005;</button>
+        </div>
+        <div class="cl-body" id="cl-body"></div>
+      </div>
+      <div class="zoom-ov">
+        <button class="zo-btn" onclick="zoomBy(0.25)">+</button>
+        <div class="zo-lbl" id="zoom-lbl">100%</div>
+        <button class="zo-btn" onclick="zoomBy(-0.25)">&#8722;</button>
+        <button class="zo-btn" onclick="resetView()" style="font-size:11px;">&#8865;</button>
+      </div>
+      <div class="loading-ov" id="loading-ov">
+        <div class="spinner" id="spinner"></div>
+        <div class="load-txt" id="load-txt">Loading...</div>
+      </div>
+    </div>
+  </div>
+  <div class="right-panel">
+    <div class="panel-tabs">
+      <div class="ptab active" onclick="switchTab('measure')" id="tab-measure">📐 MEASURE</div>
+      <div class="ptab" onclick="switchTab('results')" id="tab-results">📊 RESULTS</div>
+      <div class="ptab" onclick="switchTab('help')" id="tab-help">&#10067; HELP</div>
+    </div>
+    <div class="pcontent" id="panel-measure">
+      <div class="sc">
+        <div class="sc-title">&#9878;&#65039; Scale Calibration</div>
+        <div class="cal-status bad" id="cal-status">&#9888;&#65039; Not calibrated &#8212; set scale first</div>
+        <div class="info-bar">💡 Zoom in close. Enter a known dimension. Click 2 endpoints on the drawing. Verify with a second measurement.</div>
+        <div class="ci-row">
+          <input class="ci" type="number" id="cal-val" placeholder="Known distance e.g. 20" step="0.1" style="flex:1;">
+          <select class="ci" id="cal-unit" style="width:60px;">
+            <option value="ft">ft</option>
+            <option value="in">in</option>
+            <option value="m">m</option>
+          </select>
+        </div>
+        <button class="tb" id="btn-cal" onclick="startCal()" style="width:100%;display:flex;justify-content:center;margin-bottom:5px;">📍 Set Scale &#8212; Click 2 Points</button>
+        <button class="tb danger" onclick="resetCal()" style="width:100%;display:flex;justify-content:center;font-size:11px;">Reset Scale</button>
+      </div>
+      <div class="sc">
+        <div class="sc-title">🏷️ Label</div>
+        <input class="ci" type="text" id="m-label" placeholder="Name this measurement..." style="width:100%;margin-bottom:7px;">
+        <div>
+          <span class="badge b-area"   onclick="setLbl('Concrete Slab')">Slab</span>
+          <span class="badge b-area"   onclick="setLbl('Brick Veneer')">Brick</span>
+          <span class="badge b-area"   onclick="setLbl('Roof Area')">Roof</span>
+          <span class="badge b-area"   onclick="setLbl('Parking Lot')">Parking</span>
+          <span class="badge b-linear" onclick="setLbl('Grade Beam')">Grade Beam</span>
+          <span class="badge b-linear" onclick="setLbl('Interior Walls')">Walls</span>
+          <span class="badge b-linear" onclick="setLbl('Curb & Gutter')">Curb</span>
+          <span class="badge b-count"  onclick="setLbl('Doors')">Doors</span>
+          <span class="badge b-count"  onclick="setLbl('Windows')">Windows</span>
+          <span class="badge b-count"  onclick="setLbl('Columns')">Columns</span>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-title">📏 Measurements</div>
+        <div class="stats-bar">
+          <div class="stat-box"><div class="sv" id="s-total">0</div><div class="sl">Total</div></div>
+          <div class="stat-box"><div class="sv" id="s-area">0</div><div class="sl">Areas</div></div>
+          <div class="stat-box"><div class="sv" id="s-lin">0</div><div class="sl">Lines</div></div>
+        </div>
+        <div id="m-list">
+          <div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">Calibrate scale &#8594; use 🎯 Click a Room<br>or pick a tool and measure manually.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="pcontent" id="panel-results" style="display:none;">
+      <div class="sc">
+        <div class="sc-title">📊 Takeoff Summary</div>
+        <div id="results-content">
+          <div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Add measurements to see summary.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="pcontent" id="panel-help" style="display:none;">
+      <div class="sc">
+        <div class="sc-title">🎯 Click a Room</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.6;">
+          1. Calibrate scale first<br>
+          2. Click <strong style="color:var(--accent);">🎯 Click a Room</strong> button<br>
+          3. Click anywhere inside any room on the drawing<br>
+          4. AI reads that room and gives GPS step-by-step instructions<br>
+          5. Follow the steps &#8212; BuildIQ activates the right tool automatically
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-title">📋 Full Sheet Scan</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.6;">
+          1. Click <strong style="color:#a78bfa;">📋 Full Sheet Scan</strong><br>
+          2. AI scans the entire drawing<br>
+          3. Get a complete checklist of everything to measure<br>
+          4. Click any item to start measuring it
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-title">&#9000;&#65039; Keyboard Shortcuts</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.8;">
+          <strong style="color:var(--accent);">A</strong> &#8212; Area tool<br>
+          <strong style="color:var(--accent);">L</strong> &#8212; Linear tool<br>
+          <strong style="color:var(--accent);">C</strong> &#8212; Count tool<br>
+          <strong style="color:var(--accent);">Esc</strong> &#8212; Deselect tool<br>
+          <strong style="color:var(--accent);">&#8592; &#8594;</strong> &#8212; Previous/Next page<br>
+          <strong style="color:var(--accent);">Ctrl+Z</strong> &#8212; Undo<br>
+          <strong style="color:var(--accent);">Scroll</strong> &#8212; Zoom in/out<br>
+          <strong style="color:var(--accent);">Drag</strong> &#8212; Pan around
+        </div>
+      </div>
+    </div>
+    <div class="export-section">
+      <button class="exp-btn" onclick="exportCSV()">&#11015;&#65039; Export to CSV / Excel</button>
+      <button class="exp-btn sec" onclick="copyQty()">📋 Copy All Quantities</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="file-in" accept=".pdf" onchange="loadPDF(this)">
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let pdfDoc=null,curPage=1,totPages=0,renderScale=1.5;
+let vx=0,vy=0,vz=1,fitZ=1;
+let isPan=false,panS={x:0,y:0},panO={x:0,y:0},spaceHeld=false;
+let curTool=null,calMode=false,calPts=[],pxPerUnit=null,calUnit='ft';
+let measurements=[],curM=null,mPos={x:0,y:0},projName='';
+let roomMode=false,gpsData=null,gpsStep=0,roomCropData=null;
+const pdfC=document.getElementById('pdf-canvas');
+const mC=document.getElementById('measure-canvas');
+const iC=document.getElementById('interact-canvas');
+const pdfX=pdfC.getContext('2d');
+const mX=mC.getContext('2d');
+
+async function loadPDF(inp){
+  const f=inp.files[0];if(!f)return;
+  projName=f.name.replace('.pdf','');
+  document.getElementById('proj-name').textContent=projName;
+  showLoad(true,'Loading PDF...');
+  try{
+    const buf=await f.arrayBuffer();
+    pdfDoc=await pdfjsLib.getDocument({data:buf}).promise;
+    totPages=pdfDoc.numPages;
+    document.getElementById('total-pg').textContent=totPages;
+    document.getElementById('upload-screen').style.display='none';
+    document.getElementById('pdf-viewport').style.display='block';
+    document.getElementById('toolbar').style.display='flex';
+    curPage=1;
+    await renderPage(curPage,true);
+  }catch(e){alert('Error: '+e.message);}
+  showLoad(false);
+}
+
+async function renderPage(num,reset){
+  showLoad(true,'Loading page '+num+'...');
+  document.getElementById('pg-in').value=num;
+  const page=await pdfDoc.getPage(num);
+  const vp=page.getViewport({scale:renderScale});
+  [pdfC,mC,iC].forEach(c=>{c.width=vp.width;c.height=vp.height;});
+  await page.render({canvasContext:pdfX,viewport:vp}).promise;
+  if(reset){
+    const vpEl=document.getElementById('pdf-viewport');
+    fitZ=Math.min((vpEl.clientWidth-40)/vp.width,(vpEl.clientHeight-40)/vp.height);
+    vz=fitZ;vx=(vpEl.clientWidth-vp.width*vz)/2;vy=(vpEl.clientHeight-vp.height*vz)/2;
+  }
+  applyT();redraw();showLoad(false);
+}
+
+function applyT(){
+  document.getElementById('pdf-inner').style.transform='translate('+vx+'px,'+vy+'px) scale('+vz+')';
+  document.getElementById('pdf-inner').style.transformOrigin='0 0';
+  document.getElementById('zoom-lbl').textContent=Math.round(vz/fitZ*100)+'%';
+}
+
+function onWheel(e){
+  e.preventDefault();
+  const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
+  const mx=e.clientX-vp.left,my=e.clientY-vp.top;
+  const d=e.deltaY<0?1.12:0.89;
+  const nz=Math.max(fitZ*0.4,Math.min(vz*d,fitZ*12));
+  vx=mx-(mx-vx)*(nz/vz);vy=my-(my-vy)*(nz/vz);vz=nz;applyT();
+}
+
+function onVPDown(e){
+  if(e.button===1||e.button===2||(!curTool&&!calMode&&!roomMode)||spaceHeld){
+    isPan=true;panS={x:e.clientX,y:e.clientY};panO={x:vx,y:vy};
+    document.getElementById('pdf-viewport').style.cursor='grabbing';return;
+  }
+  const cp=v2c(e);mPos=cp;
+  if(roomMode){handleRoomClick(cp,e);return;}
+  handleClick(cp);
+}
+
+function onVPMove(e){
+  if(isPan){vx=panO.x+(e.clientX-panS.x);vy=panO.y+(e.clientY-panS.y);applyT();return;}
+  const cp=v2c(e);mPos=cp;if(curM)redraw();updateHint(e,cp);
+}
+
+function onVPUp(){if(isPan){isPan=false;updateCursor();}}
+
+document.getElementById('pdf-viewport').addEventListener('dblclick',e=>{
+  if(curTool==='area'&&curM&&curM.points.length>=3)finalizeM();
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&!e.target.matches('input,select,textarea')){e.preventDefault();spaceHeld=true;document.getElementById('pdf-viewport').style.cursor='grab';}
+  if(e.target.matches('input,select,textarea'))return;
+  if(e.key==='Escape'){setTool(null);calMode=false;roomMode=false;curM=null;calPts=[];redraw();showMode('');hideRoomHint();}
+  if(e.key==='a'||e.key==='A')setTool('area');
+  if(e.key==='l'||e.key==='L')setTool('linear');
+  if(e.key==='c'||e.key==='C')setTool('count');
+  if(e.key==='ArrowLeft')changePage(-1);
+  if(e.key==='ArrowRight')changePage(1);
+  if(e.key==='z'&&(e.ctrlKey||e.metaKey)){e.preventDefault();undoLast();}
+});
+document.addEventListener('keyup',e=>{if(e.code==='Space'){spaceHeld=false;updateCursor();}});
+
+function v2c(e){
+  const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
+  return{x:(e.clientX-vp.left-vx)/vz,y:(e.clientY-vp.top-vy)/vz};
+}
+
+function zoomBy(d){
+  const vpEl=document.getElementById('pdf-viewport');
+  const cx=vpEl.clientWidth/2,cy=vpEl.clientHeight/2;
+  const nz=Math.max(fitZ*0.4,Math.min(vz+d*fitZ,fitZ*12));
+  vx=cx-(cx-vx)*(nz/vz);vy=cy-(cy-vy)*(nz/vz);vz=nz;applyT();
+}
+
+function resetView(){
+  const vpEl=document.getElementById('pdf-viewport');
+  vz=fitZ;vx=(vpEl.clientWidth-pdfC.width*vz)/2;vy=(vpEl.clientHeight-pdfC.height*vz)/2;applyT();
+}
+
+function updateCursor(){
+  const vp=document.getElementById('pdf-viewport');
+  if(roomMode)vp.style.cursor='crosshair';
+  else if(curTool||calMode)vp.style.cursor='crosshair';
+  else vp.style.cursor='grab';
+}
+
+function updateHint(e,cp){
+  const h=document.getElementById('cur-hint');
+  if(!curTool&&!calMode&&!roomMode){h.style.display='none';return;}
+  const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
+  h.style.display='block';
+  h.style.left=(e.clientX-vp.left+14)+'px';
+  h.style.top=(e.clientY-vp.top)+'px';
+  if(roomMode)h.textContent='Click inside a room';
+  else if(calMode)h.textContent=calPts.length===0?'Click point 1':'Click point 2';
+  else if(curTool==='linear')h.textContent=curM?'Click end point':'Click start';
+  else if(curTool==='area')h.textContent=curM?'Add point ('+curM.points.length+') dbl-click finish':'Click first corner';
+  else if(curTool==='count')h.textContent='Click to count';
+}
+
+function changePage(d){const n=curPage+d;if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);closeGPS();closeChecklist();}}
+function goPage(v){const n=parseInt(v);if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);}}
+
+function startCal(){
+  const v=parseFloat(document.getElementById('cal-val').value);
+  if(!v||v<=0){alert('Enter a known dimension value first.');return;}
+  calUnit=document.getElementById('cal-unit').value;
+  calMode=true;calPts=[];roomMode=false;setTool(null,true);
+  document.getElementById('btn-cal').classList.add('active');
+  updateCursor();showMode('CALIBRATE - Click point 1 of the known dimension','yellow');
+  document.getElementById('cal-status').className='cal-status bad';
+  document.getElementById('cal-status').textContent='Click first calibration point...';
+}
+
+function resetCal(){
+  pxPerUnit=null;calMode=false;calPts=[];
+  document.getElementById('cal-status').className='cal-status bad';
+  document.getElementById('cal-status').textContent='Not calibrated - set scale first';
+  document.getElementById('btn-cal').classList.remove('active');
+  showMode('');updateCursor();redraw();
+}
+
+function toggleRoomMode(){
+  roomMode=!roomMode;
+  const btn=document.getElementById('btn-room');
+  if(roomMode){
+    setTool(null,true);calMode=false;btn.classList.add('active');
+    showRoomHint();updateCursor();showMode('ROOM MODE - Click anywhere inside a room','yellow');
+  }else{
+    btn.classList.remove('active');hideRoomHint();showMode('');updateCursor();
+  }
+}
+
+function showRoomHint(){document.getElementById('room-hint').classList.add('visible');}
+function hideRoomHint(){document.getElementById('room-hint').classList.remove('visible');}
+
+async function handleRoomClick(canvasPos,e){
+  if(!pxPerUnit){alert('Calibrate the scale first, then use Click a Room.');return;}
+  const vpEl=document.getElementById('pdf-viewport');
+  const vpRect=vpEl.getBoundingClientRect();
+  const cropCanvas=document.createElement('canvas');
+  cropCanvas.width=Math.min(vpRect.width,900);
+  cropCanvas.height=Math.min(vpRect.height,700);
+  const cropCtx=cropCanvas.getContext('2d');
+  cropCtx.save();cropCtx.translate(vx,vy);cropCtx.scale(vz,vz);
+  cropCtx.drawImage(pdfC,0,0);cropCtx.restore();
+  const imgData=cropCanvas.toDataURL('image/jpeg',0.75);
+  const base64=imgData.split(',')[1];
+  roomCropData={canvas:cropCanvas,base64,w:cropCanvas.width,h:cropCanvas.height};
+  showPreview(cropCanvas);
+  hideRoomHint();roomMode=false;
+  document.getElementById('btn-room').classList.remove('active');
+  updateCursor();showMode('AI is reading your drawing...','purple');
+  showLoad(true,'AI is analyzing this room...');
+  document.getElementById('spinner').classList.add('purple');
+  try{
+    const resp=await fetch('/api/analyze-room',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({imageBase64:base64,width:cropCanvas.width,height:cropCanvas.height,mode:'room'})
+    });
+    if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(err.error||'Server error '+resp.status);}
+    gpsData=await resp.json();gpsStep=0;showGPS();showMode('');
+  }catch(e){showMode('');alert('AI Analysis error: '+e.message);}
+  showLoad(false);document.getElementById('spinner').classList.remove('purple');
+}
+
+async function analyzeFullSheet(){
+  if(!pdfDoc){alert('Upload a drawing first.');return;}
+  showLoad(true,'AI is scanning the full sheet...');
+  document.getElementById('spinner').classList.add('purple');
+  try{
+    const scanCanvas=document.createElement('canvas');
+    scanCanvas.width=Math.min(pdfC.width,1200);
+    scanCanvas.height=Math.min(pdfC.height,900);
+    const scanCtx=scanCanvas.getContext('2d');
+    scanCtx.drawImage(pdfC,0,0,pdfC.width,pdfC.height,0,0,scanCanvas.width,scanCanvas.height);
+    const imgData=scanCanvas.toDataURL('image/jpeg',0.5);
+    const base64=imgData.split(',')[1];
+    const resp=await fetch('/api/analyze-room',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({imageBase64:base64,width:scanCanvas.width,height:scanCanvas.height,mode:'fullsheet'})
+    });
+    if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(err.error||'Server error '+resp.status);}
+    const data=await resp.json();showChecklist(data);
+  }catch(e){alert('Scan error: '+e.message);}
+  showLoad(false);document.getElementById('spinner').classList.remove('purple');
+}
+
+function showGPS(){
+  if(!gpsData)return;
+  const panel=document.getElementById('gps-panel');panel.classList.add('visible');
+  document.getElementById('gps-room-name').textContent=gpsData.roomName||'Room Analysis';
+  document.getElementById('gps-room-dims').textContent=gpsData.dimensions||'';
+  const icons={area:'📐',linear:'📏',count:'🔢'};
+  document.getElementById('tool-icon').textContent=icons[gpsData.tool]||'📐';
+  document.getElementById('tool-name').textContent=gpsData.toolInstruction||'Select the '+gpsData.tool+' tool';
+  document.getElementById('tool-why').textContent=gpsData.whyThisTool||'';
+  renderGPSSteps();
+  const subs=document.getElementById('subtractions');
+  const allSubs=[...(gpsData.doorsToSubtract||[]),...(gpsData.windowsToSubtract||[])];
+  if(allSubs.length>0){
+    subs.style.display='block';
+    document.getElementById('sub-list').innerHTML=allSubs.map(s=>'<div class="sub-item"><span>'+(s.doorId||s.windowId||'Opening')+' - '+(s.size||'')+'</span><span class="sub-val">-'+(s.area||0)+' SF</span></div>').join('');
+  }else{subs.style.display='none';}
+  const warns=document.getElementById('gps-warnings');
+  if(gpsData.warnings&&gpsData.warnings.length>0){
+    warns.style.display='block';
+    document.getElementById('warn-list').innerHTML=gpsData.warnings.map(w=>'<div class="warn-item">'+ w+'</div>').join('');
+  }else{warns.style.display='none';}
+}
+
+function renderGPSSteps(){
+  if(!gpsData||!gpsData.steps)return;
+  const container=document.getElementById('gps-steps');
+  container.innerHTML=gpsData.steps.map((s,i)=>{
+    const status=i<gpsStep?'done':i===gpsStep?'current':'pending';
+    const isDoor=s.action&&s.action.toLowerCase().includes('skip');
+    return '<div class="gps-step '+status+'" id="gps-step-'+i+'">'+
+      '<div class="step-num '+status+'">''+(status==='done'?'&#10003;':s.stepNumber)+'</div>'+
+      '<div class="step-body"><div class="step-action">'+s.action+'</div>'+
+      '<div class="step-detail">'+s.detail+'</div>'+
+      (s.direction?'<span class="''+(isDoor?'step-skip':'step-dir')+'">'+ s.direction+'</span>':'')+
+      '</div></div>';
+  }).join('');
+  const cur=document.getElementById('gps-step-'+gpsStep);
+  if(cur)cur.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const nextBtn=document.getElementById('gps-next-btn');
+  if(gpsStep>=gpsData.steps.length-1){nextBtn.textContent='Done - Record Measurement';nextBtn.className='gps-done';}
+  else{nextBtn.textContent='Next Step';nextBtn.className='gps-next';}
+}
+
+function gpsNext(){
+  if(!gpsData)return;
+  if(gpsStep>=gpsData.steps.length-1){closeGPS();showMode(gpsData.roomName+' complete! Check Results tab.','green');setTimeout(()=>showMode(''),3000);switchTab('results');return;}
+  gpsStep++;renderGPSSteps();
+}
+
+function gpsBack(){if(gpsStep>0){gpsStep--;renderGPSSteps();}}
+
+function activateGPSTool(){
+  if(!gpsData)return;
+  setTool(gpsData.tool);setLbl(gpsData.roomName||'Room');
+  showMode(gpsData.tool.toUpperCase()+' TOOL ACTIVE - follow GPS steps','yellow');
+}
+
+function closeGPS(){document.getElementById('gps-panel').classList.remove('visible');gpsData=null;gpsStep=0;}
+
+function showPreview(srcCanvas){
+  const prev=document.getElementById('preview-canvas');
+  const maxW=document.getElementById('preview-container').clientWidth-20;
+  const ratio=srcCanvas.height/srcCanvas.width;
+  prev.width=Math.min(srcCanvas.width,maxW);prev.height=prev.width*ratio;
+  const ctx=prev.getContext('2d');
+  ctx.drawImage(srcCanvas,0,0,prev.width,prev.height);
+  ctx.strokeStyle='rgba(245,158,11,0.6)';ctx.lineWidth=3;ctx.setLineDash([8,4]);
+  ctx.strokeRect(20,20,prev.width-40,prev.height-40);ctx.setLineDash([]);
+  ctx.fillStyle='rgba(245,158,11,0.9)';ctx.fillRect(10,10,120,22);
+  ctx.fillStyle='#000';ctx.font='bold 11px sans-serif';ctx.fillText('Trace this area',14,25);
+}
+
+function showChecklist(data){
+  const panel=document.getElementById('checklist-panel');panel.classList.add('visible');
+  const total=(data.measurementChecklist||[]).length+(data.linearMeasurements||[]).length+(data.countsNeeded||[]).length;
+  document.getElementById('cl-subtitle').textContent=(data.sheetDescription||'Click any item')+' - '+total+' items';
+  let html='';
+  if(data.statedQuantities&&data.statedQuantities.length>0){
+    html+='<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:4px;">Already Stated on Drawing</div>';
+    data.statedQuantities.forEach(q=>{html+='<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12px;"><strong>'+q.item+':</strong> <span style="color:var(--green);font-weight:700;">'+q.value+'</span></div>';});
+  }
+  if(data.measurementChecklist&&data.measurementChecklist.length>0){
+    html+='<div style="font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">Area Measurements</div>';
+    data.measurementChecklist.forEach((item,i)=>{
+      html+='<div class="cl-item" onclick="startChecklistItem(\''+item.tool+'\',\''+item.name+'')''><div class="cl-num">'+( i+1)+'</div><div class="cl-info"><div class="cl-name">'+item.name+' <span class="cl-priority '+item.priority+'">'+item.priority+'</span></div><div class="cl-why">'+item.why+'</div></div></div>';
+    });
+  }
+  if(data.linearMeasurements&&data.linearMeasurements.length>0){
+    html+='<div style="font-size:10px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">Linear Measurements</div>';
+    data.linearMeasurements.forEach((item,i)=>{html+='<div class="cl-item" onclick="startChecklistItem(\''+item.tool+'\',\''+item.name+'')''><div class="cl-num">'+( i+1)+'</div><div class="cl-info"><div class="cl-name">'+item.name+'</div><div class="cl-why">'+item.why+'</div></div></div>';});
+  }
+  if(data.countsNeeded&&data.countsNeeded.length>0){
+    html+='<div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">Count Items</div>';
+    data.countsNeeded.forEach((item,i)=>{html+='<div class="cl-item" onclick="startChecklistItem(\''+item.tool+'\',\''+item.name+'')''><div class="cl-num">'+( i+1)+'</div><div class="cl-info"><div class="cl-name">'+item.name+'</div><div class="cl-why">'+item.why+'</div></div></div>';});
+  }
+  if(data.warnings&&data.warnings.length>0){
+    html+='<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">Flags & Warnings</div>';
+    data.warnings.forEach(w=>{html+='<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:11px;color:var(--text2);">'+ w+'</div>';});
+  }
+  document.getElementById('cl-body').innerHTML=html||'<div class="empty"><div class="empty-txt">No items found.</div></div>';
+}
+
+function startChecklistItem(tool,name){setTool(tool);setLbl(name);closeChecklist();showMode(tool.toUpperCase()+' - measuring: '+name,'yellow');switchTab('measure');}
+function closeChecklist(){document.getElementById('checklist-panel').classList.remove('visible');}
+
+function handleClick(pos){
+  if(!pdfDoc)return;
+  if(calMode){
+    calPts.push(pos);redraw();
+    if(calPts.length===1){document.getElementById('cal-status').textContent='Click second point...';showMode('CALIBRATE - Click point 2','yellow');}
+    else if(calPts.length===2){
+      const dx=calPts[1].x-calPts[0].x,dy=calPts[1].y-calPts[0].y;
+      pxPerUnit=Math.sqrt(dx*dx+dy*dy)/parseFloat(document.getElementById('cal-val').value);
+      calUnit=document.getElementById('cal-unit').value;calMode=false;
+      document.getElementById('btn-cal').classList.remove('active');
+      document.getElementById('cal-status').className='cal-status good';
+      document.getElementById('cal-status').textContent='Calibrated: 1 '+calUnit+' = '+pxPerUnit.toFixed(1)+'px';
+      showMode('Calibrated! Now use Click a Room or select a tool.','green');
+      setTimeout(()=>showMode(''),3000);updateCursor();redraw();
+    }
+    return;
+  }
+  if(!curTool)return;
+  if(!pxPerUnit){showMode('Calibrate scale first!','yellow');setTimeout(()=>showMode(''),2000);return;}
+  if(curTool==='count'){addCount(pos);return;}
+  if(!curM){curM={id:Date.now(),type:curTool,label:document.getElementById('m-label').value||(curTool==='area'?'Area':'Linear'),points:[pos],page:curPage,complete:false};}
+  else{curM.points.push(pos);if(curTool==='linear'&&curM.points.length===2)finalizeM();}
+  redraw();
+}
+
+function addCount(pos){
+  const lbl=document.getElementById('m-label').value||'Count';
+  let m=measurements.find(m=>m.type==='count'&&m.label===lbl&&m.page===curPage);
+  if(!m){m={id:Date.now(),type:'count',label:lbl,points:[],page:curPage,complete:false};measurements.push(m);}
+  m.points.push(pos);m.value=m.points.length;redraw();updateList();updateStats();
+}
+
+function finalizeM(){
+  if(!curM)return;
+  curM.complete=true;curM.value=calcVal(curM);measurements.push(curM);curM=null;redraw();updateList();updateStats();
+}
+
+function calcVal(m){
+  if(!pxPerUnit)return 0;
+  if(m.type==='linear'&&m.points.length>=2){const dx=m.points[1].x-m.points[0].x,dy=m.points[1].y-m.points[0].y;return Math.sqrt(dx*dx+dy*dy)/pxPerUnit;}
+  if(m.type==='area'&&m.points.length>=3){let a=0;for(let i=0;i<m.points.length;i++){const j=(i+1)%m.points.length;a+=m.points[i].x*m.points[j].y-m.points[j].x*m.points[i].y;}return Math.abs(a/2)/(pxPerUnit*pxPerUnit);}
+  return m.points.length;
+}
+
+function redraw(){
+  mX.clearRect(0,0,mC.width,mC.height);
+  if(calPts.length>0){
+    calPts.forEach((p,i)=>dot(mX,p,'#f59e0b',6,String(i+1)));
+    if(calPts.length===2){mX.strokeStyle='#f59e0b';mX.lineWidth=1.5;mX.setLineDash([6,3]);mX.beginPath();mX.moveTo(calPts[0].x,calPts[0].y);mX.lineTo(calPts[1].x,calPts[1].y);mX.stroke();mX.setLineDash([]);}
+  }
+  measurements.filter(m=>m.page===curPage).forEach(m=>drawM(mX,m,false));
+  if(curM){
+    drawM(mX,curM,true);
+    if(curM.points.length>0){const last=curM.points[curM.points.length-1];const col=curTool==='area'?'#3b82f6':'#10b981';mX.strokeStyle=col+'66';mX.lineWidth=1;mX.setLineDash([4,4]);mX.beginPath();mX.moveTo(last.x,last.y);mX.lineTo(mPos.x,mPos.y);mX.stroke();mX.setLineDash([]);}
+  }
+}
+
+function drawM(ctx,m,prog){
+  const cols={area:'#3b82f6',linear:'#10b981',count:'#8b5cf6'};const col=cols[m.type];
+  ctx.strokeStyle=col;ctx.lineWidth=prog?1.5:2;ctx.setLineDash(prog?[5,3]:[]);
+  if(m.type==='area'){if(!m.points.length)return;ctx.beginPath();ctx.moveTo(m.points[0].x,m.points[0].y);m.points.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));if(!prog)ctx.closePath();ctx.stroke();if(!prog&&m.points.length>=3){ctx.fillStyle=col+'22';ctx.fill();}m.points.forEach(p=>dot(ctx,p,col,4));if(!prog&&m.value){const cx=m.points.reduce((s,p)=>s+p.x,0)/m.points.length;const cy=m.points.reduce((s,p)=>s+p.y,0)/m.points.length;lbl(ctx,cx,cy,m.label+': '+m.value.toFixed(0)+' SF',col);}}
+  if(m.type==='linear'&&m.points.length>=2){ctx.beginPath();ctx.moveTo(m.points[0].x,m.points[0].y);ctx.lineTo(m.points[1].x,m.points[1].y);ctx.stroke();[m.points[0],m.points[1]].forEach(p=>dot(ctx,p,col,4));if(!prog&&m.value){const mx=(m.points[0].x+m.points[1].x)/2,my=(m.points[0].y+m.points[1].y)/2;lbl(ctx,mx,my-14,m.label+': '+m.value.toFixed(1)+' LF',col);}}
+  if(m.type==='count'){m.points.forEach((p,i)=>{ctx.fillStyle=col;ctx.beginPath();ctx.arc(p.x,p.y,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i+1,p.x,p.y);});}
+  ctx.setLineDash([]);
+}
+
+function dot(ctx,pos,color,r,label){ctx.fillStyle=color;ctx.beginPath();ctx.arc(pos.x,pos.y,r,0,Math.PI*2);ctx.fill();if(label){ctx.fillStyle='#000';ctx.font='bold '+(r+2)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,pos.x,pos.y);}}
+function lbl(ctx,x,y,text,color){ctx.font='bold 12px sans-serif';const w=ctx.measureText(text).width+12;ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(x-w/2,y-11,w,22);ctx.fillStyle=color;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,x,y);}
+
+function setTool(t,skipClear){
+  if(curM)finalizeM();curTool=t;
+  if(!skipClear){calMode=false;roomMode=false;document.getElementById('btn-room').classList.remove('active');hideRoomHint();}
+  ['area','linear','count'].forEach(id=>{const el=document.getElementById('btn-'+id);if(el)el.classList.toggle('active',t===id);});
+  document.getElementById('btn-none').classList.toggle('active',t===null&&!calMode&&!roomMode);
+  updateCursor();
+  if(t){const L={area:'AREA TOOL - click corners, double-click to finish',linear:'LINEAR TOOL - click start then end point',count:'COUNT TOOL - click each item'};showMode(L[t],'yellow');}
+  else if(!calMode&&!roomMode){showMode('');document.getElementById('cur-hint').style.display='none';}
+}
+
+function undoLast(){if(curM&&curM.points.length>0){curM.points.pop();if(!curM.points.length)curM=null;}else if(measurements.length>0){measurements.pop();updateList();updateStats();}redraw();}
+function clearAll(){if(!confirm('Clear all measurements?'))return;measurements=[];curM=null;calPts=[];pxPerUnit=null;document.getElementById('cal-status').className='cal-status bad';document.getElementById('cal-status').textContent='Not calibrated - set scale first';redraw();updateList();updateStats();}
+function deleteMeasurement(i){measurements.splice(i,1);updateList();updateStats();redraw();}
+
+function updateList(){
+  const el=document.getElementById('m-list');
+  if(!measurements.length){el.innerHTML='<div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">Calibrate scale then use Click a Room or pick a tool.</div></div>';updateResults();return;}
+  const units={area:'SF',linear:'LF',count:'EA'};
+  el.innerHTML=measurements.map((m,i)=>'<div class="mi"><button class="mi-del" onclick="deleteMeasurement('+i+')">&#10005;</button><div class="mi-hdr"><div><div class="mi-name">'+m.label+'</div><div class="mi-type"><span class="badge b-'+m.type+'" style="margin-bottom:0;">'+m.type.toUpperCase()+'</span> pg '+m.page+'</div></div><div class="mi-val">'+fmtV(m)+' <span style="font-size:10px;font-weight:400;">'+units[m.type]+'</span></div></div></div>').join('');
+  updateResults();
+}
+
+function fmtV(m){if(m.type==='count')return m.points.length;if(m.type==='linear')return m.value?m.value.toFixed(1):'-';return m.value?m.value.toFixed(0):'-';}
+function updateStats(){document.getElementById('s-total').textContent=measurements.length;document.getElementById('s-area').textContent=measurements.filter(m=>m.type==='area').length;document.getElementById('s-lin').textContent=measurements.filter(m=>m.type==='linear').length;}
+
+function updateResults(){
+  const el=document.getElementById('results-content');
+  if(!measurements.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Add measurements to see summary.</div></div>';return;}
+  const areas=measurements.filter(m=>m.type==='area');const lins=measurements.filter(m=>m.type==='linear');const cnts=measurements.filter(m=>m.type==='count');
+  const row=(l,v,u,c)=>'<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;"><span>'+l+'</span><span style="color:'+c+';font-weight:700;">'+v+' '+u+'</span></div>';
+  el.innerHTML=(areas.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:6px;">AREAS</div>'+areas.map(m=>row(m.label,m.value?m.value.toFixed(0):'-','SF','#3b82f6')).join('')+'<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:12px;font-weight:700;"><span>TOTAL</span><span style="color:var(--accent);">'+areas.reduce((s,m)=>s+(m.value||0),0).toFixed(0)+' SF</span></div></div>':'')+(lins.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#10b981;margin-bottom:6px;">LINEAR</div>'+lins.map(m=>row(m.label,m.value?m.value.toFixed(1):'-','LF','#10b981')).join('')+'</div>':'')+(cnts.length?'<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px;">COUNTS</div>'+cnts.map(m=>row(m.label,m.points.length,'EA','#8b5cf6')).join('')+'</div>':'');
+}
+
+function switchTab(t){document.querySelectorAll('.ptab').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.pcontent').forEach(e=>e.style.display='none');document.getElementById('tab-'+t).classList.add('active');document.getElementById('panel-'+t).style.display='block';}
+function setLbl(t){document.getElementById('m-label').value=t;}
+function showMode(txt,style){const el=document.getElementById('mode-ind');el.className='mode-ind '+(style||'yellow');if(txt){el.textContent=txt;el.classList.add('visible');}else el.classList.remove('visible');}
+function showLoad(v,txt){document.getElementById('loading-ov').classList.toggle('visible',v);if(txt)document.getElementById('load-txt').textContent=txt;}
+function dragOver(e){e.preventDefault();document.getElementById('upload-zone').classList.add('drag-over');}
+function dragLeave(){document.getElementById('upload-zone').classList.remove('drag-over');}
+function drop(e){e.preventDefault();document.getElementById('upload-zone').classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf'){const inp=document.getElementById('file-in');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;loadPDF(inp);}}
+
+function exportCSV(){
+  if(!measurements.length){alert('No measurements yet.');return;}
+  let csv='BuildIQ Takeoff\nProject: '+projName+'\nDate: '+new Date().toLocaleDateString()+'\n\nLabel,Type,Value,Unit,Page\n';
+  measurements.forEach(m=>{const u=m.type==='area'?'SF':m.type==='linear'?'LF':'EA';const v=m.type==='count'?m.points.length:(m.value?m.value.toFixed(m.type==='linear'?1:0):0);csv+='"'+m.label+'",'+m.type.toUpperCase()+','+v+','+u+','+m.page+'\n';});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='BuildIQ_'+projName+'_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+}
+
+function copyQty(){
+  if(!measurements.length){alert('No measurements yet.');return;}
+  const u=m=>m.type==='area'?'SF':m.type==='linear'?'LF':'EA';
+  const v=m=>m.type==='count'?m.points.length:(m.value?m.value.toFixed(1):0);
+  navigator.clipboard.writeText(measurements.map(m=>m.label+': '+v(m)+' '+u(m)).join('\n')).then(()=>{const btn=document.querySelector('.exp-btn.sec');const orig=btn.textContent;btn.textContent='Copied!';setTimeout(()=>btn.textContent=orig,2000);});
+}
+
+switchTab('measure');
+</script>
+</body>
+</html>
