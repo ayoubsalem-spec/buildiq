@@ -72,12 +72,20 @@ const server = http.createServer(async (req, res) => {
           return;
         }
 
-        const raw = data.content[0].text.trim().replace(/```json|```/g, '').trim();
+        let raw = data.content[0].text.trim();
+        // Strip any markdown code fences
+        raw = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+        // Extract just the JSON object if there's surrounding text
+        const jsonStart = raw.indexOf('{');
+        const jsonEnd = raw.lastIndexOf('}');
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+          raw = raw.substring(jsonStart, jsonEnd + 1);
+        }
         let result;
         try { result = JSON.parse(raw); }
         catch (e) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Parse error', raw: raw.substring(0, 200) }));
+          res.end(JSON.stringify({ error: 'Parse error: ' + e.message, raw: raw.substring(0, 300) }));
           return;
         }
 
