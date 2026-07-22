@@ -3,14 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BuildIQ — AI Chief Estimator</title>
+<title>BuildIQ \u2014 AI Chief Estimator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-  :root {
-    --bg:#0f1117; --surface:#1a1d27; --surface2:#222535; --border:#2e3348;
-    --accent:#f59e0b; --accent2:#fbbf24; --text:#e8eaf0; --text2:#8b90a7;
-    --green:#10b981; --red:#ef4444; --blue:#3b82f6; --purple:#8b5cf6;
-  }
+  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222535;--border:#2e3348;--accent:#f59e0b;--accent2:#fbbf24;--text:#e8eaf0;--text2:#8b90a7;--green:#10b981;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
   header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
@@ -18,78 +14,81 @@
   .logo-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
   .logo-text{font-size:17px;font-weight:800;letter-spacing:-0.5px;}
   .logo-text span{color:var(--accent);}
-  .header-badge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+  .hbadge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
   .app{display:flex;flex:1;overflow:hidden;}
+
+  /* PDF PANEL */
   .pdf-panel{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;}
-  .pdf-toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
-  .tool-group{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid var(--border);}
-  .tool-group:last-child{border-right:none;padding-right:0;}
-  .tl{font-size:10px;color:var(--text2);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap;}
+  .toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+  .tg{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid var(--border);}
+  .tg:last-child{border-right:none;padding-right:0;}
+  .tl{font-size:10px;color:var(--text2);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
   .tb{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
   .tb:hover{background:var(--border);border-color:var(--accent);color:var(--accent);}
   .tb.active{background:rgba(245,158,11,0.15);border-color:var(--accent);color:var(--accent);}
   .tb.danger{border-color:var(--red);color:var(--red);}
   .tb.danger:hover{background:rgba(239,68,68,0.1);}
-  .tb.ai-btn{background:rgba(139,92,246,0.15);border-color:var(--purple);color:#a78bfa;}
-  .tb.ai-btn:hover{background:rgba(139,92,246,0.25);}
-  .page-nav{display:flex;align-items:center;gap:6px;font-size:12px;}
-  .page-nav input{width:44px;text-align:center;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px;border-radius:4px;font-size:12px;}
+  .pg-nav{display:flex;align-items:center;gap:6px;}
+  .pg-nav input{width:44px;text-align:center;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px;border-radius:4px;font-size:12px;}
 
+  /* AI BUTTONS */
+  .ai-room-btn{background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(251,191,36,0.1));border:1px solid var(--accent);color:var(--accent);padding:5px 12px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
+  .ai-room-btn:hover{background:rgba(245,158,11,0.3);}
+  .ai-room-btn.active{background:rgba(245,158,11,0.25);animation:pulse-border 1.5s ease-in-out infinite;}
+  @keyframes pulse-border{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.4);}50%{box-shadow:0 0 0 4px rgba(245,158,11,0);}}
+  .ai-sheet-btn{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(59,130,246,0.1));border:1px solid var(--purple);color:#a78bfa;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
+  .ai-sheet-btn:hover{background:rgba(139,92,246,0.3);}
+
+  /* VIEWPORT */
   .pdf-viewport{flex:1;overflow:hidden;position:relative;background:#0a0c12;}
   .pdf-inner{position:absolute;transform-origin:0 0;}
-  .canvas-wrapper{position:relative;display:inline-block;box-shadow:0 8px 32px rgba(0,0,0,0.7);}
+  .cw{position:relative;display:inline-block;box-shadow:0 8px 32px rgba(0,0,0,0.7);}
   #pdf-canvas{display:block;}
   #measure-canvas{position:absolute;top:0;left:0;pointer-events:none;}
-  #ai-overlay-canvas{position:absolute;top:0;left:0;pointer-events:none;}
   #interact-canvas{position:absolute;top:0;left:0;}
 
+  /* UPLOAD */
   .upload-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;}
   .upload-zone{width:100%;max-width:440px;border:2px dashed var(--border);border-radius:14px;padding:44px 28px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);}
   .upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:rgba(245,158,11,0.05);}
-  .upload-icon{font-size:44px;margin-bottom:14px;}
-  .upload-title{font-size:19px;font-weight:700;margin-bottom:7px;}
-  .upload-sub{font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.5;}
-  .upload-btn-main{background:var(--accent);color:#000;border:none;padding:11px 26px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;}
+  .upload-btn-main{background:var(--accent);color:#000;border:none;padding:11px 26px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;}
 
-  .mode-indicator{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(245,158,11,0.92);color:#000;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;pointer-events:none;display:none;white-space:nowrap;z-index:20;}
-  .mode-indicator.visible{display:block;}
-  .mode-indicator.purple{background:rgba(139,92,246,0.92);color:#fff;}
+  /* MODE INDICATOR */
+  .mode-ind{position:absolute;top:10px;left:50%;transform:translateX(-50%);padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;pointer-events:none;display:none;white-space:nowrap;z-index:20;}
+  .mode-ind.visible{display:block;}
+  .mode-ind.yellow{background:rgba(245,158,11,0.92);color:#000;}
+  .mode-ind.purple{background:rgba(139,92,246,0.92);color:#fff;}
+  .mode-ind.green{background:rgba(16,185,129,0.92);color:#fff;}
 
-  .cursor-hint{position:absolute;background:rgba(245,158,11,0.92);color:#000;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;pointer-events:none;z-index:30;display:none;transform:translate(14px,-50%);white-space:nowrap;}
+  /* CURSOR HINT */
+  .cur-hint{position:absolute;background:rgba(245,158,11,0.92);color:#000;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;pointer-events:none;z-index:30;display:none;transform:translate(14px,-50%);white-space:nowrap;}
 
-  .zoom-overlay{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:4px;z-index:10;}
+  /* ROOM CLICK TARGET */
+  .room-hint{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(245,158,11,0.95);color:#000;padding:8px 20px;border-radius:20px;font-size:12px;font-weight:700;pointer-events:none;display:none;z-index:20;text-align:center;}
+  .room-hint.visible{display:block;}
+
+  /* ZOOM */
+  .zoom-ov{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:4px;z-index:10;}
   .zo-btn{width:32px;height:32px;background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;backdrop-filter:blur(4px);}
   .zo-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .zo-label{background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text2);border-radius:6px;font-size:10px;font-weight:600;text-align:center;padding:4px 2px;backdrop-filter:blur(4px);}
+  .zo-lbl{background:rgba(26,29,39,0.92);border:1px solid var(--border);color:var(--text2);border-radius:6px;font-size:10px;font-weight:600;text-align:center;padding:4px 2px;}
 
-  /* AI ANALYSIS PANEL */
-  .ai-analysis-panel{position:absolute;bottom:12px;left:12px;max-width:320px;background:rgba(26,29,39,0.96);border:1px solid var(--purple);border-radius:10px;padding:12px;z-index:15;backdrop-filter:blur(8px);display:none;}
-  .ai-analysis-panel.visible{display:block;}
-  .ai-panel-title{font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-  .ai-instruction{font-size:12px;color:var(--text);line-height:1.5;margin-bottom:8px;}
-  .ai-click-list{display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;}
-  .ai-click-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);font-size:11px;cursor:pointer;transition:all 0.15s;}
-  .ai-click-item:hover{border-color:var(--purple);}
-  .ai-click-item.done{border-color:var(--green);background:rgba(16,185,129,0.1);}
-  .ai-click-item.current{border-color:var(--accent);background:rgba(245,158,11,0.1);animation:pulse 1.5s ease-in-out infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.7;}}
-  .ai-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
-  .ai-num.pending{background:var(--border);color:var(--text2);}
-  .ai-num.current{background:var(--accent);color:#000;}
-  .ai-num.done{background:var(--green);color:#fff;}
-
-  .loading-overlay{position:absolute;inset:0;background:rgba(15,17,23,0.85);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:50;}
-  .loading-overlay.visible{display:flex;}
-  .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
-  .ai-spinner{border-top-color:var(--purple);}
+  /* LOADING */
+  .loading-ov{position:absolute;inset:0;background:rgba(15,17,23,0.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:50;}
+  .loading-ov.visible{display:flex;}
+  .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+  .spinner.purple{border-top-color:var(--purple);}
   @keyframes spin{to{transform:rotate(360deg);}}
+  .load-txt{font-size:13px;color:var(--text2);}
 
-  .right-panel{width:360px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;}
+  /* RIGHT PANEL */
+  .right-panel{width:380px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;}
   .panel-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
-  .panel-tab{flex:1;padding:11px 4px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all 0.15s;}
-  .panel-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(245,158,11,0.05);}
-  .panel-content{flex:1;overflow-y:auto;padding:14px;}
+  .ptab{flex:1;padding:11px 4px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all 0.15s;}
+  .ptab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(245,158,11,0.05);}
+  .pcontent{flex:1;overflow-y:auto;padding:14px;}
 
+  /* CARDS */
   .sc{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:13px;margin-bottom:11px;}
   .sc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--accent);margin-bottom:9px;}
   .cal-status{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:7px;margin-bottom:9px;font-size:12px;font-weight:500;}
@@ -99,9 +98,10 @@
   .ci:focus{outline:none;border-color:var(--accent);}
   .ci-row{display:flex;gap:7px;align-items:center;margin-bottom:7px;}
 
+  /* MEASUREMENTS */
   .mi{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px;margin-bottom:7px;position:relative;}
   .mi:hover{border-color:var(--accent);}
-  .mi-header{display:flex;justify-content:space-between;align-items:flex-start;}
+  .mi-hdr{display:flex;justify-content:space-between;align-items:flex-start;}
   .mi-name{font-size:11px;font-weight:600;flex:1;padding-right:8px;line-height:1.3;}
   .mi-val{font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;}
   .mi-type{font-size:10px;color:var(--text2);margin-top:2px;}
@@ -109,43 +109,100 @@
   .mi:hover .mi-del{opacity:1;}
   .mi-del:hover{color:var(--red);}
 
-  .ag-item{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:11px;margin-bottom:7px;cursor:pointer;transition:all 0.15s;}
-  .ag-item:hover{border-color:var(--accent);}
-  .ag-item.open{border-color:var(--accent);background:rgba(245,158,11,0.06);}
-  .ag-title{font-size:11px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:5px;}
-  .ag-desc{font-size:10px;color:var(--text2);line-height:1.4;}
-  .ag-steps{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:none;}
-  .ag-item.open .ag-steps{display:block;}
-  .ag-step{display:flex;gap:7px;margin-bottom:5px;font-size:11px;line-height:1.4;}
-  .ag-n{background:var(--accent);color:#000;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  /* GPS PANEL */
+  .gps-panel{position:absolute;bottom:0;left:0;right:0;background:rgba(15,17,23,0.97);border-top:2px solid var(--accent);z-index:25;display:none;max-height:70%;overflow-y:auto;}
+  .gps-panel.visible{display:block;}
+  .gps-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);}
+  .gps-title{font-size:14px;font-weight:800;color:var(--accent);}
+  .gps-close{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;}
+  .gps-close:hover{color:var(--red);}
+  .gps-body{padding:16px;}
 
+  /* PREVIEW IMAGE */
+  .preview-container{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:12px;text-align:center;}
+  .preview-label{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+  #preview-canvas{border-radius:4px;max-width:100%;border:1px solid var(--border);}
+
+  /* TOOL INSTRUCTION */
+  .tool-instruction{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);}
+  .tool-icon{font-size:24px;}
+  .tool-text{flex:1;}
+  .tool-name{font-size:13px;font-weight:800;color:var(--accent);}
+  .tool-why{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4;}
+  .tool-activate-btn{background:var(--accent);color:#000;border:none;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+
+  /* GPS STEPS */
+  .gps-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+  .gps-step{display:flex;gap:10px;padding:10px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);transition:all 0.15s;}
+  .gps-step.current{border-color:var(--accent);background:rgba(245,158,11,0.08);}
+  .gps-step.done{border-color:var(--green);background:rgba(16,185,129,0.06);opacity:0.7;}
+  .step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .step-num.pending{background:var(--border);color:var(--text2);}
+  .step-num.current{background:var(--accent);color:#000;}
+  .step-num.done{background:var(--green);color:#fff;}
+  .step-body{flex:1;}
+  .step-action{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
+  .step-detail{font-size:11px;color:var(--text2);line-height:1.4;}
+  .step-dir{display:inline-block;background:rgba(245,158,11,0.15);color:var(--accent);padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-top:4px;}
+  .step-skip{background:rgba(239,68,68,0.15);color:var(--red);padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-top:4px;}
+
+  /* SUBTRACTIONS */
+  .subtractions{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:7px;padding:10px;margin-bottom:12px;}
+  .sub-title{font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+  .sub-item{font-size:11px;color:var(--text);margin-bottom:3px;display:flex;justify-content:space-between;}
+  .sub-val{color:var(--red);font-weight:700;}
+
+  /* WARNINGS */
+  .warnings{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:7px;padding:10px;margin-bottom:12px;}
+  .warn-title{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+  .warn-item{font-size:11px;color:var(--text2);margin-bottom:3px;}
+
+  /* GPS NAV BUTTONS */
+  .gps-nav{display:flex;gap:8px;margin-top:4px;}
+  .gps-prev{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+  .gps-next{flex:2;background:var(--accent);border:none;color:#000;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+  .gps-done{flex:2;background:var(--green);border:none;color:#fff;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+
+  /* CHECKLIST PANEL */
+  .checklist-panel{position:absolute;top:52px;right:0;width:360px;background:rgba(15,17,23,0.97);border-left:2px solid var(--purple);z-index:25;display:none;height:calc(100% - 52px);overflow-y:auto;}
+  .checklist-panel.visible{display:block;}
+  .cl-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;}
+  .cl-title{font-size:13px;font-weight:800;color:#a78bfa;}
+  .cl-body{padding:12px;}
+  .cl-item{display:flex;gap:10px;padding:10px;border:1px solid var(--border);border-radius:7px;margin-bottom:7px;cursor:pointer;transition:all 0.15s;background:var(--surface2);}
+  .cl-item:hover{border-color:var(--accent);}
+  .cl-item.done{border-color:var(--green);opacity:0.6;}
+  .cl-num{width:22px;height:22px;border-radius:50%;background:var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+  .cl-num.done{background:var(--green);color:#fff;}
+  .cl-info{flex:1;}
+  .cl-name{font-size:12px;font-weight:600;margin-bottom:2px;}
+  .cl-why{font-size:10px;color:var(--text2);line-height:1.3;}
+  .cl-priority{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;}
+  .cl-priority.HIGH{background:rgba(239,68,68,0.2);color:var(--red);}
+  .cl-priority.MEDIUM{background:rgba(245,158,11,0.2);color:var(--accent);}
+
+  /* STATS */
   .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px;}
   .stat-box{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px;text-align:center;}
   .sv{font-size:17px;font-weight:700;color:var(--accent);}
   .sl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;}
 
+  /* BADGES */
   .badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;margin-right:3px;margin-bottom:3px;cursor:pointer;}
   .b-area{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);}
   .b-linear{background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.3);}
   .b-count{background:rgba(139,92,246,0.2);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);}
 
+  /* EXPORT */
   .export-section{padding:13px;border-top:1px solid var(--border);flex-shrink:0;}
-  .exp-btn{width:100%;background:var(--accent);color:#000;border:none;padding:10px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:7px;transition:all 0.15s;}
-  .exp-btn:hover{background:var(--accent2);}
+  .exp-btn{width:100%;background:var(--accent);color:#000;border:none;padding:10px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:7px;}
   .exp-btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
   .exp-btn.sec:hover{border-color:var(--accent);color:var(--accent);}
 
   .empty{text-align:center;padding:24px 14px;color:var(--text2);}
   .empty-icon{font-size:26px;margin-bottom:6px;}
   .empty-txt{font-size:12px;line-height:1.5;}
-
   .info-bar{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:6px;font-size:11px;margin-bottom:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;line-height:1.4;}
-
-  /* AI ANALYZE BUTTON in toolbar */
-  .ai-analyze-btn{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(59,130,246,0.2));border:1px solid var(--purple);color:#a78bfa;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
-  .ai-analyze-btn:hover{background:rgba(139,92,246,0.3);}
-  .ai-analyzing{animation:pulse2 1s ease-in-out infinite;}
-  @keyframes pulse2{0%,100%{opacity:1;}50%{opacity:0.5;}}
 
   ::-webkit-scrollbar{width:5px;}
   ::-webkit-scrollbar-track{background:transparent;}
@@ -154,14 +211,15 @@
 </style>
 </head>
 <body>
+
 <header>
   <div class="logo">
-    <div class="logo-icon">🏗️</div>
+    <div class="logo-icon">\ud83c\udfd7\ufe0f</div>
     <div class="logo-text">Build<span>IQ</span></div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
-    <span id="proj-name" style="font-size:12px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-    <div class="header-badge">AI CHIEF ESTIMATOR</div>
+    <span id="proj-name" style="font-size:12px;color:var(--text2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+    <div class="hbadge">AI CHIEF ESTIMATOR</div>
   </div>
 </header>
 
@@ -169,57 +227,58 @@
   <div class="pdf-panel">
 
     <!-- TOOLBAR -->
-    <div class="pdf-toolbar" id="toolbar" style="display:none;">
-      <div class="tool-group">
-        <button class="tb" onclick="changePage(-1)">◀</button>
-        <div class="page-nav">
+    <div class="toolbar" id="toolbar" style="display:none;">
+      <div class="tg">
+        <button class="tb" onclick="changePage(-1)">\u25c0</button>
+        <div class="pg-nav">
           <input type="number" id="pg-in" value="1" min="1" onchange="goPage(this.value)">
           <span style="font-size:11px;color:var(--text2);">/ <span id="total-pg">1</span></span>
         </div>
-        <button class="tb" onclick="changePage(1)">▶</button>
+        <button class="tb" onclick="changePage(1)">\u25b6</button>
       </div>
 
-      <div class="tool-group">
+      <div class="tg">
         <span class="tl">Tools</span>
-        <button class="tb" id="btn-area"   onclick="setTool('area')"   title="Area (A)">▪ Area</button>
-        <button class="tb" id="btn-linear" onclick="setTool('linear')" title="Linear (L)">⟷ Linear</button>
-        <button class="tb" id="btn-count"  onclick="setTool('count')"  title="Count (C)">⊕ Count</button>
-        <button class="tb" id="btn-none"   onclick="setTool(null)"     title="Deselect (Esc)" style="font-size:11px;">✕ None</button>
+        <button class="tb" id="btn-area"   onclick="setTool('area')"   title="Area (A)">\u25aa Area</button>
+        <button class="tb" id="btn-linear" onclick="setTool('linear')" title="Linear (L)">\u27f7 Linear</button>
+        <button class="tb" id="btn-count"  onclick="setTool('count')"  title="Count (C)">\u2295 Count</button>
+        <button class="tb" id="btn-none"   onclick="setTool(null)"     title="Deselect (Esc)">\u2715 None</button>
       </div>
 
-      <div class="tool-group">
-        <button class="tb danger" onclick="undoLast()">↩ Undo</button>
-        <button class="tb danger" onclick="clearAll()">🗑 Clear</button>
+      <div class="tg">
+        <button class="tb danger" onclick="undoLast()">\u21a9 Undo</button>
+        <button class="tb danger" onclick="clearAll()">\ud83d\uddd1 Clear</button>
       </div>
 
-      <div class="tool-group">
-        <button class="ai-analyze-btn" id="ai-analyze-btn" onclick="analyzeCurrentPage()">
-          🤖 AI Analyze This Sheet
+      <div class="tg">
+        <button class="ai-room-btn" id="btn-room" onclick="toggleRoomMode()">
+          \ud83c\udfaf Click a Room
+        </button>
+        <button class="ai-sheet-btn" id="btn-sheet" onclick="analyzeFullSheet()">
+          \ud83d\udccb Full Sheet Scan
         </button>
       </div>
 
-      <div class="tool-group" style="border:none;">
-        <span style="font-size:10px;color:var(--text2);">Scroll=zoom · Drag=pan · Space+drag=pan</span>
+      <div class="tg" style="border:none;">
+        <span style="font-size:10px;color:var(--text2);">Scroll=zoom \u00b7 Drag=pan</span>
       </div>
     </div>
 
     <!-- UPLOAD -->
     <div class="upload-screen" id="upload-screen">
       <div style="text-align:center;">
-        <div style="font-size:44px;margin-bottom:10px;">🏗️</div>
-        <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:5px;">Build<span style="color:var(--accent);">IQ</span></div>
-        <div style="font-size:13px;color:var(--text2);">AI-Guided Measurement & Takeoff</div>
+        <div style="font-size:48px;margin-bottom:10px;">\ud83c\udfd7\ufe0f</div>
+        <div style="font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:5px;">Build<span style="color:var(--accent);">IQ</span></div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:4px;">AI Chief Estimator</div>
+        <div style="font-size:12px;color:var(--text2);">Click a room \u2014 AI gives you GPS instructions step by step</div>
       </div>
       <div class="upload-zone" id="upload-zone"
            onclick="document.getElementById('file-in').click()"
            ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="drop(event)">
-        <div class="upload-icon">📋</div>
-        <div class="upload-title">Upload Drawing Set</div>
-        <div class="upload-sub">Drop PDF here or click to browse.<br>AI reads every sheet and guides your measurements.</div>
+        <div style="font-size:44px;margin-bottom:14px;">\ud83d\udccb</div>
+        <div style="font-size:19px;font-weight:700;margin-bottom:7px;">Upload Drawing Set</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5;">Drop PDF here or click to browse.<br>AI guides every measurement step by step.</div>
         <button class="upload-btn-main" onclick="event.stopPropagation();document.getElementById('file-in').click()">Choose PDF File</button>
-      </div>
-      <div style="font-size:11px;color:var(--text2);text-align:center;line-height:1.6;max-width:360px;">
-        <span style="color:var(--accent);font-weight:700;">Scroll to zoom · Drag to pan · AI tells you exactly where to click</span>
       </div>
     </div>
 
@@ -232,72 +291,130 @@
          onmouseleave="onVPUp(event)">
 
       <div class="pdf-inner" id="pdf-inner">
-        <div class="canvas-wrapper">
+        <div class="cw" id="cw">
           <canvas id="pdf-canvas"></canvas>
           <canvas id="measure-canvas"></canvas>
-          <canvas id="ai-overlay-canvas"></canvas>
           <canvas id="interact-canvas"></canvas>
         </div>
       </div>
 
-      <div class="mode-indicator" id="mode-ind"></div>
-      <div class="cursor-hint" id="cur-hint"></div>
+      <!-- MODE INDICATORS -->
+      <div class="mode-ind yellow" id="mode-ind"></div>
+      <div class="cur-hint" id="cur-hint"></div>
 
-      <!-- AI Analysis panel bottom-left -->
-      <div class="ai-analysis-panel" id="ai-panel">
-        <div class="ai-panel-title">🤖 AI Click Guide — <span id="ai-panel-label">Loading...</span></div>
-        <div class="ai-instruction" id="ai-instruction"></div>
-        <div class="ai-click-list" id="ai-click-list"></div>
-        <div style="display:flex;gap:6px;margin-top:8px;">
-          <button class="tb" onclick="clearAIGuide()" style="flex:1;font-size:11px;">Clear Guide</button>
-          <button class="tb ai-btn" onclick="applyAIPoints()" style="flex:1;font-size:11px;">▶ Apply Points</button>
+      <!-- ROOM MODE HINT -->
+      <div class="room-hint" id="room-hint">
+        \ud83c\udfaf ROOM MODE \u2014 Click anywhere inside a room to get GPS measurement instructions
+      </div>
+
+      <!-- GPS PANEL -->
+      <div class="gps-panel" id="gps-panel">
+        <div class="gps-header">
+          <div>
+            <div class="gps-title" id="gps-room-name">Loading...</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px;" id="gps-room-dims"></div>
+          </div>
+          <button class="gps-close" onclick="closeGPS()">\u2715</button>
+        </div>
+        <div class="gps-body">
+
+          <!-- PREVIEW IMAGE -->
+          <div class="preview-container" id="preview-container">
+            <div class="preview-label">\ud83d\udcd0 What Your Trace Should Look Like</div>
+            <canvas id="preview-canvas"></canvas>
+          </div>
+
+          <!-- TOOL INSTRUCTION -->
+          <div class="tool-instruction" id="tool-instruction">
+            <div class="tool-icon" id="tool-icon">\ud83d\udcd0</div>
+            <div class="tool-text">
+              <div class="tool-name" id="tool-name">SELECT AREA TOOL</div>
+              <div class="tool-why" id="tool-why">Loading...</div>
+            </div>
+            <button class="tool-activate-btn" id="tool-activate-btn" onclick="activateGPSTool()">Activate \u25b6</button>
+          </div>
+
+          <!-- GPS STEPS -->
+          <div class="gps-steps" id="gps-steps"></div>
+
+          <!-- SUBTRACTIONS -->
+          <div class="subtractions" id="subtractions" style="display:none;">
+            <div class="sub-title">\u2796 Subtract From Total</div>
+            <div id="sub-list"></div>
+          </div>
+
+          <!-- WARNINGS -->
+          <div class="warnings" id="gps-warnings" style="display:none;">
+            <div class="warn-title">\u26a0\ufe0f Notes</div>
+            <div id="warn-list"></div>
+          </div>
+
+          <!-- NAV BUTTONS -->
+          <div class="gps-nav" id="gps-nav">
+            <button class="gps-prev" onclick="gpsBack()">\u25c0 Back</button>
+            <button class="gps-next" id="gps-next-btn" onclick="gpsNext()">Next Step \u25b6</button>
+          </div>
+
         </div>
       </div>
 
-      <!-- Zoom overlay -->
-      <div class="zoom-overlay">
+      <!-- CHECKLIST PANEL -->
+      <div class="checklist-panel" id="checklist-panel">
+        <div class="cl-header">
+          <div>
+            <div class="cl-title">\ud83d\udccb Full Sheet Takeoff Checklist</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:2px;" id="cl-subtitle">Click any item to start measuring</div>
+          </div>
+          <button class="gps-close" onclick="closeChecklist()">\u2715</button>
+        </div>
+        <div class="cl-body" id="cl-body"></div>
+      </div>
+
+      <!-- ZOOM -->
+      <div class="zoom-ov">
         <button class="zo-btn" onclick="zoomBy(0.25)">+</button>
-        <div class="zo-label" id="zoom-lbl">100%</div>
-        <button class="zo-btn" onclick="zoomBy(-0.25)">−</button>
-        <button class="zo-btn" onclick="resetView()" title="Reset view (Space)" style="font-size:11px;">⊡</button>
+        <div class="zo-lbl" id="zoom-lbl">100%</div>
+        <button class="zo-btn" onclick="zoomBy(-0.25)">\u2212</button>
+        <button class="zo-btn" onclick="resetView()" style="font-size:11px;">\u22a1</button>
       </div>
 
-      <div class="loading-overlay" id="loading">
-        <div class="spinner" id="main-spinner"></div>
-        <div style="font-size:12px;color:var(--text2);" id="loading-txt">Loading...</div>
+      <!-- LOADING -->
+      <div class="loading-ov" id="loading-ov">
+        <div class="spinner" id="spinner"></div>
+        <div class="load-txt" id="load-txt">Loading...</div>
       </div>
+
     </div>
-
   </div>
 
   <!-- RIGHT PANEL -->
   <div class="right-panel">
     <div class="panel-tabs">
-      <div class="panel-tab active" onclick="switchTab('measure')" id="tab-measure">📐 MEASURE</div>
-      <div class="panel-tab" onclick="switchTab('guide')" id="tab-guide">🤖 AI GUIDE</div>
-      <div class="panel-tab" onclick="switchTab('results')" id="tab-results">📊 RESULTS</div>
+      <div class="ptab active" onclick="switchTab('measure')" id="tab-measure">\ud83d\udcd0 MEASURE</div>
+      <div class="ptab" onclick="switchTab('results')" id="tab-results">\ud83d\udcca RESULTS</div>
+      <div class="ptab" onclick="switchTab('help')" id="tab-help">\u2753 HELP</div>
     </div>
 
-    <!-- MEASURE -->
-    <div class="panel-content" id="panel-measure">
+    <!-- MEASURE TAB -->
+    <div class="pcontent" id="panel-measure">
       <div class="sc">
-        <div class="sc-title">⚖️ Scale Calibration</div>
-        <div class="cal-status bad" id="cal-status">⚠️ Not calibrated</div>
-        <div class="info-bar">💡 <div><strong>Tip:</strong> Zoom in close. Use the longest labeled dimension. Verify with a second measurement after calibrating.</div></div>
+        <div class="sc-title">\u2696\ufe0f Scale Calibration</div>
+        <div class="cal-status bad" id="cal-status">\u26a0\ufe0f Not calibrated \u2014 set scale first</div>
+        <div class="info-bar">\ud83d\udca1 Zoom in close. Enter a known dimension. Click 2 endpoints on the drawing. Verify with a second measurement.</div>
         <div class="ci-row">
-          <input class="ci" type="number" id="cal-val" placeholder="Known distance" step="0.1" style="flex:1;">
+          <input class="ci" type="number" id="cal-val" placeholder="Known distance e.g. 20" step="0.1" style="flex:1;">
           <select class="ci" id="cal-unit" style="width:60px;">
             <option value="ft">ft</option>
             <option value="in">in</option>
             <option value="m">m</option>
           </select>
         </div>
-        <button class="tb" id="btn-cal" onclick="startCal()" style="width:100%;display:flex;justify-content:center;margin-bottom:5px;">📍 Set Scale — Click 2 Points</button>
+        <button class="tb" id="btn-cal" onclick="startCal()" style="width:100%;display:flex;justify-content:center;margin-bottom:5px;">\ud83d\udccd Set Scale \u2014 Click 2 Points</button>
         <button class="tb danger" onclick="resetCal()" style="width:100%;display:flex;justify-content:center;font-size:11px;">Reset Scale</button>
       </div>
 
       <div class="sc">
-        <div class="sc-title">🏷️ Label</div>
+        <div class="sc-title">\ud83c\udff7\ufe0f Label</div>
         <input class="ci" type="text" id="m-label" placeholder="Name this measurement..." style="width:100%;margin-bottom:7px;">
         <div>
           <span class="badge b-area"   onclick="setLbl('Concrete Slab')">Slab</span>
@@ -309,55 +426,76 @@
           <span class="badge b-linear" onclick="setLbl('Curb & Gutter')">Curb</span>
           <span class="badge b-count"  onclick="setLbl('Doors')">Doors</span>
           <span class="badge b-count"  onclick="setLbl('Windows')">Windows</span>
-          <span class="badge b-count"  onclick="setLbl('Fixtures')">Fixtures</span>
+          <span class="badge b-count"  onclick="setLbl('Columns')">Columns</span>
         </div>
       </div>
 
       <div class="sc">
-        <div class="sc-title">📏 Measurements</div>
+        <div class="sc-title">\ud83d\udccf Measurements</div>
         <div class="stats-bar">
           <div class="stat-box"><div class="sv" id="s-total">0</div><div class="sl">Total</div></div>
           <div class="stat-box"><div class="sv" id="s-area">0</div><div class="sl">Areas</div></div>
           <div class="stat-box"><div class="sv" id="s-lin">0</div><div class="sl">Lines</div></div>
         </div>
         <div id="m-list">
-          <div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">Calibrate → pick tool → click to measure.</div></div>
+          <div class="empty"><div class="empty-icon">\ud83d\udcd0</div><div class="empty-txt">Calibrate scale \u2192 use \ud83c\udfaf Click a Room<br>or pick a tool and measure manually.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- AI GUIDE -->
-    <div class="panel-content" id="panel-guide" style="display:none;">
+    <!-- RESULTS TAB -->
+    <div class="pcontent" id="panel-results" style="display:none;">
       <div class="sc">
-        <div class="sc-title">🤖 AI Smart Guide</div>
-        <div style="font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:10px;">
-          Click <strong style="color:#a78bfa;">🤖 AI Analyze This Sheet</strong> in the toolbar and BuildIQ will look at your drawing and place numbered click markers directly on it — showing you exactly where to click for each measurement.
-        </div>
-        <div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:10px;font-size:11px;color:#a78bfa;line-height:1.5;">
-          🎯 <strong>How it works:</strong><br>
-          1. Open any drawing sheet<br>
-          2. Click "🤖 AI Analyze This Sheet"<br>
-          3. AI reads the drawing and identifies measurement points<br>
-          4. Numbered markers appear on the drawing<br>
-          5. Follow the markers — click each one in order
-        </div>
-      </div>
-      <div id="ag-list"></div>
-    </div>
-
-    <!-- RESULTS -->
-    <div class="panel-content" id="panel-results" style="display:none;">
-      <div class="sc">
-        <div class="sc-title">📊 Takeoff Summary</div>
+        <div class="sc-title">\ud83d\udcca Takeoff Summary</div>
         <div id="results-content">
-          <div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Add measurements to see summary.</div></div>
+          <div class="empty"><div class="empty-icon">\ud83d\udcca</div><div class="empty-txt">Add measurements to see summary.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HELP TAB -->
+    <div class="pcontent" id="panel-help" style="display:none;">
+      <div class="sc">
+        <div class="sc-title">\ud83c\udfaf Click a Room</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.6;">
+          1. Calibrate scale first<br>
+          2. Click <strong style="color:var(--accent);">\ud83c\udfaf Click a Room</strong> button<br>
+          3. Click anywhere inside any room on the drawing<br>
+          4. AI reads that room at high resolution<br>
+          5. See a preview of exactly how to trace it<br>
+          6. Follow GPS step by step instructions<br>
+          7. BuildIQ activates the right tool automatically
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-title">\ud83d\udccb Full Sheet Scan</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.6;">
+          1. Click <strong style="color:#a78bfa;">\ud83d\udccb Full Sheet Scan</strong><br>
+          2. AI scans the entire drawing<br>
+          3. Get a complete checklist of everything to measure<br>
+          4. Click any item to start measuring it<br>
+          5. Check items off as you complete them
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-title">\u2328\ufe0f Keyboard Shortcuts</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.8;">
+          <strong style="color:var(--accent);">A</strong> \u2014 Area tool<br>
+          <strong style="color:var(--accent);">L</strong> \u2014 Linear tool<br>
+          <strong style="color:var(--accent);">C</strong> \u2014 Count tool<br>
+          <strong style="color:var(--accent);">Esc</strong> \u2014 Deselect tool<br>
+          <strong style="color:var(--accent);">\u2190 \u2192</strong> \u2014 Previous/Next page<br>
+          <strong style="color:var(--accent);">Space</strong> \u2014 Reset view<br>
+          <strong style="color:var(--accent);">Ctrl+Z</strong> \u2014 Undo<br>
+          <strong style="color:var(--accent);">Scroll</strong> \u2014 Zoom in/out<br>
+          <strong style="color:var(--accent);">Drag</strong> \u2014 Pan around
         </div>
       </div>
     </div>
 
     <div class="export-section">
-      <button class="exp-btn" onclick="exportCSV()">⬇️ Export to CSV / Excel</button>
-      <button class="exp-btn sec" onclick="copyQty()">📋 Copy All Quantities</button>
+      <button class="exp-btn" onclick="exportCSV()">\u2b07\ufe0f Export to CSV / Excel</button>
+      <button class="exp-btn sec" onclick="copyQty()">\ud83d\udccb Copy All Quantities</button>
     </div>
   </div>
 </div>
@@ -367,31 +505,26 @@
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-// ── STATE ──
-let pdfDoc=null, curPage=1, totPages=0;
-let renderScale=2.5;
+// \u2500\u2500 STATE \u2500\u2500
+let pdfDoc=null,curPage=1,totPages=0;
+let renderScale=1.5;
 let vx=0,vy=0,vz=1,fitZ=1;
 let isPan=false,panS={x:0,y:0},panO={x:0,y:0};
 let spaceHeld=false;
 let curTool=null,calMode=false,calPts=[],pxPerUnit=null,calUnit='ft';
 let measurements=[],curM=null,mPos={x:0,y:0};
 let projName='';
-
-// AI overlay state
-let aiPoints=[];      // {x,y,label,done} in canvas coords
-let aiCurrentIdx=0;
-let aiMeasureLabel='';
-let aiMeasureType='area';
+let roomMode=false;
+let gpsData=null,gpsStep=0;
+let roomCropData=null;
 
 const pdfC=document.getElementById('pdf-canvas');
 const mC=document.getElementById('measure-canvas');
-const aiC=document.getElementById('ai-overlay-canvas');
 const iC=document.getElementById('interact-canvas');
 const pdfX=pdfC.getContext('2d');
 const mX=mC.getContext('2d');
-const aiX=aiC.getContext('2d');
 
-// ── PDF LOAD ──
+// \u2500\u2500 PDF LOAD \u2500\u2500
 async function loadPDF(inp){
   const f=inp.files[0]; if(!f) return;
   projName=f.name.replace('.pdf','');
@@ -407,7 +540,6 @@ async function loadPDF(inp){
     document.getElementById('toolbar').style.display='flex';
     curPage=1;
     await renderPage(curPage,true);
-    renderGuides();
   }catch(e){alert('Error: '+e.message);}
   showLoad(false);
 }
@@ -417,7 +549,7 @@ async function renderPage(num,reset=false){
   document.getElementById('pg-in').value=num;
   const page=await pdfDoc.getPage(num);
   const vp=page.getViewport({scale:renderScale});
-  [pdfC,mC,aiC,iC].forEach(c=>{c.width=vp.width;c.height=vp.height;});
+  [pdfC,mC,iC].forEach(c=>{c.width=vp.width;c.height=vp.height;});
   await page.render({canvasContext:pdfX,viewport:vp}).promise;
   if(reset){
     const vpEl=document.getElementById('pdf-viewport');
@@ -426,9 +558,7 @@ async function renderPage(num,reset=false){
     vx=(vpEl.clientWidth-vp.width*vz)/2;
     vy=(vpEl.clientHeight-vp.height*vz)/2;
   }
-  applyT();
-  clearAIOverlay();
-  redraw();
+  applyT();redraw();
   showLoad(false);
 }
 
@@ -438,31 +568,30 @@ function applyT(){
   document.getElementById('zoom-lbl').textContent=Math.round(vz/fitZ*100)+'%';
 }
 
-// ── PAN/ZOOM ──
+// \u2500\u2500 PAN/ZOOM \u2500\u2500
 function onWheel(e){
   e.preventDefault();
   const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
-  const mx=e.clientX-vp.left, my=e.clientY-vp.top;
+  const mx=e.clientX-vp.left,my=e.clientY-vp.top;
   const d=e.deltaY<0?1.12:0.89;
-  const nz=Math.max(fitZ*0.4,Math.min(vz*d,fitZ*10));
-  vx=mx-(mx-vx)*(nz/vz); vy=my-(my-vy)*(nz/vz); vz=nz;
-  applyT();
+  const nz=Math.max(fitZ*0.4,Math.min(vz*d,fitZ*12));
+  vx=mx-(mx-vx)*(nz/vz);vy=my-(my-vy)*(nz/vz);vz=nz;applyT();
 }
 
 function onVPDown(e){
-  if(e.button===1||e.button===2||(!curTool&&!calMode)||spaceHeld){
-    isPan=true; panS={x:e.clientX,y:e.clientY}; panO={x:vx,y:vy};
-    document.getElementById('pdf-viewport').style.cursor='grabbing';
-    return;
+  if(e.button===1||e.button===2||(!curTool&&!calMode&&!roomMode)||spaceHeld){
+    isPan=true;panS={x:e.clientX,y:e.clientY};panO={x:vx,y:vy};
+    document.getElementById('pdf-viewport').style.cursor='grabbing';return;
   }
-  const cp=v2c(e); mPos=cp;
+  const cp=v2c(e);mPos=cp;
+  if(roomMode){handleRoomClick(cp,e);return;}
   handleClick(cp);
 }
 
 function onVPMove(e){
   if(isPan){vx=panO.x+(e.clientX-panS.x);vy=panO.y+(e.clientY-panS.y);applyT();return;}
-  const cp=v2c(e); mPos=cp;
-  if(curM) redraw();
+  const cp=v2c(e);mPos=cp;
+  if(curM)redraw();
   updateHint(e,cp);
 }
 
@@ -471,18 +600,18 @@ function onVPUp(e){
 }
 
 document.getElementById('pdf-viewport').addEventListener('dblclick',e=>{
-  if(curTool==='area'&&curM&&curM.points.length>=3) finalizeM();
+  if(curTool==='area'&&curM&&curM.points.length>=3)finalizeM();
 });
 
 document.addEventListener('keydown',e=>{
   if(e.code==='Space'&&!e.target.matches('input,select,textarea')){e.preventDefault();spaceHeld=true;document.getElementById('pdf-viewport').style.cursor='grab';}
-  if(e.target.matches('input,select,textarea')) return;
-  if(e.key==='Escape'){setTool(null);calMode=false;curM=null;calPts=[];redraw();showMode('');}
-  if(e.key==='a'||e.key==='A') setTool('area');
-  if(e.key==='l'||e.key==='L') setTool('linear');
-  if(e.key==='c'||e.key==='C') setTool('count');
-  if(e.key==='ArrowLeft') changePage(-1);
-  if(e.key==='ArrowRight') changePage(1);
+  if(e.target.matches('input,select,textarea'))return;
+  if(e.key==='Escape'){setTool(null);calMode=false;roomMode=false;curM=null;calPts=[];redraw();showMode('');hideRoomHint();}
+  if(e.key==='a'||e.key==='A')setTool('area');
+  if(e.key==='l'||e.key==='L')setTool('linear');
+  if(e.key==='c'||e.key==='C')setTool('count');
+  if(e.key==='ArrowLeft')changePage(-1);
+  if(e.key==='ArrowRight')changePage(1);
   if((e.key==='z')&&(e.ctrlKey||e.metaKey)){e.preventDefault();undoLast();}
 });
 document.addEventListener('keyup',e=>{if(e.code==='Space'){spaceHeld=false;updateCursor();}});
@@ -495,7 +624,7 @@ function v2c(e){
 function zoomBy(d){
   const vpEl=document.getElementById('pdf-viewport');
   const cx=vpEl.clientWidth/2,cy=vpEl.clientHeight/2;
-  const nz=Math.max(fitZ*0.4,Math.min(vz+d*fitZ,fitZ*10));
+  const nz=Math.max(fitZ*0.4,Math.min(vz+d*fitZ,fitZ*12));
   vx=cx-(cx-vx)*(nz/vz);vy=cy-(cy-vy)*(nz/vz);vz=nz;applyT();
 }
 
@@ -506,84 +635,446 @@ function resetView(){
 
 function updateCursor(){
   const vp=document.getElementById('pdf-viewport');
-  vp.style.cursor=(curTool||calMode)?'crosshair':'grab';
+  if(roomMode)vp.style.cursor='crosshair';
+  else if(curTool||calMode)vp.style.cursor='crosshair';
+  else vp.style.cursor='grab';
 }
 
 function updateHint(e,cp){
   const h=document.getElementById('cur-hint');
-  if(!curTool&&!calMode){h.style.display='none';return;}
+  if(!curTool&&!calMode&&!roomMode){h.style.display='none';return;}
   const vp=document.getElementById('pdf-viewport').getBoundingClientRect();
   h.style.display='block';
   h.style.left=(e.clientX-vp.left+14)+'px';
   h.style.top=(e.clientY-vp.top)+'px';
-  if(calMode) h.textContent=calPts.length===0?'📍 Click point 1':'📍 Click point 2';
-  else if(curTool==='linear') h.textContent=curM?'📍 Click end point':'📍 Click start';
-  else if(curTool==='area') h.textContent=curM?`📍 Add point (${curM.points.length}) — dbl-click finish`:'📍 Click first corner';
-  else if(curTool==='count') h.textContent='🔢 Click to count';
+  if(roomMode)h.textContent='\ud83c\udfaf Click inside a room';
+  else if(calMode)h.textContent=calPts.length===0?'\ud83d\udccd Click point 1':'\ud83d\udccd Click point 2';
+  else if(curTool==='linear')h.textContent=curM?'\ud83d\udccd Click end point':'\ud83d\udccd Click start';
+  else if(curTool==='area')h.textContent=curM?`\ud83d\udccd Add point (${curM.points.length}) \u2014 dbl-click finish`:'\ud83d\udccd Click first corner';
+  else if(curTool==='count')h.textContent='\ud83d\udd22 Click to count';
 }
 
-// ── PAGE NAV ──
-function changePage(d){const n=curPage+d;if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);}}
+// \u2500\u2500 PAGE NAV \u2500\u2500
+function changePage(d){const n=curPage+d;if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);closeGPS();closeChecklist();}}
 function goPage(v){const n=parseInt(v);if(n>=1&&n<=totPages){curPage=n;renderPage(curPage,true);}}
 
-// ── CALIBRATION ──
+// \u2500\u2500 CALIBRATION \u2500\u2500
 function startCal(){
   const v=parseFloat(document.getElementById('cal-val').value);
   if(!v||v<=0){alert('Enter a known dimension value first.');return;}
   calUnit=document.getElementById('cal-unit').value;
-  calMode=true; calPts=[];
+  calMode=true;calPts=[];roomMode=false;
   setTool(null,true);
   document.getElementById('btn-cal').classList.add('active');
   updateCursor();
-  showMode('⚖️ CALIBRATE — Click point 1');
+  showMode('\u2696\ufe0f CALIBRATE \u2014 Click point 1 of the known dimension','yellow');
   document.getElementById('cal-status').className='cal-status bad';
-  document.getElementById('cal-status').textContent='📍 Click first point...';
+  document.getElementById('cal-status').textContent='\ud83d\udccd Click first calibration point...';
 }
 
 function resetCal(){
   pxPerUnit=null;calMode=false;calPts=[];
   document.getElementById('cal-status').className='cal-status bad';
-  document.getElementById('cal-status').textContent='⚠️ Not calibrated';
+  document.getElementById('cal-status').textContent='\u26a0\ufe0f Not calibrated \u2014 set scale first';
   document.getElementById('btn-cal').classList.remove('active');
   showMode('');updateCursor();redraw();
 }
 
-// ── CLICK HANDLER ──
-function handleClick(pos){
-  if(!pdfDoc) return;
+// \u2500\u2500 ROOM MODE \u2500\u2500
+function toggleRoomMode(){
+  roomMode=!roomMode;
+  const btn=document.getElementById('btn-room');
+  if(roomMode){
+    setTool(null,true);calMode=false;
+    btn.classList.add('active');
+    showRoomHint();
+    updateCursor();
+    showMode('\ud83c\udfaf ROOM MODE \u2014 Click anywhere inside a room','yellow');
+  }else{
+    btn.classList.remove('active');
+    hideRoomHint();
+    showMode('');
+    updateCursor();
+  }
+}
 
-  // calibration
+function showRoomHint(){document.getElementById('room-hint').classList.add('visible');}
+function hideRoomHint(){document.getElementById('room-hint').classList.remove('visible');}
+
+async function handleRoomClick(canvasPos,e){
+  if(!pxPerUnit){
+    alert('Calibrate the scale first, then use Click a Room.');
+    return;
+  }
+
+  // Capture the VIEWPORT (what user sees) as the crop
+  const vpEl=document.getElementById('pdf-viewport');
+  const vpRect=vpEl.getBoundingClientRect();
+  const vpW=vpRect.width;
+  const vpH=vpRect.height;
+
+  // Create a canvas of the visible area
+  const cropCanvas=document.createElement('canvas');
+  const maxW=900,maxH=700;
+  cropCanvas.width=Math.min(vpW,maxW);
+  cropCanvas.height=Math.min(vpH,maxH);
+  const cropCtx=cropCanvas.getContext('2d');
+
+  // Draw the PDF canvas scaled to the viewport
+  cropCtx.save();
+  cropCtx.translate(vx,vy);
+  cropCtx.scale(vz,vz);
+  cropCtx.drawImage(pdfC,0,0);
+  cropCtx.restore();
+
+  const imgData=cropCanvas.toDataURL('image/jpeg',0.75);
+  const base64=imgData.split(',')[1];
+
+  // Store for preview
+  roomCropData={canvas:cropCanvas,imgData,base64,w:cropCanvas.width,h:cropCanvas.height};
+
+  // Show preview immediately
+  showPreview(cropCanvas);
+
+  // Hide room hint
+  hideRoomHint();
+  roomMode=false;
+  document.getElementById('btn-room').classList.remove('active');
+  updateCursor();
+  showMode('\ud83e\udd16 AI is reading your drawing...','purple');
+
+  showLoad(true,'AI is analyzing this room...');
+  document.getElementById('spinner').classList.add('purple');
+  document.getElementById('load-txt').textContent='AI is reading your drawing...';
+
+  try{
+    const resp=await fetch('/api/analyze-room',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        imageBase64:base64,
+        width:cropCanvas.width,
+        height:cropCanvas.height,
+        mode:'room'
+      })
+    });
+
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({}));
+      throw new Error(err.error||'Server error '+resp.status);
+    }
+
+    gpsData=await resp.json();
+    gpsStep=0;
+    showGPS();
+    showMode('');
+
+  }catch(e){
+    showMode('');
+    alert('AI Analysis error: '+e.message);
+  }
+
+  showLoad(false);
+  document.getElementById('spinner').classList.remove('purple');
+}
+
+// \u2500\u2500 FULL SHEET SCAN \u2500\u2500
+async function analyzeFullSheet(){
+  if(!pdfDoc){alert('Upload a drawing first.');return;}
+
+  showLoad(true,'AI is scanning the full sheet...');
+  document.getElementById('spinner').classList.add('purple');
+  document.getElementById('load-txt').textContent='Scanning all rooms and areas...';
+
+  try{
+    // Capture full page compressed
+    const scanCanvas=document.createElement('canvas');
+    scanCanvas.width=Math.min(pdfC.width,1200);
+    scanCanvas.height=Math.min(pdfC.height,900);
+    const scanCtx=scanCanvas.getContext('2d');
+    scanCtx.drawImage(pdfC,0,0,pdfC.width,pdfC.height,0,0,scanCanvas.width,scanCanvas.height);
+    const imgData=scanCanvas.toDataURL('image/jpeg',0.5);
+    const base64=imgData.split(',')[1];
+
+    const resp=await fetch('/api/analyze-room',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        imageBase64:base64,
+        width:scanCanvas.width,
+        height:scanCanvas.height,
+        mode:'fullsheet'
+      })
+    });
+
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({}));
+      throw new Error(err.error||'Server error '+resp.status);
+    }
+
+    const data=await resp.json();
+    showChecklist(data);
+
+  }catch(e){
+    alert('Scan error: '+e.message);
+  }
+
+  showLoad(false);
+  document.getElementById('spinner').classList.remove('purple');
+}
+
+// \u2500\u2500 GPS PANEL \u2500\u2500
+function showGPS(){
+  if(!gpsData)return;
+  const panel=document.getElementById('gps-panel');
+  panel.classList.add('visible');
+
+  document.getElementById('gps-room-name').textContent=gpsData.roomName||'Room Analysis';
+  document.getElementById('gps-room-dims').textContent=gpsData.dimensions||'';
+
+  // Tool instruction
+  const toolIcons={area:'\ud83d\udcd0',linear:'\ud83d\udccf',count:'\ud83d\udd22'};
+  document.getElementById('tool-icon').textContent=toolIcons[gpsData.tool]||'\ud83d\udcd0';
+  document.getElementById('tool-name').textContent=gpsData.toolInstruction||'Select the '+gpsData.tool+' tool';
+  document.getElementById('tool-why').textContent=gpsData.whyThisTool||'';
+
+  // Render steps
+  renderGPSSteps();
+
+  // Subtractions
+  const subs=document.getElementById('subtractions');
+  const subList=document.getElementById('sub-list');
+  const allSubs=[...(gpsData.doorsToSubtract||[]),...(gpsData.windowsToSubtract||[])];
+  if(allSubs.length>0){
+    subs.style.display='block';
+    subList.innerHTML=allSubs.map(s=>`
+      <div class="sub-item">
+        <span>${s.doorId||s.windowId||'Opening'} \u2014 ${s.size}</span>
+        <span class="sub-val">\u2212${s.area} SF</span>
+      </div>
+    `).join('');
+  }else{
+    subs.style.display='none';
+  }
+
+  // Warnings
+  const warns=document.getElementById('gps-warnings');
+  const warnList=document.getElementById('warn-list');
+  if(gpsData.warnings&&gpsData.warnings.length>0){
+    warns.style.display='block';
+    warnList.innerHTML=gpsData.warnings.map(w=>`<div class="warn-item">\u26a0\ufe0f ${w}</div>`).join('');
+  }else{
+    warns.style.display='none';
+  }
+}
+
+function renderGPSSteps(){
+  if(!gpsData||!gpsData.steps)return;
+  const container=document.getElementById('gps-steps');
+  container.innerHTML=gpsData.steps.map((s,i)=>{
+    const status=i<gpsStep?'done':i===gpsStep?'current':'pending';
+    const isDoor=s.action&&s.action.toLowerCase().includes('skip');
+    return`
+      <div class="gps-step ${status}" id="gps-step-${i}">
+        <div class="step-num ${status}">${status==='done'?'\u2713':s.stepNumber}</div>
+        <div class="step-body">
+          <div class="step-action">${s.action}</div>
+          <div class="step-detail">${s.detail}</div>
+          ${s.direction?`<span class="${isDoor?'step-skip':'step-dir'}">${s.direction}</span>`:''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Scroll current step into view
+  const cur=document.getElementById('gps-step-'+gpsStep);
+  if(cur)cur.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  // Update nav button
+  const nextBtn=document.getElementById('gps-next-btn');
+  if(gpsStep>=gpsData.steps.length-1){
+    nextBtn.textContent='\u2705 Done \u2014 Record Measurement';
+    nextBtn.className='gps-done';
+  }else{
+    nextBtn.textContent='Next Step \u25b6';
+    nextBtn.className='gps-next';
+  }
+}
+
+function gpsNext(){
+  if(!gpsData)return;
+  if(gpsStep>=gpsData.steps.length-1){
+    // Done \u2014 finalize
+    closeGPS();
+    showMode('\u2705 '+gpsData.roomName+' complete! Check Results tab.','green');
+    setTimeout(()=>showMode(''),3000);
+    switchTab('results');
+    return;
+  }
+  gpsStep++;
+  renderGPSSteps();
+}
+
+function gpsBack(){
+  if(gpsStep>0){gpsStep--;renderGPSSteps();}
+}
+
+function activateGPSTool(){
+  if(!gpsData)return;
+  setTool(gpsData.tool);
+  setLbl(gpsData.roomName||'Room');
+  showMode('\ud83d\udcd0 '+gpsData.tool.toUpperCase()+' TOOL ACTIVE \u2014 follow the GPS steps','yellow');
+}
+
+function closeGPS(){
+  document.getElementById('gps-panel').classList.remove('visible');
+  gpsData=null;gpsStep=0;
+}
+
+// \u2500\u2500 PREVIEW IMAGE \u2500\u2500
+function showPreview(srcCanvas){
+  const prev=document.getElementById('preview-canvas');
+  const maxW=document.getElementById('preview-container').clientWidth-20;
+  const ratio=srcCanvas.height/srcCanvas.width;
+  prev.width=Math.min(srcCanvas.width,maxW);
+  prev.height=prev.width*ratio;
+  const ctx=prev.getContext('2d');
+  ctx.drawImage(srcCanvas,0,0,prev.width,prev.height);
+
+  // Draw orange trace outline hint
+  ctx.strokeStyle='rgba(245,158,11,0.6)';
+  ctx.lineWidth=3;
+  ctx.setLineDash([8,4]);
+  ctx.strokeRect(20,20,prev.width-40,prev.height-40);
+  ctx.setLineDash([]);
+
+  // Label
+  ctx.fillStyle='rgba(245,158,11,0.9)';
+  ctx.fillRect(10,10,120,22);
+  ctx.fillStyle='#000';
+  ctx.font='bold 11px sans-serif';
+  ctx.fillText('Trace this area \u2192',14,25);
+}
+
+// \u2500\u2500 CHECKLIST PANEL \u2500\u2500
+function showChecklist(data){
+  const panel=document.getElementById('checklist-panel');
+  panel.classList.add('visible');
+
+  document.getElementById('cl-subtitle').textContent=
+    (data.sheetDescription||'Click any item to start measuring')+
+    ' \u2014 '+((data.measurementChecklist||[]).length+(data.linearMeasurements||[]).length+
+    (data.countsNeeded||[]).length)+' items';
+
+  let html='';
+
+  if(data.statedQuantities&&data.statedQuantities.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:4px;">\u2705 Already Stated on Drawing</div>`;
+    data.statedQuantities.forEach(q=>{
+      html+=`<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12px;">
+        <strong>${q.item}:</strong> <span style="color:var(--green);font-weight:700;">${q.value}</span>
+        <span style="font-size:10px;color:var(--text2);"> \u2014 ${q.source}</span>
+      </div>`;
+    });
+  }
+
+  if(data.measurementChecklist&&data.measurementChecklist.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">\ud83d\udcd0 Area Measurements</div>`;
+    data.measurementChecklist.forEach((item,i)=>{
+      html+=`<div class="cl-item" onclick="startChecklistItem('${item.tool}','${item.name}')">
+        <div class="cl-num" id="cl-${i}">${i+1}</div>
+        <div class="cl-info">
+          <div class="cl-name">${item.name} <span class="cl-priority ${item.priority}">${item.priority}</span></div>
+          <div class="cl-why">${item.why}</div>
+          ${item.estimatedSF?`<div style="font-size:10px;color:var(--accent);margin-top:2px;">Est: ${item.estimatedSF}</div>`:''}
+        </div>
+      </div>`;
+    });
+  }
+
+  if(data.linearMeasurements&&data.linearMeasurements.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">\ud83d\udccf Linear Measurements</div>`;
+    data.linearMeasurements.forEach((item,i)=>{
+      html+=`<div class="cl-item" onclick="startChecklistItem('${item.tool}','${item.name}')">
+        <div class="cl-num">${i+1}</div>
+        <div class="cl-info">
+          <div class="cl-name">${item.name} <span class="cl-priority ${item.priority}">${item.priority}</span></div>
+          <div class="cl-why">${item.why}</div>
+        </div>
+      </div>`;
+    });
+  }
+
+  if(data.countsNeeded&&data.countsNeeded.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">\ud83d\udd22 Count Items</div>`;
+    data.countsNeeded.forEach((item,i)=>{
+      html+=`<div class="cl-item" onclick="startChecklistItem('${item.tool}','${item.name}')">
+        <div class="cl-num">${i+1}</div>
+        <div class="cl-info">
+          <div class="cl-name">${item.name}</div>
+          <div class="cl-why">${item.why}</div>
+        </div>
+      </div>`;
+    });
+  }
+
+  if(data.warnings&&data.warnings.length>0){
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:12px;">\u26a0\ufe0f Flags & Warnings</div>`;
+    data.warnings.forEach(w=>{
+      html+=`<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:11px;color:var(--text2);">\u26a0\ufe0f ${w}</div>`;
+    });
+  }
+
+  document.getElementById('cl-body').innerHTML=html||'<div class="empty"><div class="empty-txt">No items found.</div></div>';
+}
+
+function startChecklistItem(tool,name){
+  setTool(tool);
+  setLbl(name);
+  closeChecklist();
+  showMode('\ud83d\udcd0 '+tool.toUpperCase()+' \u2014 measuring: '+name,'yellow');
+  switchTab('measure');
+}
+
+function closeChecklist(){
+  document.getElementById('checklist-panel').classList.remove('visible');
+}
+
+// \u2500\u2500 CALIBRATION CLICK \u2500\u2500
+function handleClick(pos){
+  if(!pdfDoc)return;
+
   if(calMode){
     calPts.push(pos);redraw();
     if(calPts.length===1){
-      document.getElementById('cal-status').textContent='📍 Click second point...';
-      showMode('⚖️ CALIBRATE — Click point 2');
-    } else if(calPts.length===2){
+      document.getElementById('cal-status').textContent='\ud83d\udccd Click second point...';
+      showMode('\u2696\ufe0f CALIBRATE \u2014 Click point 2','yellow');
+    }else if(calPts.length===2){
       const dx=calPts[1].x-calPts[0].x,dy=calPts[1].y-calPts[0].y;
       const px=Math.sqrt(dx*dx+dy*dy);
       const kn=parseFloat(document.getElementById('cal-val').value);
-      pxPerUnit=px/kn; calUnit=document.getElementById('cal-unit').value;
+      pxPerUnit=px/kn;calUnit=document.getElementById('cal-unit').value;
       calMode=false;
       document.getElementById('btn-cal').classList.remove('active');
       document.getElementById('cal-status').className='cal-status good';
-      document.getElementById('cal-status').textContent=`✅ Calibrated: 1 ${calUnit} = ${pxPerUnit.toFixed(1)}px`;
-      showMode('✅ Calibrated! Verify with a second known dimension.');
+      document.getElementById('cal-status').textContent=`\u2705 Calibrated: 1 ${calUnit} = ${pxPerUnit.toFixed(1)}px`;
+      showMode('\u2705 Calibrated! Now use \ud83c\udfaf Click a Room or select a tool.','green');
       setTimeout(()=>showMode(''),3000);
       updateCursor();redraw();
     }
     return;
   }
 
-  if(!curTool) return;
-  if(!pxPerUnit){showMode('⚠️ Set scale calibration first!');setTimeout(()=>showMode(''),2000);return;}
+  if(!curTool)return;
+  if(!pxPerUnit){showMode('\u26a0\ufe0f Calibrate scale first!','yellow');setTimeout(()=>showMode(''),2000);return;}
 
   if(curTool==='count'){addCount(pos);return;}
 
   if(!curM){
     curM={id:Date.now(),type:curTool,label:document.getElementById('m-label').value||(curTool==='area'?'Area':'Linear'),points:[pos],page:curPage,complete:false};
-  } else {
+  }else{
     curM.points.push(pos);
-    if(curTool==='linear'&&curM.points.length===2) finalizeM();
+    if(curTool==='linear'&&curM.points.length===2)finalizeM();
   }
   redraw();
 }
@@ -617,7 +1108,7 @@ function calcVal(m){
   return m.points.length;
 }
 
-// ── DRAWING ──
+// \u2500\u2500 DRAWING \u2500\u2500
 function redraw(){
   mX.clearRect(0,0,mC.width,mC.height);
   if(calPts.length>0){
@@ -686,236 +1177,18 @@ function lbl(ctx,x,y,text,color){
   ctx.fillStyle=color;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,x,y);
 }
 
-// ── AI OVERLAY ──
-function drawAIOverlay(){
-  aiX.clearRect(0,0,aiC.width,aiC.height);
-  aiPoints.forEach((p,i)=>{
-    const isDone=i<aiCurrentIdx;
-    const isCur=i===aiCurrentIdx;
-    const color=isDone?'#10b981':isCur?'#f59e0b':'#8b5cf6';
-    const r=isCur?14:10;
-
-    // glow for current
-    if(isCur){
-      aiX.fillStyle='rgba(245,158,11,0.2)';
-      aiX.beginPath();aiX.arc(p.x,p.y,r+8,0,Math.PI*2);aiX.fill();
-    }
-
-    aiX.fillStyle=color;
-    aiX.beginPath();aiX.arc(p.x,p.y,r,0,Math.PI*2);aiX.fill();
-
-    aiX.strokeStyle='#fff';aiX.lineWidth=2;
-    aiX.beginPath();aiX.arc(p.x,p.y,r,0,Math.PI*2);aiX.stroke();
-
-    aiX.fillStyle='#000';aiX.font=`bold ${r-1}px sans-serif`;
-    aiX.textAlign='center';aiX.textBaseline='middle';
-    aiX.fillText(isDone?'✓':i+1,p.x,p.y);
-
-    // label
-    if(p.label){
-      aiX.font='bold 11px sans-serif';
-      const tw=aiX.measureText(p.label).width+10;
-      aiX.fillStyle='rgba(0,0,0,0.85)';
-      aiX.fillRect(p.x-tw/2,p.y+r+3,tw,18);
-      aiX.fillStyle=color;aiX.textAlign='center';aiX.textBaseline='middle';
-      aiX.fillText(p.label,p.x,p.y+r+12);
-    }
-  });
-
-  // draw lines connecting points
-  if(aiPoints.length>1){
-    aiX.strokeStyle='rgba(245,158,11,0.4)';aiX.lineWidth=1.5;aiX.setLineDash([6,4]);
-    aiX.beginPath();aiX.moveTo(aiPoints[0].x,aiPoints[0].y);
-    aiPoints.slice(1).forEach(p=>aiX.lineTo(p.x,p.y));
-    if(aiMeasureType==='area'&&aiPoints.length>=3) aiX.closePath();
-    aiX.stroke();aiX.setLineDash([]);
-  }
-}
-
-function clearAIOverlay(){
-  aiX.clearRect(0,0,aiC.width,aiC.height);
-  aiPoints=[];aiCurrentIdx=0;
-  document.getElementById('ai-panel').classList.remove('visible');
-}
-
-// ── AI ANALYZE ──
-async function analyzeCurrentPage(){
-  if(!pdfDoc){alert('Upload a drawing first.');return;}
-  if(!pxPerUnit){alert('Calibrate the scale first, then run AI Analysis.');return;}
-
-  const btn=document.getElementById('ai-analyze-btn');
-  btn.classList.add('ai-analyzing');
-  btn.textContent='🤖 Analyzing...';
-  showLoad(true,'AI is reading your drawing...');
-  document.getElementById('main-spinner').classList.add('ai-spinner');
-  document.getElementById('loading-txt').textContent='AI is reading your drawing...';
-
-  try{
-    // capture current page as base64 image
-    const imgData=pdfC.toDataURL('image/jpeg',0.85);
-    const base64=imgData.split(',')[1];
-
-    // Build project context from known drawing data
-    const projectContext = {
-      projectName: projName,
-      currentPage: curPage,
-      totalPages: totPages,
-      measurements: measurements.map(m=>({label:m.label,type:m.type,value:m.value,unit:m.type==='area'?'SF':m.type==='linear'?'LF':'EA'})),
-      calibrated: !!pxPerUnit,
-      calUnit: calUnit
-    };
-
-
-        const response=await fetch('/api/analyze',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        imageBase64: base64,
-        width: pdfC.width,
-        height: pdfC.height,
-        context: projectContext
-      })
-    });
-
-    if(!response.ok){
-      const errData=await response.json().catch(()=>({}));
-      throw new Error(errData.error||'Server error '+response.status);
-    }
-
-    const result=await response.json();
-
-    // validate
-    if(!result.points||!Array.isArray(result.points)||result.points.length<1){
-      throw new Error('AI did not return valid measurement points.');
-    }
-
-    // set state
-    aiPoints=result.points.map(p=>({
-      x:Math.max(0,Math.min(pdfC.width,p.x)),
-      y:Math.max(0,Math.min(pdfC.height,p.y)),
-      label:p.label||'',
-      done:false
-    }));
-    aiCurrentIdx=0;
-    aiMeasureLabel=result.label||'AI Measurement';
-    aiMeasureType=result.measurementType||'area';
-
-    // set label in measure tab
-    setLbl(aiMeasureLabel);
-    // set tool
-    setTool(aiMeasureType);
-
-    // show overlay
-    drawAIOverlay();
-
-    // show AI panel
-    const panel=document.getElementById('ai-panel');
-    panel.classList.add('visible');
-    document.getElementById('ai-panel-label').textContent=aiMeasureLabel;
-
-    // Build rich instruction with auto calculations
-    let instructionHTML = result.instruction || 'Follow the numbered markers on the drawing.';
-    if(result.autoCalculations && result.autoCalculations.length > 0){
-      instructionHTML += '<div style="margin-top:8px;padding:8px;background:rgba(16,185,129,0.1);border-radius:6px;border:1px solid rgba(16,185,129,0.2);">';
-      instructionHTML += '<div style="font-size:10px;font-weight:700;color:#34d399;margin-bottom:4px;">🧮 AUTO-CALCULATIONS AFTER MEASURING:</div>';
-      result.autoCalculations.forEach(c=>{
-        instructionHTML += `<div style="font-size:10px;color:var(--text);margin-bottom:3px;"><strong>${c.item}:</strong> ${c.note||c.formula}</div>`;
-      });
-      instructionHTML += '</div>';
-    }
-    if(result.nextMeasurements && result.nextMeasurements.length > 0){
-      instructionHTML += '<div style="margin-top:6px;padding:6px;background:rgba(59,130,246,0.1);border-radius:6px;border:1px solid rgba(59,130,246,0.2);">';
-      instructionHTML += '<div style="font-size:10px;font-weight:700;color:#60a5fa;margin-bottom:3px;">📋 MEASURE NEXT:</div>';
-      result.nextMeasurements.slice(0,3).forEach(n=>{
-        instructionHTML += `<div style="font-size:10px;color:var(--text2);margin-bottom:2px;">→ ${n}</div>`;
-      });
-      instructionHTML += '</div>';
-    }
-    document.getElementById('ai-instruction').innerHTML=instructionHTML;
-    renderAIClickList();
-
-    // switch to measure tab and show guide
-    switchTab('measure');
-    showMode(`🤖 AI found ${aiPoints.length} click points — follow the markers!`,'purple');
-
-  }catch(e){
-    alert('AI Analysis error: '+e.message+'\n\nMake sure you are connected to the internet.');
-  }
-
-  showLoad(false);
-  document.getElementById('main-spinner').classList.remove('ai-spinner');
-  btn.classList.remove('ai-analyzing');
-  btn.textContent='🤖 AI Analyze This Sheet';
-}
-
-function renderAIClickList(){
-  const list=document.getElementById('ai-click-list');
-  list.innerHTML=aiPoints.map((p,i)=>`
-    <div class="ai-click-item ${i<aiCurrentIdx?'done':i===aiCurrentIdx?'current':''}" id="ai-item-${i}" onclick="jumpToAIPoint(${i})">
-      <div class="ai-num ${i<aiCurrentIdx?'done':i===aiCurrentIdx?'current':'pending'}">${i<aiCurrentIdx?'✓':i+1}</div>
-      <div>
-        <div style="font-weight:600;font-size:11px;">${p.label||'Point '+(i+1)}</div>
-        <div style="font-size:10px;color:var(--text2);">x:${Math.round(p.x)} y:${Math.round(p.y)}</div>
-      </div>
-      ${i===aiCurrentIdx?'<span style="margin-left:auto;font-size:10px;color:var(--accent);">← NEXT</span>':''}
-    </div>
-  `).join('');
-}
-
-function jumpToAIPoint(i){
-  // pan/zoom to center on that point
-  const vpEl=document.getElementById('pdf-viewport');
-  const targetX=aiPoints[i].x*vz+vx;
-  const targetY=aiPoints[i].y*vz+vy;
-  const cx=vpEl.clientWidth/2,cy=vpEl.clientHeight/2;
-  vx+=cx-targetX;vy+=cy-targetY;
-  applyT();
-}
-
-function applyAIPoints(){
-  // convert AI points into a measurement automatically
-  if(!pxPerUnit){alert('Calibrate scale first.');return;}
-  if(!aiPoints.length)return;
-  const m={
-    id:Date.now(),
-    type:aiMeasureType,
-    label:aiMeasureLabel,
-    points:aiPoints.map(p=>({x:p.x,y:p.y})),
-    page:curPage,
-    complete:true
-  };
-  m.value=calcVal(m);
-  measurements.push(m);
-  aiCurrentIdx=aiPoints.length;
-  renderAIClickList();
-  drawAIOverlay();
-  redraw();
-  updateList();
-  updateStats();
-  showMode(`✅ ${aiMeasureLabel} added — ${m.value?m.value.toFixed(m.type==='linear'?1:0):'?'} ${m.type==='area'?'SF':m.type==='linear'?'LF':'EA'}`);
-  setTimeout(()=>showMode(''),3000);
-}
-
-function clearAIGuide(){
-  clearAIOverlay();
-  showMode('');
-}
-
-// ── TOOLS ──
+// \u2500\u2500 TOOLS \u2500\u2500
 function setTool(t,skipClear=false){
-  if(curM) finalizeM();
+  if(curM)finalizeM();
   curTool=t;
-  if(!skipClear) calMode=false;
-  ['area','linear','count'].forEach(id=>{
-    const el=document.getElementById('btn-'+id);
-    if(el) el.classList.toggle('active',t===id);
-  });
-  document.getElementById('btn-none').classList.toggle('active',t===null);
+  if(!skipClear){calMode=false;roomMode=false;document.getElementById('btn-room').classList.remove('active');hideRoomHint();}
+  ['area','linear','count'].forEach(id=>{const el=document.getElementById('btn-'+id);if(el)el.classList.toggle('active',t===id);});
+  document.getElementById('btn-none').classList.toggle('active',t===null&&!calMode&&!roomMode);
   updateCursor();
   if(t){
-    const labels={area:'📐 AREA — click corners, double-click to finish',linear:'📏 LINEAR — click start then end',count:'🔢 COUNT — click each item'};
-    showMode(labels[t]);
-  } else {
+    const labels={area:'\ud83d\udcd0 AREA TOOL \u2014 click corners, double-click to finish',linear:'\ud83d\udccf LINEAR TOOL \u2014 click start then end point',count:'\ud83d\udd22 COUNT TOOL \u2014 click each item'};
+    showMode(labels[t],'yellow');
+  }else if(!calMode&&!roomMode){
     showMode('');
     document.getElementById('cur-hint').style.display='none';
   }
@@ -931,24 +1204,24 @@ function clearAll(){
   if(!confirm('Clear all measurements?'))return;
   measurements=[];curM=null;calPts=[];pxPerUnit=null;
   document.getElementById('cal-status').className='cal-status bad';
-  document.getElementById('cal-status').textContent='⚠️ Not calibrated';
-  redraw();clearAIOverlay();updateList();updateStats();
+  document.getElementById('cal-status').textContent='\u26a0\ufe0f Not calibrated \u2014 set scale first';
+  redraw();updateList();updateStats();
 }
 
 function deleteMeasurement(i){measurements.splice(i,1);updateList();updateStats();redraw();}
 
-// ── UI ──
+// \u2500\u2500 UI \u2500\u2500
 function updateList(){
   const el=document.getElementById('m-list');
   if(!measurements.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">📐</div><div class="empty-txt">Calibrate → pick tool → click to measure.</div></div>';
+    el.innerHTML='<div class="empty"><div class="empty-icon">\ud83d\udcd0</div><div class="empty-txt">Calibrate \u2192 use \ud83c\udfaf Click a Room<br>or pick a tool and measure manually.</div></div>';
     updateResults();return;
   }
   const units={area:'SF',linear:'LF',count:'EA'};
   el.innerHTML=measurements.map((m,i)=>`
     <div class="mi">
-      <button class="mi-del" onclick="deleteMeasurement(${i})">✕</button>
-      <div class="mi-header">
+      <button class="mi-del" onclick="deleteMeasurement(${i})">\u2715</button>
+      <div class="mi-hdr">
         <div>
           <div class="mi-name">${m.label}</div>
           <div class="mi-type"><span class="badge b-${m.type}" style="margin-bottom:0;">${m.type.toUpperCase()}</span> pg ${m.page}</div>
@@ -962,9 +1235,9 @@ function updateList(){
 
 function fmtV(m){
   if(m.type==='count')return m.points.length;
-  if(m.type==='linear')return m.value?m.value.toFixed(1):'—';
-  if(m.type==='area')return m.value?m.value.toFixed(0):'—';
-  return'—';
+  if(m.type==='linear')return m.value?m.value.toFixed(1):'\u2014';
+  if(m.type==='area')return m.value?m.value.toFixed(0):'\u2014';
+  return'\u2014';
 }
 
 function updateStats(){
@@ -975,74 +1248,35 @@ function updateStats(){
 
 function updateResults(){
   const el=document.getElementById('results-content');
-  if(!measurements.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div class="empty-txt">Add measurements to see summary.</div></div>';return;}
+  if(!measurements.length){el.innerHTML='<div class="empty"><div class="empty-icon">\ud83d\udcca</div><div class="empty-txt">Add measurements to see summary.</div></div>';return;}
   const areas=measurements.filter(m=>m.type==='area');
   const lins=measurements.filter(m=>m.type==='linear');
   const cnts=measurements.filter(m=>m.type==='count');
   const row=(l,v,u,c)=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;"><span>${l}</span><span style="color:${c};font-weight:700;">${v} ${u}</span></div>`;
   el.innerHTML=`
-    ${areas.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:6px;">📐 AREAS</div>${areas.map(m=>row(m.label,m.value?m.value.toFixed(0):'—','SF','#3b82f6')).join('')}<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:12px;font-weight:700;"><span>TOTAL</span><span style="color:var(--accent);">${areas.reduce((s,m)=>s+(m.value||0),0).toFixed(0)} SF</span></div></div>`:''}
-    ${lins.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#10b981;margin-bottom:6px;">📏 LINEAR</div>${lins.map(m=>row(m.label,m.value?m.value.toFixed(1):'—','LF','#10b981')).join('')}</div>`:''}
-    ${cnts.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px;">🔢 COUNTS</div>${cnts.map(m=>row(m.label,m.points.length,'EA','#8b5cf6')).join('')}</div>`:''}
+    ${areas.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#3b82f6;margin-bottom:6px;">\ud83d\udcd0 AREAS</div>${areas.map(m=>row(m.label,m.value?m.value.toFixed(0):'\u2014','SF','#3b82f6')).join('')}<div style="display:flex;justify-content:space-between;padding:7px 0;font-size:12px;font-weight:700;"><span>TOTAL</span><span style="color:var(--accent);">${areas.reduce((s,m)=>s+(m.value||0),0).toFixed(0)} SF</span></div></div>`:''}
+    ${lins.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#10b981;margin-bottom:6px;">\ud83d\udccf LINEAR</div>${lins.map(m=>row(m.label,m.value?m.value.toFixed(1):'\u2014','LF','#10b981')).join('')}</div>`:''}
+    ${cnts.length?`<div style="margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8b5cf6;margin-bottom:6px;">\ud83d\udd22 COUNTS</div>${cnts.map(m=>row(m.label,m.points.length,'EA','#8b5cf6')).join('')}</div>`:''}
   `;
 }
 
-// ── AI GUIDES (right panel) ──
-const guides=[
-  {id:'footprint',icon:'🏢',title:'Building Footprint / Slab',desc:'First floor plan. Largest cost driver.',tool:'area',steps:['Open First Floor Plan','Calibrate using bay spacing','Select AREA or click 🤖 AI Analyze','Trace building perimeter corners','Double-click to close']},
-  {id:'roof',icon:'🏠',title:'Roof Area',desc:'Roof Plan sheet. Apply slope factor.',tool:'area',steps:['Open Roof Plan','AREA tool or 🤖 AI Analyze','Trace each roof plane','Apply slope factor: 4:12 = ×1.054']},
-  {id:'brick',icon:'🧱',title:'Brick / Cladding',desc:'Elevations sheet. Subtract openings.',tool:'area',steps:['Open Elevations','AREA tool','Measure each elevation','Subtract window and door openings','Total all 4 elevations']},
-  {id:'parking',icon:'🚗',title:'Parking / Paving',desc:'Site plan. Civil scope.',tool:'area',steps:['Open Site Plan','AREA tool — parking boundary','AREA tool — walkways separate','LINEAR — curb & gutter']},
-  {id:'walls',icon:'🪟',title:'Interior Walls',desc:'Floor plan. LF drives framing + drywall.',tool:'linear',steps:['Open Floor Plan','LINEAR tool','Trace each interior wall centerline','Total LF × ceiling height × 2 = drywall SF']},
-  {id:'gradebeam',icon:'🏗️',title:'Grade Beam',desc:'Foundation plan. Perimeter LF.',tool:'linear',steps:['Open Foundation Plan','LINEAR tool','Trace full building perimeter','Add interior grade beams']},
-];
-
-function renderGuides(){
-  document.getElementById('ag-list').innerHTML=guides.map(g=>`
-    <div class="ag-item" id="ag-${g.id}" onclick="toggleGuide('${g.id}')">
-      <div class="ag-title">${g.icon} ${g.title}<span class="badge b-${g.tool}" style="margin-left:auto;margin-bottom:0;">${g.tool}</span></div>
-      <div class="ag-desc">${g.desc}</div>
-      <div class="ag-steps">
-        ${g.steps.map((s,i)=>`<div class="ag-step"><div class="ag-n">${i+1}</div><div>${s}</div></div>`).join('')}
-        <button class="tb" onclick="event.stopPropagation();activateGuide('${g.id}')" style="width:100%;margin-top:7px;display:flex;justify-content:center;background:rgba(16,185,129,0.15);border-color:var(--green);color:var(--green);">▶ Start</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function toggleGuide(id){
-  const el=document.getElementById('ag-'+id);
-  const was=el.classList.contains('open');
-  document.querySelectorAll('.ag-item').forEach(e=>e.classList.remove('open'));
-  if(!was)el.classList.add('open');
-}
-
-function activateGuide(id){
-  const g=guides.find(x=>x.id===id);
-  if(!g)return;
-  setTool(g.tool);setLbl(g.title);switchTab('measure');
-}
-
-// ── MISC ──
 function switchTab(t){
-  document.querySelectorAll('.panel-tab').forEach(e=>e.classList.remove('active'));
-  document.querySelectorAll('.panel-content').forEach(e=>e.style.display='none');
+  document.querySelectorAll('.ptab').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.pcontent').forEach(e=>e.style.display='none');
   document.getElementById('tab-'+t).classList.add('active');
   document.getElementById('panel-'+t).style.display='block';
 }
 
 function setLbl(t){document.getElementById('m-label').value=t;}
-
-function showMode(txt,style=''){
+function showMode(txt,style='yellow'){
   const el=document.getElementById('mode-ind');
-  el.className='mode-indicator'+(style?' '+style:'');
+  el.className='mode-ind '+style;
   if(txt){el.textContent=txt;el.classList.add('visible');}
   else el.classList.remove('visible');
 }
-
 function showLoad(v,txt='Loading...'){
-  document.getElementById('loading').classList.toggle('visible',v);
-  document.getElementById('loading-txt').textContent=txt;
+  document.getElementById('loading-ov').classList.toggle('visible',v);
+  document.getElementById('load-txt').textContent=txt;
 }
 
 function dragOver(e){e.preventDefault();document.getElementById('upload-zone').classList.add('drag-over');}
@@ -1058,11 +1292,17 @@ function drop(e){
 
 function exportCSV(){
   if(!measurements.length){alert('No measurements yet.');return;}
-  let csv=`BuildIQ Takeoff\nProject: ${projName}\nDate: ${new Date().toLocaleDateString()}\n\nLabel,Type,Value,Unit,Page\n`;
+  let csv=`BuildIQ Takeoff
+Project: ${projName}
+Date: ${new Date().toLocaleDateString()}
+
+Label,Type,Value,Unit,Page
+`;
   measurements.forEach(m=>{
     const u=m.type==='area'?'SF':m.type==='linear'?'LF':'EA';
     const v=m.type==='count'?m.points.length:(m.value?m.value.toFixed(m.type==='linear'?1:0):0);
-    csv+=`"${m.label}",${m.type.toUpperCase()},${v},${u},${m.page}\n`;
+    csv+=`"${m.label}",${m.type.toUpperCase()},${v},${u},${m.page}
+`;
   });
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   a.download=`BuildIQ_${projName}_${new Date().toISOString().split('T')[0]}.csv`;a.click();
@@ -1072,13 +1312,14 @@ function copyQty(){
   if(!measurements.length){alert('No measurements yet.');return;}
   const u=m=>m.type==='area'?'SF':m.type==='linear'?'LF':'EA';
   const v=m=>m.type==='count'?m.points.length:(m.value?m.value.toFixed(1):0);
-  navigator.clipboard.writeText(measurements.map(m=>`${m.label}: ${v(m)} ${u(m)}`).join('\n')).then(()=>{
+  navigator.clipboard.writeText(measurements.map(m=>`${m.label}: ${v(m)} ${u(m)}`).join('
+')).then(()=>{
     const btn=document.querySelector('.exp-btn.sec');const orig=btn.textContent;
-    btn.textContent='✅ Copied!';setTimeout(()=>btn.textContent=orig,2000);
+    btn.textContent='\u2705 Copied!';setTimeout(()=>btn.textContent=orig,2000);
   });
 }
 
-renderGuides();switchTab('measure');
+switchTab('measure');
 </script>
 </body>
 </html>
