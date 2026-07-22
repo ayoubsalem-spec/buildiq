@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BuildIQ — AI Chief Estimator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  // Set PDF.js worker immediately when script loads
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
 <style>
 :root{--bg:#0f1117;--s1:#1a1d27;--s2:#222535;--bd:#2e3348;--acc:#f59e0b;--tx:#e8eaf0;--tx2:#8b90a7;--grn:#10b981;--red:#ef4444;--blu:#3b82f6;--pur:#8b5cf6;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -530,42 +536,64 @@ async function loadPDF(file) {
   document.getElementById('proj-name').textContent = projName;
   document.getElementById('upload-btn-text').textContent = 'Change Drawing';
   document.getElementById('run-est-btn').disabled = false;
-  document.getElementById('est-ready-msg').innerHTML = `<strong style="color:var(--grn)">✅ ${projName}</strong> ready to analyze`;
+  document.getElementById('est-ready-msg').innerHTML = '<strong style="color:var(--grn)">\u2705 ' + projName + '</strong> ready to analyze';
 
-  const buf = await file.arrayBuffer();
-  pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
-  totalPages = pdfDoc.numPages;
-  document.getElementById('page-count').textContent = totalPages + ' pages';
-  document.getElementById('page-count').style.display = 'inline';
-  document.getElementById('total-pages-display').textContent = totalPages;
+  try {
+    const buf = await file.arrayBuffer();
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+    totalPages = pdfDoc.numPages;
+    document.getElementById('page-count').textContent = totalPages + ' pages';
+    document.getElementById('page-count').style.display = 'inline';
+    document.getElementById('total-pages-display').textContent = totalPages;
 
-  document.getElementById('upload-drop').style.display = 'none';
-  const viewer = document.getElementById('pdf-viewer');
-  viewer.style.display = 'flex';
+    document.getElementById('upload-drop').style.display = 'none';
+    const viewer = document.getElementById('pdf-viewer');
+    viewer.style.display = 'flex';
+    viewer.style.flexDirection = 'column';
+    viewer.style.flex = '1';
+    viewer.style.overflow = 'hidden';
 
-  curPage = 1;
-  await renderPage(curPage, true);
-  toast(`✅ ${projName} — ${totalPages} pages loaded`);
-  switchTab('measure');
+    curPage = 1;
+    setTimeout(async function() {
+      await renderPage(curPage, true);
+    }, 150);
+
+    toast(projName + ' loaded — ' + totalPages + ' pages. Calibrate scale to start.');
+    switchTab('measure');
+  } catch(e) {
+    toast('Error loading PDF: ' + e.message, '#ef4444');
+  }
 }
 
-async function renderPage(num, resetView=false) {
+async function renderPage(num, doReset) {
   if (!pdfDoc) return;
+  if (doReset === undefined) doReset = false;
   document.getElementById('cur-page-display').textContent = num;
   const page = await pdfDoc.getPage(num);
   const scale = 1.5;
-  const vp = page.getViewport({ scale });
+  const vp = page.getViewport({ scale: scale });
   const canvas = document.getElementById('pdf-canvas');
   const overlay = document.getElementById('overlay-canvas');
   canvas.width = vp.width; canvas.height = vp.height;
   overlay.width = vp.width; overlay.height = vp.height;
+  // Render the PDF page
   await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-  if (resetView) {
+  // Set up pan container
+  const panContainer = document.getElementById('pdf-pan-container');
+  if (panContainer) panContainer.style.transformOrigin = '0 0';
+  if (doReset) {
     const vpEl = document.getElementById('pdf-viewport');
-    fitZ = Math.min((vpEl.clientWidth - 40) / vp.width, (vpEl.clientHeight - 40) / vp.height);
-    vz = fitZ;
-    vx = (vpEl.clientWidth - vp.width * vz) / 2;
-    vy = (vpEl.clientHeight - vp.height * vz) / 2;
+    if (vpEl && vp.width > 0) {
+      fitZ = Math.min(
+        (vpEl.clientWidth - 40) / vp.width,
+        (vpEl.clientHeight - 40) / vp.height
+      );
+      if (fitZ <= 0 || isNaN(fitZ)) fitZ = 1;
+      vz = fitZ;
+      vx = Math.max(0, (vpEl.clientWidth - vp.width * vz) / 2);
+      vy = 20;
+    }
     applyTransform();
   }
   redrawOverlay();
