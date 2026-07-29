@@ -17,7 +17,9 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .badge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
 .app{display:flex;flex:1;overflow:hidden;}
 .left{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;position:relative;}
-.toolbar{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:6px 10px 6px 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:absolute;top:10px;left:10px;z-index:30;box-shadow:0 6px 22px rgba(0,0,0,0.45);max-width:calc(100% - 20px);}
+.toolbar{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:6px 10px 6px 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:absolute;top:10px;left:10px;z-index:30;box-shadow:0 6px 22px rgba(0,0,0,0.45);max-width:calc(100% - 20px);transition:padding 0.15s ease;}
+.toolbar.collapsed{padding:6px;gap:0;}
+.toolbar.collapsed .tg{display:none;}
 .drag-handle{cursor:move;color:var(--text2);font-size:14px;padding:0 6px;user-select:none;touch-action:none;}
 .drag-handle:hover{color:var(--accent);}
 .tg{display:flex;align-items:center;gap:5px;padding-right:10px;border-right:1px solid var(--border);}
@@ -89,7 +91,12 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .nav-back{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
 .nav-next{flex:2;background:var(--accent);border:none;color:#000;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
 .nav-done{flex:2;background:var(--green);border:none;color:#fff;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
-.cl-panel{position:absolute;top:60px;right:16px;width:360px;max-height:70%;background:rgba(15,17,23,0.97);border:1px solid var(--purple);border-radius:10px;box-shadow:0 10px 34px rgba(0,0,0,0.55);z-index:25;display:none;overflow-y:auto;}
+.cl-panel{position:absolute;top:60px;right:16px;width:360px;max-height:70%;background:rgba(15,17,23,0.97);border:1px solid var(--purple);border-radius:10px;box-shadow:0 10px 34px rgba(0,0,0,0.55);z-index:25;display:none;overflow-y:auto;transition:width 0.15s ease;}
+.cl-panel.collapsed{width:44px;overflow:hidden;}
+.cl-panel.collapsed .cl-body{display:none;}
+.cl-panel.collapsed .cl-title span{display:none;}
+.collapse-btn{background:transparent;border:none;color:var(--text2);font-size:14px;cursor:pointer;padding:2px 6px;line-height:1;}
+.collapse-btn:hover{color:var(--accent);}
 .cl-panel.show{display:block;}
 .cl-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;}
 .cl-title{font-size:13px;font-weight:800;color:#a78bfa;}
@@ -162,6 +169,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 
     <div class="toolbar" id="toolbar" style="display:none;">
       <div class="drag-handle" id="toolbar-handle">&#x2630;</div>
+      <button class="collapse-btn" onclick="toggleToolbarCollapse()" title="Collapse/expand toolbar">&#x25C0;</button>
       <div class="tg">
         <button class="tb" onclick="changePg(-1)">&#9664;</button>
         <div class="pg-nav">
@@ -248,7 +256,8 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
       </div>
       <div class="cl-panel" id="cl-panel">
         <div class="cl-head" id="cl-head" style="cursor:move;">
-          <div class="cl-title">&#x1F4CB; Full Sheet Checklist &nbsp;<span style="opacity:0.5;font-size:10px;">(drag to move)</span></div>
+          <div class="cl-title">&#x1F4CB;<span>&nbsp;Full Sheet Checklist &nbsp;<span style="opacity:0.5;font-size:10px;">(drag to move)</span></span></div>
+          <button class="collapse-btn" onclick="toggleCLCollapse()" title="Collapse/expand checklist">&#x25B6;</button>
           <button class="gps-x" onclick="closeCL()">&#x2715;</button>
         </div>
         <div class="cl-body" id="cl-body"></div>
@@ -1044,6 +1053,19 @@ function makeDraggable(panel, handle) {
 }
 makeDraggable(document.getElementById('toolbar'), document.getElementById('toolbar-handle'));
 makeDraggable(document.getElementById('cl-panel'), document.getElementById('cl-head'));
+
+function toggleToolbarCollapse() {
+  var tb = document.getElementById('toolbar');
+  tb.classList.toggle('collapsed');
+  var btn = tb.querySelector('.collapse-btn');
+  btn.innerHTML = tb.classList.contains('collapsed') ? '&#x25B6;' : '&#x25C0;';
+}
+function toggleCLCollapse() {
+  var cl = document.getElementById('cl-panel');
+  cl.classList.toggle('collapsed');
+  var btn = cl.querySelector('.collapse-btn');
+  btn.innerHTML = cl.classList.contains('collapsed') ? '&#x25C0;' : '&#x25B6;';
+}
 
 </script>
 </body>
