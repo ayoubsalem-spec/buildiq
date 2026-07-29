@@ -45,6 +45,12 @@ const server = http.createServer(async (req, res) => {
           prompt = 'You are BuildIQ, an expert AI construction estimator. The user clicked inside a room on this construction drawing (' + width + 'x' + height + ' pixels).\n\nIdentify the room and give GPS-style step by step measurement instructions.\n\nReturn ONLY valid JSON in this exact format:\n{\n  "roomName": "Room name as labeled on drawing",\n  "roomType": "type of room",\n  "tool": "area",\n  "toolInstruction": "SELECT THE AREA TOOL - click Area in the toolbar",\n  "whyThisTool": "Why we use this tool for this measurement",\n  "dimensions": "dimensions if visible on drawing",\n  "steps": [\n    {"stepNumber": 1, "action": "Click SW corner - START HERE", "detail": "Click the bottom-left inside corner", "direction": "START HERE"},\n    {"stepNumber": 2, "action": "Click NW corner", "detail": "Move UP along the west wall and click top-left corner", "direction": "GO NORTH"},\n    {"stepNumber": 3, "action": "Click NE corner", "detail": "Move RIGHT along the north wall and click top-right corner", "direction": "GO EAST"},\n    {"stepNumber": 4, "action": "Click SE corner", "detail": "Move DOWN along the east wall and click bottom-right corner", "direction": "GO SOUTH"},\n    {"stepNumber": 5, "action": "Double-click to close", "detail": "Double-click near your starting point to close the shape", "direction": "CLOSE SHAPE"}\n  ],\n  "doorsToSubtract": [],\n  "windowsToSubtract": [],\n  "warnings": ["any notes about this room"]\n}';
         }
 
+        // Fullsheet scans return a long checklist (every room/measurement/count on
+        // the sheet) and can run past 2000 tokens, which was truncating the JSON
+        // mid-response and causing "Unexpected end of JSON input". Single-room
+        // clicks return a short, fixed-shape object, so they stay lower.
+        const maxTokens = mode === 'fullsheet' ? 8000 : 2000;
+
         const apiResp = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: {
@@ -54,7 +60,7 @@ const server = http.createServer(async (req, res) => {
           },
           body: JSON.stringify({
             model: 'claude-sonnet-4-6',
-            max_tokens: 2000,
+            max_tokens: maxTokens,
             messages: [{
               role: 'user',
               content: [
@@ -69,6 +75,17 @@ const server = http.createServer(async (req, res) => {
         if (!apiResp.ok) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'API error: ' + JSON.stringify(data) }));
+          return;
+        }
+
+        // If Claude's reply got cut off by hitting max_tokens, stop_reason will say
+        // so explicitly -- catch that here with a clear message instead of letting
+        // it fail later as a confusing JSON parse error.
+        if (data.stop_reason === 'max_tokens') {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            error: 'Response was cut off before finishing (hit the token limit). Try increasing max_tokens further, or simplify the request.'
+          }));
           return;
         }
 
