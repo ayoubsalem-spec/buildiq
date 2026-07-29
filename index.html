@@ -15,7 +15,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .logo-text{font-size:17px;font-weight:800;letter-spacing:-0.5px;}
 .logo-text span{color:var(--accent);}
 .badge{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
-.app{display:flex;flex:1;overflow:hidden;}
+.app{display:flex;flex:1;overflow:hidden;position:relative;}
 .left{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;position:relative;}
 .toolbar{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:6px 10px 6px 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:absolute;top:10px;left:10px;z-index:30;box-shadow:0 6px 22px rgba(0,0,0,0.45);max-width:calc(100% - 20px);transition:padding 0.15s ease;}
 .toolbar.collapsed{padding:6px;gap:0;}
@@ -116,10 +116,11 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .pri{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;display:inline-block;margin-top:2px;}
 .pri.HIGH{background:rgba(239,68,68,0.2);color:var(--red);}
 .pri.MEDIUM{background:rgba(245,158,11,0.2);color:var(--accent);}
-.right{width:360px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;position:relative;transition:width 0.15s ease;}
+.right{width:360px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;transition:width 0.15s ease;}
 .right.collapsed{width:0;min-width:0;border-left:none;}
-.right-toggle{position:absolute;top:14px;left:-32px;width:32px;height:44px;background:var(--surface2);border:1px solid var(--border);border-right:none;border-radius:8px 0 0 8px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;z-index:40;font-weight:700;}
+.right-toggle{position:absolute;top:14px;right:360px;width:32px;height:44px;background:var(--surface2);border:1px solid var(--border);border-right:none;border-radius:8px 0 0 8px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;z-index:40;font-weight:700;transition:right 0.15s ease;}
 .right-toggle:hover{border-color:var(--accent);color:var(--accent);}
+.right-toggle.collapsed{right:0;}
 .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
 .tab{flex:1;padding:11px 4px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(245,158,11,0.04);}
@@ -284,8 +285,8 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
     </div>
   </div>
 
+  <button class="right-toggle" id="right-toggle" onclick="toggleRightPanel()" title="Collapse/expand panel">&#x25B6;</button>
   <div class="right" id="right-panel">
-    <button class="right-toggle" id="right-toggle" onclick="toggleRightPanel()" title="Collapse/expand panel">&#x25B6;</button>
     <div class="tabs">
       <div class="tab active" onclick="showTab('measure')" id="tab-measure">&#x1F4D0; MEASURE</div>
       <div class="tab" onclick="showTab('results')" id="tab-results">&#x1F4CA; RESULTS</div>
@@ -1093,7 +1094,13 @@ async function generateFullReport() {
     for (var i = 1; i <= totPages; i++) {
       btn.textContent = 'Reading page ' + i + ' of ' + totPages + '...';
       var page = await pdfDoc.getPage(i);
-      var vp = page.getViewport({ scale: 1.0 });
+      // Anthropic's API caps image dimensions at 2000px per side for
+      // many-image requests -- full-size architectural sheets are much
+      // bigger than that natively, so scale each page down to fit before
+      // rendering, instead of always using a fixed scale of 1.0.
+      var natVp = page.getViewport({ scale: 1.0 });
+      var reportScale = Math.min(1.0, 2000 / natVp.width, 2000 / natVp.height);
+      var vp = page.getViewport({ scale: reportScale });
       var offC = document.createElement('canvas');
       offC.width = vp.width;
       offC.height = vp.height;
@@ -1211,8 +1218,9 @@ function toggleCLCollapse() {
 }
 function toggleRightPanel() {
   var panel = document.getElementById('right-panel');
-  panel.classList.toggle('collapsed');
   var btn = document.getElementById('right-toggle');
+  panel.classList.toggle('collapsed');
+  btn.classList.toggle('collapsed');
   btn.innerHTML = panel.classList.contains('collapsed') ? '&#x25C0;' : '&#x25B6;';
 }
 
