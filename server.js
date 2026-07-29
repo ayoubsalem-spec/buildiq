@@ -25,6 +25,87 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'POST' && req.url === '/api/full-report') {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', async () => {
+      try {
+        if (!API_KEY) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured on server' }));
+          return;
+        }
+
+        const { images, projectName } = JSON.parse(body);
+        if (!images || !images.length) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'No page images provided' }));
+          return;
+        }
+
+        const prompt = 'You are BuildIQ, an AI Chief Estimator. You are given every page of a construction drawing set, in page order (page 1 is first, etc). Read the ENTIRE set before answering.\n\nProduce ONE structured project report. Return ONLY valid JSON in this exact format:\n{\n  "projectInfo": {\n    "projectName": "as shown on cover sheet",\n    "address": "project address",\n    "owner": "owner/client name if shown",\n    "engineeringFirm": "engineer or architect of record",\n    "planApprovalDate": "date if shown",\n    "totalBuildingArea": "SF if stated anywhere in the set",\n    "scopeSummary": "2-3 sentence plain-English summary of what this project is"\n  },\n  "drawingIndex": [\n    {"sheetNumber": "A-1", "pageInSet": 1, "title": "Cover Sheet", "category": "General", "keyNotes": "what this sheet shows and why it matters for estimating", "estimatingImpact": "HIGH/MEDIUM/LOW/NONE"}\n  ],\n  "scopeByTrade": [\n    {"csiDivision": "03 - Concrete", "whatIsShown": "summary of concrete scope across the set", "keySheets": ["list of sheet numbers with relevant detail"]}\n  ],\n  "statedQuantities": [\n    {"item": "name of quantity", "value": "value as stated", "sourceSheet": "sheet number"}\n  ],\n  "warnings": ["conflicts, missing info, or risks noticed across the set"]\n}\n\nBe thorough on drawingIndex -- include every sheet you were given, in order. Keep keyNotes to 1-2 sentences per sheet.';
+
+        const content = images.map(img => ({
+          type: 'image',
+          source: { type: 'base64', media_type: 'image/jpeg', data: img }
+        }));
+        content.push({ type: 'text', text: prompt });
+
+        const apiResp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': API_KEY,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 16000,
+            messages: [{ role: 'user', content: content }]
+          })
+        });
+
+        const data = await apiResp.json();
+        if (!apiResp.ok) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'API error: ' + JSON.stringify(data) }));
+          return;
+        }
+
+        if (data.stop_reason === 'max_tokens') {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            error: 'Report was cut off before finishing (hit the token limit). Try a smaller drawing set or raise max_tokens further.'
+          }));
+          return;
+        }
+
+        let raw = data.content[0].text.trim();
+        raw = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const jsonStart = raw.indexOf('{');
+        const jsonEnd = raw.lastIndexOf('}');
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+          raw = raw.substring(jsonStart, jsonEnd + 1);
+        }
+        let result;
+        try { result = JSON.parse(raw); }
+        catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Parse error: ' + e.message, raw: raw.substring(0, 300) }));
+          return;
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   if (req.method === 'POST' && req.url === '/api/analyze') {
     let body = '';
     req.on('data', chunk => body += chunk.toString());

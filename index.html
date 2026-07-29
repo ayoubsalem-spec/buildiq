@@ -289,6 +289,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
     <div class="tabs">
       <div class="tab active" onclick="showTab('measure')" id="tab-measure">&#x1F4D0; MEASURE</div>
       <div class="tab" onclick="showTab('results')" id="tab-results">&#x1F4CA; RESULTS</div>
+      <div class="tab" onclick="showTab('report')" id="tab-report">&#x1F4C4; REPORT</div>
       <div class="tab" onclick="showTab('help')" id="tab-help">? HELP</div>
     </div>
     <div class="panel" id="panel-measure">
@@ -336,6 +337,16 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
         <div class="card-title">Takeoff Summary</div>
         <div id="results-body"><div class="empty"><div class="empty-ico">&#x1F4CA;</div><div class="empty-txt">Add measurements to see summary.</div></div></div>
       </div>
+    </div>
+    <div class="panel" id="panel-report" style="display:none;">
+      <div class="card" id="report-controls">
+        <div class="card-title">Full Drawing Set Report</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px;">
+          Reads every page of the uploaded PDF and builds one project report: project info, a full drawing index, and scope by trade (CSI divisions). Takes longer than a single-sheet scan since it reads the whole set.
+        </div>
+        <button class="tb" id="btn-gen-report" onclick="generateFullReport()" style="width:100%;display:flex;justify-content:center;background:rgba(139,92,246,0.15);border-color:var(--purple);color:#a78bfa;font-weight:700;">&#x1F4C4; Generate Full Report</button>
+      </div>
+      <div id="report-body"></div>
     </div>
     <div class="panel" id="panel-help" style="display:none;">
       <div class="card">
@@ -1063,6 +1074,128 @@ function makeDraggable(panel, handle) {
 }
 makeDraggable(document.getElementById('toolbar'), document.getElementById('toolbar-handle'));
 makeDraggable(document.getElementById('cl-panel'), document.getElementById('cl-head'));
+
+// FULL DRAWING SET REPORT — reads every page of the uploaded PDF in one pass
+// and produces a single structured, printable project report.
+async function generateFullReport() {
+  if (!pdfDoc) { alert('Upload a drawing first.'); return; }
+  var btn = document.getElementById('btn-gen-report');
+  var body = document.getElementById('report-body');
+  btn.disabled = true;
+  btn.textContent = 'Reading page 1 of ' + totPages + '...';
+  body.innerHTML = '';
+
+  try {
+    var images = [];
+    // Render every page to its own offscreen canvas -- separate from the
+    // on-screen pdf-canvas so this doesn't disturb whatever page the user is
+    // currently viewing/measuring on.
+    for (var i = 1; i <= totPages; i++) {
+      btn.textContent = 'Reading page ' + i + ' of ' + totPages + '...';
+      var page = await pdfDoc.getPage(i);
+      var vp = page.getViewport({ scale: 1.0 });
+      var offC = document.createElement('canvas');
+      offC.width = vp.width;
+      offC.height = vp.height;
+      var offX = offC.getContext('2d');
+      await page.render({ canvasContext: offX, viewport: vp }).promise;
+      images.push(offC.toDataURL('image/jpeg', 0.6).split(',')[1]);
+    }
+
+    btn.textContent = 'AI is analyzing all ' + totPages + ' pages...';
+    var resp = await fetch('/api/full-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ images: images, projectName: projName })
+    });
+    if (!resp.ok) {
+      var err = await resp.json().catch(function () { return {}; });
+      throw new Error(err.error || 'Server error ' + resp.status);
+    }
+    var report = await resp.json();
+    renderReport(report);
+  } catch (e) {
+    body.innerHTML = '<div class="card"><div style="color:var(--red);font-size:12px;">Report failed: ' + e.message + '</div></div>';
+  }
+  btn.disabled = false;
+  btn.textContent = '\u{1F4C4} Generate Full Report';
+}
+
+function renderReport(r) {
+  var body = document.getElementById('report-body');
+  var html = '<div id="report-print-area">';
+
+  if (r.projectInfo) {
+    var p = r.projectInfo;
+    html += '<div class="card"><div class="card-title">Project Info</div>' +
+      '<div style="font-size:12px;line-height:1.9;">' +
+      (p.projectName ? '<strong>Project:</strong> ' + p.projectName + '<br>' : '') +
+      (p.address ? '<strong>Address:</strong> ' + p.address + '<br>' : '') +
+      (p.owner ? '<strong>Owner:</strong> ' + p.owner + '<br>' : '') +
+      (p.engineeringFirm ? '<strong>Engineer/Architect:</strong> ' + p.engineeringFirm + '<br>' : '') +
+      (p.planApprovalDate ? '<strong>Plan Approval Date:</strong> ' + p.planApprovalDate + '<br>' : '') +
+      (p.totalBuildingArea ? '<strong>Total Building Area:</strong> ' + p.totalBuildingArea + '<br>' : '') +
+      (p.scopeSummary ? '<div style="margin-top:6px;color:var(--text2);">' + p.scopeSummary + '</div>' : '') +
+      '</div></div>';
+  }
+
+  if (r.drawingIndex && r.drawingIndex.length) {
+    html += '<div class="card"><div class="card-title">Drawing Index (' + r.drawingIndex.length + ' sheets)</div>';
+    r.drawingIndex.forEach(function (s) {
+      html += '<div style="border-bottom:1px solid var(--border);padding:8px 0;font-size:12px;">' +
+        '<strong>' + (s.sheetNumber || '') + '</strong> — ' + (s.title || '') +
+        ' <span class="pri ' + (s.estimatingImpact || '') + '">' + (s.estimatingImpact || '') + '</span>' +
+        '<div style="color:var(--text2);margin-top:2px;">' + (s.keyNotes || '') + '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  if (r.scopeByTrade && r.scopeByTrade.length) {
+    html += '<div class="card"><div class="card-title">Scope by Trade (CSI Divisions)</div>';
+    r.scopeByTrade.forEach(function (t) {
+      html += '<div style="border-bottom:1px solid var(--border);padding:8px 0;font-size:12px;">' +
+        '<strong>' + (t.csiDivision || '') + '</strong>' +
+        '<div style="color:var(--text2);margin-top:2px;">' + (t.whatIsShown || '') + '</div>' +
+        (t.keySheets && t.keySheets.length ? '<div style="margin-top:2px;font-size:11px;">Sheets: ' + t.keySheets.join(', ') + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (r.statedQuantities && r.statedQuantities.length) {
+    html += '<div class="card"><div class="card-title">Stated Quantities</div>';
+    r.statedQuantities.forEach(function (q) {
+      html += '<div style="font-size:12px;padding:4px 0;"><strong>' + q.item + ':</strong> ' + q.value +
+        (q.sourceSheet ? ' <span style="color:var(--text2);">(' + q.sourceSheet + ')</span>' : '') + '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (r.warnings && r.warnings.length) {
+    html += '<div class="card"><div class="card-title">Flags</div>';
+    r.warnings.forEach(function (w) {
+      html += '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:11px;">' + w + '</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>' +
+    '<button class="tb" onclick="printReport()" style="width:100%;display:flex;justify-content:center;margin-top:8px;">&#x1F5A8; Print / Save as PDF</button>';
+
+  body.innerHTML = html;
+}
+
+function printReport() {
+  var printArea = document.getElementById('report-print-area');
+  if (!printArea) return;
+  var w = window.open('', '_blank');
+  w.document.write('<html><head><title>' + (projName || 'BuildIQ Report') + '</title>' +
+    '<style>body{font-family:Arial,sans-serif;color:#111;padding:24px;} .card{margin-bottom:18px;} .card-title{font-weight:700;font-size:15px;margin-bottom:8px;border-bottom:2px solid #333;padding-bottom:4px;} .pri{font-size:10px;padding:1px 6px;border-radius:3px;background:#eee;margin-left:6px;}</style>' +
+    '</head><body><h2>' + (projName || 'Drawing Set Report') + '</h2>' + printArea.innerHTML + '</body></html>');
+  w.document.close();
+  w.focus();
+  setTimeout(function () { w.print(); }, 300);
+}
 
 function toggleToolbarCollapse() {
   var tb = document.getElementById('toolbar');
