@@ -116,7 +116,10 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .pri{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;display:inline-block;margin-top:2px;}
 .pri.HIGH{background:rgba(239,68,68,0.2);color:var(--red);}
 .pri.MEDIUM{background:rgba(245,158,11,0.2);color:var(--accent);}
-.right{width:360px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;}
+.right{width:360px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;position:relative;transition:width 0.15s ease;}
+.right.collapsed{width:0;min-width:0;border-left:none;}
+.right-toggle{position:absolute;top:14px;left:-32px;width:32px;height:44px;background:var(--surface2);border:1px solid var(--border);border-right:none;border-radius:8px 0 0 8px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;z-index:40;font-weight:700;}
+.right-toggle:hover{border-color:var(--accent);color:var(--accent);}
 .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
 .tab{flex:1;padding:11px 4px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;border-bottom:2px solid transparent;}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(245,158,11,0.04);}
@@ -281,7 +284,8 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
     </div>
   </div>
 
-  <div class="right">
+  <div class="right" id="right-panel">
+    <button class="right-toggle" id="right-toggle" onclick="toggleRightPanel()" title="Collapse/expand panel">&#x25B6;</button>
     <div class="tabs">
       <div class="tab active" onclick="showTab('measure')" id="tab-measure">&#x1F4D0; MEASURE</div>
       <div class="tab" onclick="showTab('results')" id="tab-results">&#x1F4CA; RESULTS</div>
@@ -1071,6 +1075,12 @@ function toggleCLCollapse() {
   cl.classList.toggle('collapsed');
   var btn = document.getElementById('cl-collapse-btn');
   btn.innerHTML = cl.classList.contains('collapsed') ? '&#x25C0;' : '&#x25B6;';
+}
+function toggleRightPanel() {
+  var panel = document.getElementById('right-panel');
+  panel.classList.toggle('collapsed');
+  var btn = document.getElementById('right-toggle');
+  btn.innerHTML = panel.classList.contains('collapsed') ? '&#x25C0;' : '&#x25B6;';
 }
 
 </script>
