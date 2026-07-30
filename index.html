@@ -688,6 +688,68 @@ async function doRoomClick(cp) {
     // the initial showPreview() call above only had the raw screenshot, no
     // location info yet, so it drew the generic fallback box.
     showPreview(cropC, gpsData.boundingBox);
+
+    // PASS 2 -- the first pass sees a wide 900x700 view covering a big chunk
+    // of the sheet, which is enough to correctly identify WHICH room this is
+    // and roughly WHERE it sits, but not enough detail to give pixel-precise
+    // corner-by-corner trace instructions -- that was sending users into
+    // neighboring rooms even when the room itself was identified correctly.
+    // Re-crop tightly around just the identified room's real document-space
+    // area (not the small preview canvas) at much higher resolution, and ask
+    // again specifically for refined, precise step instructions from that
+    // zoomed-in, more detailed view.
+    if (gpsData.boundingBox && gpsData.boundingBox.width > 0.02 && gpsData.boundingBox.height > 0.02) {
+      showLoader(true, 'Refining measurement steps...');
+      try {
+        // Convert the first pass's normalized box (fractions of the WIDE
+        // crop) back into real document-space pixels, so pass 2 can render
+        // a fresh, tight, high-resolution crop of just that region directly
+        // from the source PDF page rather than the small first-pass image.
+        var wideDocLeft = cropLeft - vx, wideDocTop = cropTop - vy; // undo pan, still in *screen* px at current zoom
+        var docX = (wideDocLeft + gpsData.boundingBox.x * cropC.width) / vz;
+        var docY = (wideDocTop + gpsData.boundingBox.y * cropC.height) / vz;
+        var docW = (gpsData.boundingBox.width * cropC.width) / vz;
+        var docH = (gpsData.boundingBox.height * cropC.height) / vz;
+        var pad = 0.25; // extra margin so the room's bounding walls are never clipped
+        docX -= docW * pad; docY -= docH * pad; docW *= (1 + 2 * pad); docH *= (1 + 2 * pad);
+
+        var tightC = document.createElement('canvas');
+        var tightScale = Math.min(1600 / docW, 1600 / docH, 4); // render this specific region at up to 4x detail
+        tightC.width = Math.round(docW * tightScale);
+        tightC.height = Math.round(docH * tightScale);
+        var tightCtx = tightC.getContext('2d');
+        tightCtx.fillStyle = '#fff'; tightCtx.fillRect(0, 0, tightC.width, tightC.height);
+        tightCtx.save();
+        tightCtx.scale(tightScale, tightScale);
+        tightCtx.translate(-docX, -docY);
+        tightCtx.drawImage(pdfC, 0, 0);
+        tightCtx.restore();
+        var tightB64 = tightC.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+        var resp2 = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({imageBase64: tightB64, width: tightC.width, height: tightC.height, mode: 'room', knownRoomName: gpsData.roomName})
+        });
+        if (resp2.ok) {
+          var refined = await resp2.json();
+          // Only replace the step-by-step instructions with the refined,
+          // higher-detail pass -- keep the original roomName/tool from pass 1
+          // as the source of truth for what room this actually is.
+          if (refined.steps && refined.steps.length) {
+            gpsData.steps = refined.steps;
+            gpsData.dimensions = refined.dimensions || gpsData.dimensions;
+            gpsData.doorsToSubtract = refined.doorsToSubtract || gpsData.doorsToSubtract;
+            gpsData.windowsToSubtract = refined.windowsToSubtract || gpsData.windowsToSubtract;
+          }
+        }
+      } catch (e2) {
+        // Pass 2 is a refinement, not a hard requirement -- if it fails for
+        // any reason, silently keep pass 1's steps rather than blocking the
+        // whole flow on a secondary request.
+      }
+    }
+
     gpsStep = 0;
     showGPS();
     hideMode();
