@@ -60,7 +60,11 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .spin.purple{border-top-color:var(--purple);}
 @keyframes spin{to{transform:rotate(360deg);}}
 .load-msg{font-size:13px;color:var(--text2);text-align:center;max-width:260px;line-height:1.5;}
-.gps-panel{position:absolute;bottom:0;left:0;right:0;background:rgba(15,17,23,0.97);border-top:2px solid var(--accent);z-index:25;display:none;max-height:65%;overflow-y:auto;transition:max-height 0.15s ease;}
+.gps-panel{position:absolute;bottom:0;left:0;right:0;background:rgba(15,17,23,0.97);border-top:2px solid var(--accent);z-index:25;display:none;height:65%;overflow-y:auto;}
+.gps-panel.resizing{transition:none;}
+.gps-resize-handle{position:sticky;top:0;left:0;right:0;height:14px;cursor:ns-resize;display:flex;align-items:center;justify-content:center;background:rgba(15,17,23,0.97);z-index:1;}
+.gps-resize-handle::after{content:"";width:40px;height:4px;border-radius:2px;background:var(--border);}
+.gps-resize-handle:hover::after{background:var(--accent);}
 .gps-panel.show{display:block;}
 .gps-panel.minimized{max-height:52px;overflow:hidden;}
 .gps-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);}
@@ -176,7 +180,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
     <span id="proj-name" style="font-size:12px;color:var(--text2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-    <div class="badge">AI CHIEF ESTIMATOR</div>
+    <div class="badge">BIDBOSS</div>
   </div>
 </header>
 
@@ -244,6 +248,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
       <div class="mode-bar" id="mode-bar"></div>
       <div class="room-banner" id="room-banner">&#x1F3AF; ROOM MODE &mdash; Click anywhere inside a room</div>
       <div class="gps-panel" id="gps-panel">
+        <div class="gps-resize-handle" id="gps-resize-handle" title="Drag to resize"></div>
         <div class="gps-head">
           <div>
             <div class="gps-title" id="gps-title">...</div>
@@ -643,7 +648,25 @@ async function doRoomClick(cp) {
   cropC.width = Math.min(vpRect.width, 900);
   cropC.height = Math.min(vpRect.height, 700);
   var ctx = cropC.getContext('2d');
-  ctx.save(); ctx.translate(vx, vy); ctx.scale(vz, vz);
+
+  // The crop used to always be anchored at the viewport's top-left corner,
+  // completely ignoring where the user actually clicked (cp). At higher
+  // zoom levels the clicked room usually happened to fall inside that fixed
+  // region by luck, but zoomed out -- with more of the drawing visible at
+  // once -- a click anywhere outside the top-left 900x700px area sent an
+  // image to the AI that didn't contain the clicked room at all, or only
+  // partially. Center the crop on the actual click point instead, so the
+  // room under the cursor is always well inside frame regardless of zoom
+  // or where on the sheet it was clicked.
+  var clickScreenX = cp.x * vz + vx;
+  var clickScreenY = cp.y * vz + vy;
+  var cropLeft = clickScreenX - cropC.width / 2;
+  var cropTop = clickScreenY - cropC.height / 2;
+
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cropC.width, cropC.height); // paper background in case the crop extends past the drawing's edge
+  ctx.save();
+  ctx.translate(-cropLeft, -cropTop);
+  ctx.translate(vx, vy); ctx.scale(vz, vz);
   ctx.drawImage(pdfC, 0, 0); ctx.restore();
   var b64 = cropC.toDataURL('image/jpeg', 0.75).split(',')[1];
   showPreview(cropC);
@@ -1324,6 +1347,38 @@ function toggleGPSMinimize() {
   var btn = document.getElementById('gps-min-btn');
   btn.innerHTML = panel.classList.contains('minimized') ? '&#x25B2;' : '&#x25BC;';
 }
+
+// GPS panel resize -- drag the handle at its top edge to make it taller or
+// shorter, instead of only being able to collapse it to a fixed strip.
+(function () {
+  var panel = document.getElementById('gps-panel');
+  var handle = document.getElementById('gps-resize-handle');
+  var dragging = false, startY = 0, startH = 0;
+  handle.addEventListener('mousedown', function (e) {
+    e.stopPropagation();
+    if (panel.classList.contains('minimized')) return; // don't resize while collapsed
+    dragging = true;
+    startY = e.clientY;
+    startH = panel.getBoundingClientRect().height;
+    panel.classList.add('resizing');
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', function (e) {
+    if (!dragging) return;
+    // Dragging the top edge UP should make the panel TALLER (since it's
+    // anchored to the bottom), so height grows as the mouse moves up.
+    var dy = startY - e.clientY;
+    var vpH = panel.offsetParent.getBoundingClientRect().height;
+    var newH = Math.max(120, Math.min(startH + dy, vpH * 0.9));
+    panel.style.height = newH + 'px';
+  });
+  document.addEventListener('mouseup', function () {
+    if (!dragging) return;
+    dragging = false;
+    panel.classList.remove('resizing');
+    document.body.style.userSelect = '';
+  });
+})();
 
 </script>
 </body>
